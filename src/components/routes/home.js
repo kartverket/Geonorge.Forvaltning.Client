@@ -10,14 +10,10 @@ import { ContentContainer, HeadingText } from "@kartverket/geonorge-web-componen
 const Home = () => {
 
   console.log(process.env.SUPABASE_URL);
-
-    const [loading, setLoading] = useState(false)
-    const [email, setEmail] = useState('')
   
     const handleLogin = async (event) => {
       event.preventDefault()
   
-      setLoading(true)
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'keycloak',
         options: {
@@ -28,7 +24,7 @@ const Home = () => {
       if (error) {
         alert(error.error_description || error.message)
       }
-      setLoading(false)
+      
     };
     
     return (
