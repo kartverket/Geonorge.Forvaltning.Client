@@ -37,9 +37,6 @@ const Home = () => {
       setLoggedIn(true);
     }
 
-    const { data: { user } } = await supabase.auth.getUser();
-    console.log(user);
-
   };
 
   const handleLogout = async (event) => {
@@ -55,6 +52,10 @@ const Home = () => {
 
   const handleTestQyery = async (event) => {
     event.preventDefault()
+
+    var responseSession = await supabase.auth.getSession();
+    console.log(responseSession);
+    console.log("access_token: " + responseSession.data.session.access_token);
 
     const response = await supabase.from('bensinstasjoner').select()
  
