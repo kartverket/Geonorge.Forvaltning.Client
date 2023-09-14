@@ -37,6 +37,9 @@ const Home = () => {
       setLoggedIn(true);
     }
 
+    const { data: { user } } = await supabase.auth.getUser();
+    console.log(user);
+
   };
 
   const handleLogout = async (event) => {
@@ -48,6 +51,24 @@ const Home = () => {
     }
     cookies.set("loggedIn", false);
     setLoggedIn(false);
+  }
+
+  const handleTestQyery = async (event) => {
+    event.preventDefault()
+
+    const response = await supabase.from('bensinstasjoner').select()
+ 
+    console.log(response);
+    
+    var table = 'bensinstasjoner';
+    var json = { navn: 'Esso Tiger Tromsø', merke: 'Esso', bensin: true };
+    
+    const { error } = await supabase
+    .from(table)
+    .insert(json)
+    
+    console.log(error)
+
   }
 
   useEffect(() => {
@@ -68,9 +89,14 @@ const Home = () => {
                 </p>
                 }
                 {loggedIn &&
-                <p>
-                <button onClick={handleLogout}>Logg ut</button>
-                </p>
+                <div>
+                  <p>
+                  <button onClick={handleTestQyery}>Test query</button>
+                  </p>
+                  <p>
+                  <button onClick={handleLogout}>Logg ut</button>
+                  </p>
+                </div>
                 }
 
             </Fragment>
