@@ -31,21 +31,38 @@ const Objekt = () => {
   }, []);
 
   const omittedProps = [];
+  var counter = 0;
   
   //todo Error: Objects are not valid as a React child (found: object with keys {type, coordinates})
+  //first solution: api return object as string
 
     return (
-      <>
+      <table border="1">
+      <thead>
+      {objekt.definition !== undefined && (
+      <tr><th colSpan={objekt.definition.properties.length}>{objekt.definition.name}</th></tr>
+      )}
+      <tr>
+      {objekt.definition !== undefined && objekt.definition.properties.map(d => 
+              <th key={d.name}>{d.name}</th>
+          )
+      }
+      </tr>
+      </thead>
+      <tbody>
       {objekt.objekt !== undefined && objekt.objekt.map(d => (
         Object.keys(d).map(prop => (
           !omittedProps.includes(prop) && (
+            <>
             <tr>
-              <td>{d[prop]}</td>
+              <td key={d.id}>{d[prop].toString()}</td>
             </tr>
+            </>
           )
         ))
       ))}
-    </>
+      </tbody>
+    </table>
          
     );
 };
