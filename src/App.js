@@ -4,6 +4,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import NotFound from "./components/routes/notFound";
 
 import Home from "./components/routes/home";
+import Objekts from "./components/routes/objekts";
+import Objekt from "./components/routes/objekt";
 import Layout from "./components/layout"
 
 import style from "./App.module.scss";
@@ -23,6 +25,14 @@ function App() {
         {
           element: <Home />,
           index: true
+        },
+        {
+          element: <Objekts />,
+          path: "objekts"
+        },
+        {
+          element: <Objekt />,
+          path: "objekt/:id"
         },
         {
           element: <NotFound />,

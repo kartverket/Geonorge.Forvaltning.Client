@@ -6,6 +6,7 @@ import { supabase } from './supabaseClient'
 // eslint-disable-next-line no-unused-vars
 import { ContentContainer, HeadingText } from "@kartverket/geonorge-web-components";
 import Cookies from 'universal-cookie';
+import {Link} from "react-router-dom";
 
 
 const Home = () => {
@@ -91,6 +92,7 @@ const Home = () => {
                 }
                 {loggedIn &&
                 <div>
+                  <Link to="/objekts"> Objekts </Link>
                   <p>
                   <button onClick={handleTestQyery}>Test query</button>
                   </p>
