@@ -26,18 +26,18 @@ const Objekt = () => {
 
   useEffect(() => {
 
-    fetchObject()
+    fetchObject();
 
-  }, [fetchObject]);
+  }, []);
 
   const omittedProps = [];
-  //todo problem async?
-  console.log(objekt);
+  
+  //todo Error: Objects are not valid as a React child (found: object with keys {type, coordinates})
 
     return (
       <>
-      {objekt.objekt.map(d => (
-        objekt.keys(d).map(prop => (
+      {objekt.objekt !== undefined && objekt.objekt.map(d => (
+        Object.keys(d).map(prop => (
           !omittedProps.includes(prop) && (
             <tr>
               <td>{d[prop]}</td>
