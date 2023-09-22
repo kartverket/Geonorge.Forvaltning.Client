@@ -35,9 +35,9 @@ const Objekts = () => {
       {objekts.map(d => (
         Object.keys(d).map(prop => (
           !omittedProps.includes(prop) && (
-            <tr>
-              <td><Link to={`/objekt/${d.id}`}>{d[prop]}</Link></td>
-            </tr>
+            <div key={d.id}>
+              <Link to={`/objekt/${d.id}`}>{d[prop]}</Link>
+            </div>
           )
         ))
       ))}
