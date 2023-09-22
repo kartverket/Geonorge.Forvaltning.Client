@@ -37,6 +37,8 @@ const Objekt = () => {
   //first solution: api return object as string
 
     return (
+      <div>
+      <Link to={`/objekt/${id}/adddata`}>Add data</Link>
       <table border="1">
       <thead>
       {objekt.definition !== undefined && (
@@ -64,7 +66,7 @@ const Objekt = () => {
       )}
       </tbody>
     </table>
-         
+    </div>    
     );
 };
 
