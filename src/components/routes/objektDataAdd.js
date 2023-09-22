@@ -26,13 +26,50 @@ const ObjektDataAdd = () => {
   const handleAddObject = async (event) => {
     event.preventDefault();
 
+    var o = '{"objekt":{';
+    var propName;
+    var value;
+    var dataType;
+
+
+      for(var i = 0; i < objekt.definition.properties.length; i++)
+      {
+        var o2 = objekt.definition.properties[i];
+        if(o2.name !== "id")
+        {
+          propName = o2.name;
+          dataType = o2.dataType;
+          value = event.target[propName].value;
+
+          console.log(propName + ":" + value);
+
+          if(dataType == "bool")
+          {
+            o = o + ' "'+ propName +'" : '+ value +' ';
+          }
+          else if(dataType == "geometry")
+          {
+            o = o + ' "'+ propName +'" : '+ JSON.stringify(value) +' '; //Todo handle geometry
+          }
+          else{
+            o = o + ' "'+ propName +'" : "'+ value +'" ';
+          }
+
+          if( i < objekt.definition.properties.length -1)
+          {
+            o = o + ",";
+          }
+      }
+      }
+
+      o = o + "}}";
 
 
         // POST request using fetch with error handling
       const requestOptions = {
           method: 'POST',
           headers: { 'Content-Type': 'application/json','Authorization': 'Bearer todo' },
-          body: JSON.stringify( {"objekt": {"navn": "Shell test",  "bensin": true,"geometry" : {"type":"Point","coordinates":[-48.23456,20.12345]}}})
+          body: o
         };
       fetch("https://localhost:44390/Admin/object/" + id, requestOptions)
           .then(async response => {
@@ -68,7 +105,7 @@ const ObjektDataAdd = () => {
   //first solution: api return object as string
 
     return (
-      <div>
+      <form onSubmit={handleAddObject}>
 
       {objekt.definition !== undefined && (
       <h1>Add data to {objekt.definition.name}</h1>
@@ -97,9 +134,9 @@ const ObjektDataAdd = () => {
         )
       }
     <p>
-    <button onClick={handleAddObject}>Add object</button>
+    <input type="submit" value="Add data" />
     </p>
-    </div>
+    </form>
          
     );
 };
