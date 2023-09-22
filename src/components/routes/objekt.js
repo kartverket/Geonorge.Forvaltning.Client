@@ -50,17 +50,18 @@ const Objekt = () => {
       </tr>
       </thead>
       <tbody>
-      {objekt.objekt !== undefined && objekt.objekt.map(d => (
-        Object.keys(d).map(prop => (
-          !omittedProps.includes(prop) && (
+      {objekt.objekt !== undefined && objekt.objekt.map((d, index) => (  
             <>
-            <tr>
-              <td key={d.id}>{d[prop].toString()}</td>
+            <tr data-index={index}>
+              {objekt.definition !== undefined && objekt.definition.properties.map(d2 => 
+              <td key={d2.name}>{d[d2.name].toString()}</td>
+              )
+            }
             </tr>
             </>
           )
-        ))
-      ))}
+        
+      )}
       </tbody>
     </table>
          
