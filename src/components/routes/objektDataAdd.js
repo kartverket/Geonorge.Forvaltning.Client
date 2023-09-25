@@ -98,8 +98,6 @@ const ObjektDataAdd = () => {
 
   }, []);
 
-  const omittedProps = ["id"];
-  var counter = 0;
   
   //todo Error: Objects are not valid as a React child (found: object with keys {type, coordinates})
   //first solution: api return object as string

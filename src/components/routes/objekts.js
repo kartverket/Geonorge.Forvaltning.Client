@@ -32,6 +32,10 @@ const Objekts = () => {
 
     return (
       <>
+      <div>
+      <Link to={`/objekt/add`}>Add object</Link>
+      </div>
+      <hr></hr>
       {objekts.map(d => (
         Object.keys(d).map(prop => (
           !omittedProps.includes(prop) && (
