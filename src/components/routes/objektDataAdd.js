@@ -2,6 +2,12 @@
 import React, { Fragment, useState, useEffect, useMemo   } from "react";
 import { supabase } from './supabaseClient'
 
+// openlayers
+import GeoJSON from 'ol/format/GeoJSON'
+
+// components
+import MapWrapper from './mapWrapper'
+
 // Geonorge WebComponents
 // eslint-disable-next-line no-unused-vars
 import { ContentContainer, HeadingText } from "@kartverket/geonorge-web-components";
@@ -12,6 +18,10 @@ const ObjektDataAdd = () => {
   const [objekt, setObject] = useState([]);
 
   const { id } = useParams();
+
+  const [ features, setFeatures ] = useState([])
+
+  const [selectedCoord, setSelectedCoord] = useState("Koordinater fra kart");
 
   const fetchObject = () => {
     fetch("https://localhost:44390/Admin/object/" + id)
@@ -111,20 +121,21 @@ const ObjektDataAdd = () => {
 
       {objekt.definition !== undefined && objekt.definition.properties.map(d =>
         d.name !== "id" && (
-            <div> 
-              <label for={d.name}>{d.name}<span>:</span></label>
+            <div key={d.name}> 
+              <label htmlFor={d.name}>{d.name}<span>:</span></label>
               {d.dataType == "varchar" && (
                 <input type="text" name={d.name}></input>
               )}
               {d.dataType == "bool" && (
-                <span>
+                <span >
                   <span>Ja</span><input type="radio" name={d.name} value="true"></input>
                   <span>Nei</span><input type="radio" name={d.name} value="false"></input>
                 </span>
               )}
               {d.dataType == "geometry" && (
                 <span>
-                  <textarea name={d.name}></textarea>
+                  <textarea name={d.name}>{selectedCoord}</textarea>
+                  <div><MapWrapper features={features} setSelectedCoord={setSelectedCoord} /></div>
                 </span>
               )}
             </div>
