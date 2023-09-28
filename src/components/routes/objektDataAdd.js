@@ -21,7 +21,13 @@ const ObjektDataAdd = () => {
 
   const [ features, setFeatures ] = useState([])
 
-  const [selectedCoord, setSelectedCoord] = useState("Koordinater fra kart");
+  const [selectedCoord, setSelectedCoord] = useState("Velg koordinater i kart");
+
+  const handleCoordinateSelected = (transormedCoord) => {
+    console.log(transormedCoord);
+    setSelectedCoord('{"type": "Point", "coordinates": ['+ transormedCoord[0] +', '+ transormedCoord[1] +']}');
+ }
+
 
   const fetchObject = () => {
     fetch("https://localhost:44390/Admin/object/" + id)
@@ -114,11 +120,12 @@ const ObjektDataAdd = () => {
 
     return (
       <form onSubmit={handleAddObject}>
-
       {objekt.definition !== undefined && (
       <h1>Add data to {objekt.definition.name}</h1>
       )}
-
+        <p>
+        <input type="submit" value="Save" />
+        </p>
       {objekt.definition !== undefined && objekt.definition.properties.map(d =>
         d.name !== "id" && (
             <div key={d.name}> 
@@ -134,17 +141,14 @@ const ObjektDataAdd = () => {
               )}
               {d.dataType == "geometry" && (
                 <span>
-                  <textarea name={d.name}>{selectedCoord}</textarea>
-                  <div><MapWrapper features={features} setSelectedCoord={setSelectedCoord} /></div>
+                  <textarea name={d.name} value={selectedCoord}></textarea>
+                  <div><MapWrapper features={features} handleCoordinateSelected={handleCoordinateSelected} /></div>
                 </span>
               )}
             </div>
           )
         )
       }
-    <p>
-    <input type="submit" value="Add data" />
-    </p>
     </form>
          
     );

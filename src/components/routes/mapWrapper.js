@@ -12,7 +12,7 @@ import XYZ from 'ol/source/XYZ'
 import {transform} from 'ol/proj'
 import {toStringXY} from 'ol/coordinate';
 
-function MapWrapper(props) {
+function MapWrapper(props, {handleCoordinateSelected}) {
 
   // set intial state
   const [ map, setMap ] = useState()
@@ -108,8 +108,8 @@ function MapWrapper(props) {
     // set React state
     setSelectedCoord( transormedCoord )
 
-    props.setSelectedCoord("hoy");
-    console.log(transormedCoord);
+    props.handleCoordinateSelected(transormedCoord);
+    //console.log(transormedCoord);
     
   }
 
