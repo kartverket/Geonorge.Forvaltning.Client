@@ -24,6 +24,7 @@ const Home = () => {
       provider: 'keycloak',
       options: {
         scopes: 'openid'
+       // , redirectTo: 'https://localhost:44389' // use if not site url in supabase
       },
     })
 
@@ -70,6 +71,24 @@ const Home = () => {
     .insert(json)
     
     console.log(error)
+
+    json = { navn: 'Esso Tiger Tromsø2'};
+    var idUpdate = 10;
+    const { errorUpdate } = await supabase
+    .from(table)
+    .update(json)
+    .eq('id', idUpdate)
+
+    console.log(errorUpdate)
+
+    var idDelete = 11;
+
+    const { errorDelete } = await supabase
+    .from(table)
+    .delete()
+    .eq('id', idDelete)
+
+    console.log(errorDelete);
 
   }
 
