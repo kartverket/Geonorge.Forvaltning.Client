@@ -47,7 +47,11 @@ const ObjektDataAdd = () => {
     var propName;
     var value;
     var dataType;
+    var columnName = '';
+    var tableName = objekt.definition.tableName;
+    console.log(tableName);
 
+    var su = '{';
 
       for(var i = 0; i < objekt.definition.properties.length; i++)
       {
@@ -57,30 +61,40 @@ const ObjektDataAdd = () => {
           propName = o2.name;
           dataType = o2.dataType;
           value = event.target[propName].value;
+          columnName = o2.columnName;
+          if(columnName == null)
+            columnName = propName;
 
           console.log(propName + ":" + value);
 
           if(dataType == "bool")
           {
             o = o + ' "'+ propName +'" : '+ value +' ';
+            su = su + ' "'+ columnName +'" : '+ value +' ';
           }
           else if(dataType == "geometry")
           {
             o = o + ' "'+ propName +'" : '+ JSON.stringify(value) +' '; //Todo handle geometry
+            su = su  + ' "'+ columnName +'" : '+ JSON.stringify(value) +' '; //Todo handle geometry
           }
           else{
             o = o + ' "'+ propName +'" : "'+ value +'" ';
+            su = su + ' "'+ columnName +'" : "'+ value +'" ';
           }
 
           if( i < objekt.definition.properties.length -1)
           {
             o = o + ",";
+            su = su + ",";
           }
       }
       }
 
       o = o + "}}";
+      su = su + "}";
 
+      var forSupabase = JSON.parse(su);
+      console.log(forSupabase);
 
         // POST request using fetch with error handling
       const requestOptions = {
