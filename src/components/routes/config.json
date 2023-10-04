@@ -2,7 +2,7 @@
     "environment": "dev",
     "UrlGeonorgeRoot": "https://www.test.geonorge.no",
     "BuildVersionNumber": "0.0.0",
-    "apiBaseURL": "https://forvaltning.dev.geonorge.no/api",
+    "apiBaseURL": "https://localhost:44390",
     "oidc": {
         "client_id": "forvaltning.test.geonorge.no",
         "authority": "https://test2.geoid.no/realms/geoid/protocol/openid-connect/auth",

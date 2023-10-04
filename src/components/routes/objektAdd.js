@@ -2,10 +2,12 @@
 import React, { Fragment, useState, useEffect, useMemo   } from "react";
 import { supabase } from './supabaseClient'
 
+
 // Geonorge WebComponents
 // eslint-disable-next-line no-unused-vars
 import { ContentContainer, HeadingText } from "@kartverket/geonorge-web-components";
 import {Link, json} from "react-router-dom";
+import config from './config.json';
 
 const ObjektAdd = () => {
   
@@ -88,7 +90,7 @@ const ObjektAdd = () => {
           headers: { 'Content-Type': 'application/json','Authorization': 'Bearer todo' },
           body: JSON.stringify(obj)
         };
-      fetch("https://localhost:44390/Admin/object", requestOptions)
+      fetch(config.apiBaseURL + "/Admin/object", requestOptions)
           .then(async response => {
               const isJson = response.headers.get('content-type')?.includes('application/json');
               const data = isJson && await response.json();

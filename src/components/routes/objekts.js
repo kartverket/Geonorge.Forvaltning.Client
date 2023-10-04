@@ -1,6 +1,7 @@
 // Dependencies
 import React, { Fragment, useState, useEffect, useMemo   } from "react";
 import { supabase } from './supabaseClient'
+import config from './config.json';
 
 // Geonorge WebComponents
 // eslint-disable-next-line no-unused-vars
@@ -12,7 +13,7 @@ const Objekts = () => {
   const [objekts, setObjects] = useState([])
 
   const fetchObjects = () => {
-    fetch("https://localhost:44390/Admin/objects")
+    fetch(config.apiBaseURL + "/Admin/objects")
       .then(response => {
         return response.json()
       })

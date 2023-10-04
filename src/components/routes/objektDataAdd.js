@@ -1,6 +1,7 @@
 // Dependencies
 import React, { Fragment, useState, useEffect, useMemo   } from "react";
 import { supabase } from './supabaseClient'
+import config from './config.json';
 
 // openlayers
 import GeoJSON from 'ol/format/GeoJSON'
@@ -30,7 +31,7 @@ const ObjektDataAdd = () => {
 
 
   const fetchObject = () => {
-    fetch("https://localhost:44390/Admin/object/" + id)
+    fetch(config.apiBaseURL + "/Admin/object/" + id)
       .then(response => {
         return response.json()
       })
@@ -87,7 +88,7 @@ const ObjektDataAdd = () => {
           headers: { 'Content-Type': 'application/json','Authorization': 'Bearer todo' },
           body: o
         };
-      fetch("https://localhost:44390/Admin/object/" + id, requestOptions)
+      fetch(config.apiBaseURL + "/Admin/object/" + id, requestOptions)
           .then(async response => {
               const isJson = response.headers.get('content-type')?.includes('application/json');
               const data = isJson && await response.json();
