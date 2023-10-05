@@ -62,6 +62,9 @@ const Home = () => {
     var userId = responseSession.data.session.user.id;
 
     const responseUser = await supabase.from('users').select().eq('id', userId);
+    console.log(responseUser);
+    var owner =  responseUser.data[0].organization;
+    console.log('Eier:' + owner);
 
     console.log(responseUser);
 
@@ -71,7 +74,7 @@ const Home = () => {
     console.log(response);
     
     var table = 'bensinstasjoner';
-    var json = { navn: 'Esso Tiger Tromsø', merke: 'Esso', bensin: true };
+    var json = { navn: 'Esso Tiger Tromsø', merke: 'Esso', bensin: true, owner_org: owner };
     
     const { error } = await supabase
     .from(table)
