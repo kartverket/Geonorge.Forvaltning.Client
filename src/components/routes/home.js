@@ -59,6 +59,13 @@ const Home = () => {
     console.log(responseSession);
     console.log("access_token: " + responseSession.data.session.access_token);
 
+    var userId = responseSession.data.session.user.id;
+
+    const responseUser = await supabase.from('users').select().eq('id', userId);
+
+    console.log(responseUser);
+
+
     const response = await supabase.from('bensinstasjoner').select()
  
     console.log(response);
