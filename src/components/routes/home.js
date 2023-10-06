@@ -63,9 +63,18 @@ const Home = () => {
     Id, Organization,Name, TableName,
     ForvaltningsObjektPropertiesMetadata (
       Id,Name,DataType, ColumnName
-    )`).eq('Id', '19')
+    )`).eq('Id', '19');
 
     console.log(metadata);
+    
+    //Todo error timing undefined?
+    var tabellNavn = metadata[0].TableName;
+
+    const { dataTable, errorData } = await supabase
+    .from(tabellNavn)
+    .select();
+
+    console.log(dataTable);
 
     var responseSession = await supabase.auth.getSession();
     console.log(responseSession);
