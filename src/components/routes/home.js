@@ -55,6 +55,18 @@ const Home = () => {
   const handleTestQyery = async (event) => {
     event.preventDefault()
 
+
+    //todo create policy for table ForvaltningsObjektMetadata and ForvaltningsObjektPropertiesMetadata column Organization
+    const { metadata, errorMetadata } = await supabase
+    .from('ForvaltningsObjektMetadata')
+    .select(`
+    Id, Organization,Name, TableName,
+    ForvaltningsObjektPropertiesMetadata (
+      Id,Name,DataType, ColumnName
+    )`).eq('Id', '19')
+
+    console.log(metadata);
+
     var responseSession = await supabase.auth.getSession();
     console.log(responseSession);
     console.log("access_token: " + responseSession.data.session.access_token);
