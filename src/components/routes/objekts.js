@@ -12,8 +12,19 @@ const Objekts = () => {
   
   const [objekts, setObjects] = useState([])
 
-  const fetchObjects = () => {
-    fetch(config.apiBaseURL + "/Admin/objects")
+  const fetchObjects = async () => {
+
+    var responseSession = await supabase.auth.getSession();
+    console.log("access_token: " + responseSession.data.session.access_token);
+    console.log("ANON_KEY: "+process.env.REACT_APP_SUPABASE_ANON_KEY);
+
+    fetch(config.apiBaseURL + "/Admin/objects", { 
+      method: 'get', 
+      headers: new Headers({
+        'Authorization' : 'Bearer ' + responseSession.data.session.access_token,
+        'Apikey' :  process.env.REACT_APP_SUPABASE_ANON_KEY
+      })
+    })
       .then(response => {
         return response.json()
       })
