@@ -52,29 +52,42 @@ const Home = () => {
     setLoggedIn(false);
   }
 
+  const getDataResult = async (metadataInfo)  => {
+
+    const data = {
+      meta: metadataInfo,
+      data: null,
+      
+    };
+        
+    console.log(metadataInfo);
+    var tabellNavn = metadataInfo.data[0].TableName;
+    console.log(tabellNavn);
+    const { dataTable, errorData } = await supabase
+    .from(tabellNavn)
+    .select().then((res) => data.data = res)
+
+    return data;
+
+    };
+
   const handleTestQyery = async (event) => {
     event.preventDefault()
 
-
-    //todo create policy for table ForvaltningsObjektMetadata and ForvaltningsObjektPropertiesMetadata column Organization
-    const { metadata, errorMetadata } = await supabase
+    var metaAndData = null;
+    await supabase
     .from('ForvaltningsObjektMetadata')
     .select(`
     Id, Organization,Name, TableName,
     ForvaltningsObjektPropertiesMetadata (
       Id,Name,DataType, ColumnName
-    )`).eq('Id', '19');
+    )`).eq('Id', '19')
+  .then((res) => getDataResult(res))
+   .then((finalResult) => {console.log(finalResult); metaAndData =  finalResult; })
+   .catch((err => console.log(err)))
 
-    console.log(metadata);
-    
-    //Todo error timing undefined?
-    var tabellNavn = metadata[0].TableName;
+    console.log(metaAndData);
 
-    const { dataTable, errorData } = await supabase
-    .from(tabellNavn)
-    .select();
-
-    console.log(dataTable);
 
     var responseSession = await supabase.auth.getSession();
     console.log(responseSession);
