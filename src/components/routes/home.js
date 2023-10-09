@@ -62,10 +62,21 @@ const Home = () => {
         
     console.log(metadataInfo);
     var tabellNavn = metadataInfo.data[0].TableName;
+    var properties = metadataInfo.data[0].ForvaltningsObjektPropertiesMetadata;
+
+    var props = [];
+
+    properties.forEach(obj => {
+      props.push(obj.ColumnName);
+    });
+
+    var columns = props.join(",");
+    console.log(columns);
+
     console.log(tabellNavn);
     const { dataTable, errorData } = await supabase
     .from(tabellNavn)
-    .select().then((res) => data.data = res)
+    .select(columns).then((res) => data.data = res)
 
     return data;
 
