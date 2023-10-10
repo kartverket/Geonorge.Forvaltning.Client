@@ -10,11 +10,11 @@ import {Link} from "react-router-dom";
 
 const Objekts = () => {
   
-  const [objekts, setObjects] = useState([])
+  const [objekts, setObjects] = useState(undefined || {});
 
   const fetchObjects = async () => {
 
-    var responseSession = await supabase.auth.getSession();
+    /*var responseSession = await supabase.auth.getSession();
     console.log("access_token: " + responseSession.data.session.access_token);
     console.log("ANON_KEY: "+process.env.REACT_APP_SUPABASE_ANON_KEY);
 
@@ -30,17 +30,18 @@ const Objekts = () => {
       })
       .then(data => {
         setObjects(data)
-      })
+      })*/
+
+      await supabase.from('ForvaltningsObjektMetadata')
+      .select('Id ,Name')
+      .then((res) => { setObjects(res); console.log(res);})
+      .catch((err => console.log(err)))
   }
 
 
   useEffect(() => {
-
-    fetchObjects()
-
+    fetchObjects();
   }, []);
-
-  const omittedProps = ["id"];
 
     return (
       <>
@@ -48,15 +49,13 @@ const Objekts = () => {
       <Link to={`/objekt/add`}>Add object</Link>
       </div>
       <hr></hr>
-      {objekts.map(d => (
-        Object.keys(d).map(prop => (
-          !omittedProps.includes(prop) && (
-            <div key={d.id}>
-              <Link to={`/objekt/${d.id}`}>{d[prop]}</Link>
+      {objekts && objekts.data && objekts.data.map((objekt) => (
+            <div key={objekt.Id}>
+              <Link to={`/objekt/${objekt.Id}`}>{objekt.Name}</Link>
             </div>
           )
-        ))
-      ))}
+        )
+      }
     </>
          
     );
