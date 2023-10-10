@@ -24,7 +24,7 @@ const Home = () => {
       provider: 'keycloak',
       options: {
         scopes: 'openid'
-       // , redirectTo: 'https://localhost:44389' // use if not site url in supabase
+       , redirectTo: process.env.REACT_APP_REDIRECT_TO
       },
     })
 
