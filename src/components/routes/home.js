@@ -10,6 +10,8 @@ import {Link} from "react-router-dom";
 
 
 const Home = () => {
+
+  const [objekts, setObjects] = useState(undefined || {});
   
   const [loggedIn, setLoggedIn] = useState(false);
 
@@ -52,104 +54,18 @@ const Home = () => {
     setLoggedIn(false);
   }
 
-  const getDataResult = async (metadataInfo)  => {
+  const fetchObjects = async () => {
 
-    const data = {
-      meta: metadataInfo,
-      data: null,
-      
-    };
-        
-    console.log(metadataInfo);
-    var tabellNavn = metadataInfo.data[0].TableName;
-    var properties = metadataInfo.data[0].ForvaltningsObjektPropertiesMetadata;
-
-    var props = [];
-
-    properties.forEach(obj => {
-      props.push(obj.ColumnName);
-    });
-
-    var columns = props.join(",");
-    console.log(columns);
-
-    console.log(tabellNavn);
-    const { dataTable, errorData } = await supabase
-    .from(tabellNavn)
-    .select(columns).then((res) => data.data = res)
-
-    return data;
-
-    };
-
-  const handleTestQyery = async (event) => {
-    event.preventDefault()
-
-    var metaAndData = null;
-    await supabase
-    .from('ForvaltningsObjektMetadata')
-    .select(`
-    Id, Organization,Name, TableName,
-    ForvaltningsObjektPropertiesMetadata (
-      Id,Name,DataType, ColumnName
-    )`).eq('Id', '19')
-  .then((res) => getDataResult(res))
-   .then((finalResult) => {console.log(finalResult); metaAndData =  finalResult; })
-   .catch((err => console.log(err)))
-
-    console.log(metaAndData);
-
-
-    var responseSession = await supabase.auth.getSession();
-    console.log(responseSession);
-    console.log("access_token: " + responseSession.data.session.access_token);
-
-    var userId = responseSession.data.session.user.id;
-
-    const responseUser = await supabase.from('users').select().eq('id', userId);
-    console.log(responseUser);
-    var owner =  responseUser.data[0].organization;
-    console.log('Eier:' + owner);
-
-    console.log(responseUser);
-
-
-    const response = await supabase.from('bensinstasjoner').select()
- 
-    console.log(response);
-    
-    var table = 'bensinstasjoner';
-    var json = { navn: 'Esso Tiger Tromsø', merke: 'Esso', bensin: true, owner_org: owner };
-    
-    const { error } = await supabase
-    .from(table)
-    .insert(json)
-    
-    console.log(error)
-
-    json = { navn: 'Esso Tiger Tromsø2'};
-    var idUpdate = 10;
-    const { errorUpdate } = await supabase
-    .from(table)
-    .update(json)
-    .eq('id', idUpdate)
-
-    console.log(errorUpdate)
-
-    var idDelete = 11;
-
-    const { errorDelete } = await supabase
-    .from(table)
-    .delete()
-    .eq('id', idDelete)
-
-    console.log(errorDelete);
-
+      await supabase.from('ForvaltningsObjektMetadata')
+      .select('Id ,Name')
+      .then((res) => { setObjects(res); console.log(res);})
+      .catch((err => console.log(err)))
   }
 
   useEffect(() => {
 
     setLoggedIn(cookies.get('loggedIn'))
+    fetchObjects();
 
   }, [loggedIn, cookies]);
 
@@ -161,18 +77,29 @@ const Home = () => {
                 </heading-text>
                 {!loggedIn &&
                 <p>
-                <button onClick={handleLogin}>Logg in</button>
+                <button onClick={handleLogin}>Logg inn</button>
                 </p>
                 }
                 {loggedIn &&
                 <div>
-                  <Link to="/objekts"> Objekts </Link>
-                  <p>
-                  <button onClick={handleTestQyery}>Test query</button>
-                  </p>
+
+                <div>
+                <Link to={`/objekt/add`}>Legg til datasett</Link>
+                </div>
+                <h3>Datasett</h3>
+                {objekts && objekts.data && objekts.data.map((objekt) => (
+                      <div key={objekt.Id}>
+                        <Link to={`/objekt/${objekt.Id}`}>{objekt.Name}</Link>
+                      </div>
+                    )
+                  )
+                }
+                <hr></hr>
+                <div>
                   <p>
                   <button onClick={handleLogout}>Logg ut</button>
                   </p>
+                </div>
                 </div>
                 }
 

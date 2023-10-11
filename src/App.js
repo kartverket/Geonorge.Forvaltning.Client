@@ -4,7 +4,6 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import NotFound from "./components/routes/notFound";
 
 import Home from "./components/routes/home";
-import Objekts from "./components/routes/objekts";
 import Objekt from "./components/routes/objekt";
 import ObjektAdd from "./components/routes/objektAdd";
 import ObjektDataAdd from "./components/routes/objektDataAdd";
@@ -27,10 +26,6 @@ function App() {
         {
           element: <Home />,
           index: true
-        },
-        {
-          element: <Objekts />,
-          path: "objekts"
         },
         {
           element: <ObjektAdd />,

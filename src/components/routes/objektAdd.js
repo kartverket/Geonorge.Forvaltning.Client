@@ -17,6 +17,26 @@ const ObjektAdd = () => {
   const AddProperty = async (event) => {
     event.preventDefault();
 
+
+    /*var responseSession = await supabase.auth.getSession();
+    console.log("access_token: " + responseSession.data.session.access_token);
+    console.log("ANON_KEY: "+process.env.REACT_APP_SUPABASE_ANON_KEY);
+
+    fetch(config.apiBaseURL + "/Admin/objects", { 
+      method: 'get', 
+      headers: new Headers({
+        'Authorization' : 'Bearer ' + responseSession.data.session.access_token,
+        'Apikey' :  process.env.REACT_APP_SUPABASE_ANON_KEY
+      })
+    })
+      .then(response => {
+        return response.json()
+      })
+      .then(data => {
+        setObjects(data)
+      })*/
+
+
     //let { props, input } = properties;
     //props.push({ name: "", datatype: "" });
     //this.setState({properties: props});
