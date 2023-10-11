@@ -15,6 +15,8 @@ const Home = () => {
   
   const [loggedIn, setLoggedIn] = useState(false);
 
+  const [user, setUser] = useState(undefined || {});
+
   const cookies = useMemo(() => new Cookies(), []);
 
   cookies.set("loggedIn", cookies.get('loggedIn'));
@@ -54,6 +56,13 @@ const Home = () => {
     setLoggedIn(false);
   }
 
+  const handleAuth = async (event) => {
+    event.preventDefault()
+
+    console.log('todo');
+  
+  }
+
   const fetchObjects = async () => {
 
       await supabase.from('ForvaltningsObjektMetadata')
@@ -62,10 +71,19 @@ const Home = () => {
       .catch((err => console.log(err)))
   }
 
+  const fetchUser = async () => {
+
+    await supabase.from('users')
+    .select('organization,role')
+    .then((res) => { setUser(res); console.log(res);})
+    .catch((err => console.log(err)))
+}
+
   useEffect(() => {
 
     setLoggedIn(cookies.get('loggedIn'))
     fetchObjects();
+    fetchUser();
 
   }, [loggedIn, cookies]);
 
@@ -94,6 +112,11 @@ const Home = () => {
                     )
                   )
                 }
+
+                {user && user.data && user.data[0].organization == null  &&
+                <p><button onClick={handleAuth}>Send forespørsel autorisasjon</button></p>
+                }
+
                 <hr></hr>
                 <div>
                   <p>
