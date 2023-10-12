@@ -145,8 +145,14 @@ const ObjektDataAdd = () => {
         d.name !== "id" && (
             <div key={d.name}> 
               <label htmlFor={d.name}>{d.name}<span>:</span></label>
-              {d.dataType == "varchar" && (
+              {d.dataType == "text" && (
                 <input type="text" name={d.name}></input>
+              )}
+              {d.dataType == "numeric" && (
+                <input type="number" name={d.name}></input>
+              )}
+              {d.dataType == "datetime" && (
+                <input type="datetime-local" name={d.name}></input>
               )}
               {d.dataType == "bool" && (
                 <span >

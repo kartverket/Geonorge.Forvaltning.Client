@@ -91,7 +91,7 @@ const ObjektAdd = () => {
       "properties": [
         {
           "name": "feltY",
-          "dataType": "varchar"
+          "dataType": "text"
         }
       ]
       };
@@ -153,8 +153,10 @@ const ObjektAdd = () => {
             <input id={index} placeholder="Name" type="text" name="name" />
             <select id={index} name="dataType">
             <option value="">Velg datatype</option>
-              <option value="varchar">Varchar</option>
-              <option value="bool">bool</option>
+              <option value="text">text</option>
+              <option value="bool">ja/nei</option>
+              <option value="numeric">tall</option>
+              <option value="timestamp">dato-tid</option>
             </select>
             <button onClick={e => removeProperty(e, index)}>Remove</button>
           </div>
