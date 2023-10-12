@@ -85,6 +85,14 @@ const Home = () => {
       .catch((err => console.log(err)))
   }
 
+  const test = async () => {
+
+    await supabase.from('t_22')
+    .select('c_1,geometry')
+    .then((res) => { console.log(JSON.stringify(res.data[0].geometry));})
+    .catch((err => console.log(err)))
+}
+
   const fetchUser = async () => {
 
     await supabase.from('users')
@@ -98,6 +106,7 @@ const Home = () => {
     setLoggedIn(cookies.get('loggedIn'))
     fetchObjects();
     fetchUser();
+    test();
 
   }, [loggedIn, cookies]);
 
@@ -127,7 +136,7 @@ const Home = () => {
                   )
                 }
 
-                {user && user.data && user.data.length > 0  &&
+                {user && user.data && user.data.length == 0  &&
                 <p><button onClick={handleAuth}>Send forespørsel autorisasjon</button>
                 <span>{info}</span>
                 </p>
