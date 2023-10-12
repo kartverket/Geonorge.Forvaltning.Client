@@ -83,18 +83,9 @@ const ObjektAdd = () => {
   const handleAddObject = async (event) => {
     event.preventDefault();
 
-    console.log(objekt)
+    var responseSession = await supabase.auth.getSession();
 
-    //todo remove test data
-     var o = {
-      "name": "objektX",
-      "properties": [
-        {
-          "name": "feltY",
-          "dataType": "text"
-        }
-      ]
-      };
+    console.log(objekt)
 
       var obj = {
         "name": objekt.title,
@@ -107,7 +98,11 @@ const ObjektAdd = () => {
         // POST request using fetch with error handling
       const requestOptions = {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json','Authorization': 'Bearer todo' },
+          headers: new Headers({
+            'Content-Type': 'application/json',
+            'Authorization' : 'Bearer ' + responseSession.data.session.access_token,
+            'Apikey' :  process.env.REACT_APP_SUPABASE_ANON_KEY
+          }),
           body: JSON.stringify(obj)
         };
       fetch(config.apiBaseURL + "/Admin/object", requestOptions)
