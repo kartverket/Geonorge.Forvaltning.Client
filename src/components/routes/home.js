@@ -127,7 +127,7 @@ const Home = () => {
                   )
                 }
 
-                {user && user.data && user.data[0].organization == null  &&
+                {user && user.data && user.data.length > 0  &&
                 <p><button onClick={handleAuth}>Send forespørsel autorisasjon</button>
                 <span>{info}</span>
                 </p>
