@@ -1,6 +1,7 @@
 // Dependencies
 import React, { Fragment, useState, useEffect, useMemo   } from "react";
 import { supabase } from './supabaseClient'
+import config from './config.json';
 
 // Geonorge WebComponents
 // eslint-disable-next-line no-unused-vars
@@ -16,6 +17,8 @@ const Home = () => {
   const [loggedIn, setLoggedIn] = useState(false);
 
   const [user, setUser] = useState(undefined || {});
+
+  const [info, setInfo] = useState('');
 
   const cookies = useMemo(() => new Cookies(), []);
 
@@ -59,7 +62,18 @@ const Home = () => {
   const handleAuth = async (event) => {
     event.preventDefault()
 
-    console.log('todo');
+    var responseSession = await supabase.auth.getSession();
+    console.log("access_token: " + responseSession.data.session.access_token);
+    console.log("ANON_KEY: "+process.env.REACT_APP_SUPABASE_ANON_KEY);
+
+    await fetch(config.apiBaseURL + "/Admin/authorize-request", { 
+      method: 'post', 
+      headers: new Headers({
+        'Authorization' : 'Bearer ' + responseSession.data.session.access_token,
+        'Apikey' :  process.env.REACT_APP_SUPABASE_ANON_KEY
+      })
+    }).then((res) => { setInfo('Beskjed sendt'); console.log(res);})
+    .catch((err => console.log(err)))
   
   }
 
@@ -114,7 +128,9 @@ const Home = () => {
                 }
 
                 {user && user.data && user.data[0].organization == null  &&
-                <p><button onClick={handleAuth}>Send forespørsel autorisasjon</button></p>
+                <p><button onClick={handleAuth}>Send forespørsel autorisasjon</button>
+                <span>{info}</span>
+                </p>
                 }
 
                 <hr></hr>
