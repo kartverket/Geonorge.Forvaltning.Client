@@ -33,7 +33,7 @@ const Objekt = () => {
       props.push(obj.ColumnName);
     });
 
-    var columns = props.join(",");
+    var columns = 'id,' + props.join(",") + ', geometry';
     console.log(columns);
 
     console.log(tabellNavn);
@@ -82,23 +82,27 @@ const Objekt = () => {
       <table border="1">
       <thead>
       {objekt.definition !== undefined && (
-      <tr><th colSpan={objekt.definition.data[0].ForvaltningsObjektPropertiesMetadata.length}>{objekt.definition.data[0].Name}</th></tr>
+      <tr><th colSpan={objekt.definition.data[0].ForvaltningsObjektPropertiesMetadata.length + 2}>{objekt.definition.data[0].Name}</th></tr>
       )}
       <tr>
+      <th>id</th>
       {objekt.definition !== undefined && objekt.definition.data[0].ForvaltningsObjektPropertiesMetadata.map(d => 
               <th key={d.Name}>{d.Name}</th>
           )
       }
+      <th>geometry</th>
       </tr>
       </thead>
       <tbody>
       {objekt.objects !== undefined && objekt.objects.data.map((d, index) => (  
             <>
             <tr data-index={index}>
+              <td>{d.id}</td>
               {objekt.definition !== undefined && objekt.definition.data[0].ForvaltningsObjektPropertiesMetadata.map(d2 => 
               <td key={d2.ColumnName}>{d[d2.ColumnName].toString()}</td>
               )
             }
+            <td>{JSON.stringify(d.geometry)}</td>
             </tr>
             </>
           )
