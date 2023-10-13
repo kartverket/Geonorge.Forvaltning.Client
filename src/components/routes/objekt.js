@@ -14,14 +14,53 @@ const Objekt = () => {
 
   const { id } = useParams();
 
-  const fetchObject = () => {
-    fetch(config.apiBaseURL + "/Admin/object/" + id)
-      .then(response => {
-        return response.json()
-      })
-      .then(data => {
-        setObject(data)
-      })
+
+  const getDataResult = async (metadataInfo)  => {
+
+    const data = {
+      definition: metadataInfo,
+      objects: null,
+      
+    };
+        
+    console.log(metadataInfo);
+    var tabellNavn = metadataInfo.data[0].TableName;
+    var properties = metadataInfo.data[0].ForvaltningsObjektPropertiesMetadata;
+
+    var props = [];
+
+    properties.forEach(obj => {
+      props.push(obj.ColumnName);
+    });
+
+    var columns = props.join(",");
+    console.log(columns);
+
+    console.log(tabellNavn);
+    const { dataTable, errorData } = await supabase
+    .from(tabellNavn)
+    .select(columns).then((res) => data.objects = res)
+
+    return data;
+
+    };
+
+
+  const fetchObject = async (event) => {
+    var metaAndData = null;
+    await supabase
+    .from('ForvaltningsObjektMetadata')
+    .select(`
+    Id, Organization,Name, TableName,
+    ForvaltningsObjektPropertiesMetadata (
+      Id,Name,DataType, ColumnName
+    )`).eq('Id', id)
+  .then((res) => getDataResult(res))
+   .then((finalResult) => {console.log(finalResult); setObject(finalResult); })
+   .catch((err => console.log(err)))
+
+    console.log(objekt);
+
   }
 
 
@@ -43,21 +82,21 @@ const Objekt = () => {
       <table border="1">
       <thead>
       {objekt.definition !== undefined && (
-      <tr><th colSpan={objekt.definition.properties.length}>{objekt.definition.name}</th></tr>
+      <tr><th colSpan={objekt.definition.data[0].ForvaltningsObjektPropertiesMetadata.length}>{objekt.definition.data[0].Name}</th></tr>
       )}
       <tr>
-      {objekt.definition !== undefined && objekt.definition.properties.map(d => 
-              <th key={d.name}>{d.name}</th>
+      {objekt.definition !== undefined && objekt.definition.data[0].ForvaltningsObjektPropertiesMetadata.map(d => 
+              <th key={d.Name}>{d.Name}</th>
           )
       }
       </tr>
       </thead>
       <tbody>
-      {objekt.objekt !== undefined && objekt.objekt.map((d, index) => (  
+      {objekt.objects !== undefined && objekt.objects.data.map((d, index) => (  
             <>
             <tr data-index={index}>
-              {objekt.definition !== undefined && objekt.definition.properties.map(d2 => 
-              <td key={d2.name}>{d[d2.name].toString()}</td>
+              {objekt.definition !== undefined && objekt.definition.data[0].ForvaltningsObjektPropertiesMetadata.map(d2 => 
+              <td key={d2.ColumnName}>{d[d2.ColumnName].toString()}</td>
               )
             }
             </tr>
