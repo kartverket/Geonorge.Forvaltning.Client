@@ -49,6 +49,7 @@ const ObjektDataAdd = () => {
     var dataType;
     var columnName = '';
     var tableName = objekt.definition.tableName;
+
     console.log(tableName);
 
     var su = '{';
@@ -67,7 +68,7 @@ const ObjektDataAdd = () => {
 
           console.log(propName + ":" + value);
 
-          if(dataType == "bool")
+          if(dataType == "bool" || dataType == "numeric")
           {
             o = o + ' "'+ propName +'" : '+ value +' ';
             su = su + ' "'+ columnName +'" : '+ value +' ';
@@ -149,7 +150,7 @@ const ObjektDataAdd = () => {
                 <input type="text" name={d.name}></input>
               )}
               {d.dataType == "numeric" && (
-                <input type="number" name={d.name}></input>
+                <input type="number" step="0.01" name={d.name}></input>
               )}
               {d.dataType == "datetime" && (
                 <input type="datetime-local" name={d.name}></input>
