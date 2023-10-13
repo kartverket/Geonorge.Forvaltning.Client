@@ -85,14 +85,6 @@ const Home = () => {
       .catch((err => console.log(err)))
   }
 
-  const test = async () => {
-
-    await supabase.from('t_22')
-    .select('c_1,geometry')
-    .then((res) => { console.log(JSON.stringify(res.data[0].geometry));})
-    .catch((err => console.log(err)))
-}
-
   const fetchUser = async () => {
 
     await supabase.from('users')
@@ -106,7 +98,6 @@ const Home = () => {
     setLoggedIn(cookies.get('loggedIn'))
     fetchObjects();
     fetchUser();
-    test();
 
   }, [loggedIn, cookies]);
 

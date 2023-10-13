@@ -24,45 +24,91 @@ const ObjektDataAdd = () => {
 
   const [selectedCoord, setSelectedCoord] = useState("Velg koordinater i kart");
 
+  const [user, setUser] = useState(undefined || {});
+
   const handleCoordinateSelected = (transormedCoord) => {
     console.log(transormedCoord);
     setSelectedCoord('{"type": "Point", "coordinates": ['+ transormedCoord[0] +', '+ transormedCoord[1] +']}');
  }
 
+ const fetchUser = async () => {
 
-  const fetchObject = () => {
-    fetch(config.apiBaseURL + "/Admin/object/" + id)
-      .then(response => {
-        return response.json()
-      })
-      .then(data => {
-        setObject(data)
-      })
-  }
+  await supabase.from('users')
+  .select('organization,role')
+  .then((res) => { setUser(res); console.log(res);})
+  .catch((err => console.log(err)))
+}
+
+ const getDataResult = async (metadataInfo)  => {
+
+  const data = {
+    definition: metadataInfo,
+    objects: null,
+    
+  };
+      
+  console.log(metadataInfo);
+  var tabellNavn = metadataInfo.data[0].TableName;
+  var properties = metadataInfo.data[0].ForvaltningsObjektPropertiesMetadata;
+
+  var props = [];
+
+  properties.forEach(obj => {
+    props.push(obj.ColumnName);
+  });
+
+  var columns = 'id,' + props.join(",") + ', geometry';
+  console.log(columns);
+
+  console.log(tabellNavn);
+  const { dataTable, errorData } = await supabase
+  .from(tabellNavn)
+  .select(columns).then((res) => data.objects = res)
+
+  return data;
+
+  };
+
+
+const fetchObject = async (event) => {
+  var metaAndData = null;
+  await supabase
+  .from('ForvaltningsObjektMetadata')
+  .select(`
+  Id, Organization,Name, TableName,
+  ForvaltningsObjektPropertiesMetadata (
+    Id,Name,DataType, ColumnName
+  )`).eq('Id', id)
+.then((res) => getDataResult(res))
+ .then((finalResult) => {console.log(finalResult); setObject(finalResult); })
+ .catch((err => console.log(err)))
+
+  console.log(objekt);
+
+}
 
   const handleAddObject = async (event) => {
     event.preventDefault();
 
-    var o = '{"objekt":{';
     var propName;
     var value;
     var dataType;
     var columnName = '';
-    var tableName = objekt.definition.tableName;
+    var tableName = objekt.definition.data[0].TableName;
 
     console.log(tableName);
 
     var su = '{';
 
-      for(var i = 0; i < objekt.definition.properties.length; i++)
+      for(var i = 0; i < objekt.definition.data[0].ForvaltningsObjektPropertiesMetadata.length; i++)
       {
-        var o2 = objekt.definition.properties[i];
+        var o2 = objekt.definition.data[0].ForvaltningsObjektPropertiesMetadata[i];
         if(o2.name !== "id")
         {
-          propName = o2.name;
-          dataType = o2.dataType;
+          propName = o2.Name;
+          dataType = o2.DataType;
           value = event.target[propName].value;
-          columnName = o2.columnName;
+          columnName = o2.ColumnName;
           if(columnName == null)
             columnName = propName;
 
@@ -70,56 +116,39 @@ const ObjektDataAdd = () => {
 
           if(dataType == "bool" || dataType == "numeric")
           {
-            o = o + ' "'+ propName +'" : '+ value +' ';
             su = su + ' "'+ columnName +'" : '+ value +' ';
           }
-          else if(dataType == "geometry")
-          {
-            o = o + ' "'+ propName +'" : '+ JSON.stringify(value) +' '; //Todo handle geometry
-            su = su  + ' "'+ columnName +'" : '+ JSON.stringify(value) +' '; //Todo handle geometry
-          }
           else{
-            o = o + ' "'+ propName +'" : "'+ value +'" ';
             su = su + ' "'+ columnName +'" : "'+ value +'" ';
           }
 
-          if( i < objekt.definition.properties.length -1)
+          if( i < objekt.definition.data[0].ForvaltningsObjektPropertiesMetadata.length -1)
           {
-            o = o + ",";
             su = su + ",";
           }
       }
       }
 
-      o = o + "}}";
+      console.log(user);
+
+      su = su  + ' , "geometry" : '+ JSON.stringify(event.target['geometry'].value) +' '; //Todo handle geometry
+
+      su = su  + ' , "owner_org" : "'+ user.data[0].organization +'" ';
+      
+      //todo updatedate and editor
+
       su = su + "}";
 
-      var forSupabase = JSON.parse(su);
-      console.log(forSupabase);
+      console.log(su);
 
-        // POST request using fetch with error handling
-      const requestOptions = {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json','Authorization': 'Bearer todo' },
-          body: o
-        };
-      fetch(config.apiBaseURL + "/Admin/object/" + id, requestOptions)
-          .then(async response => {
-              const isJson = response.headers.get('content-type')?.includes('application/json');
-              const data = isJson && await response.json();
-  
-              // check for error response
-              if (!response.ok) {
-                  // get error message from body or default to response status
-                  const error = (data && data.message) || response.status;
-                  return Promise.reject(error);
-              }
-  
-              console.log(data);
-          })
-          .catch(error => {
-              console.error('There was an error!', error);
-          });
+      var insert = JSON.parse(su);
+      console.log(insert);
+
+      const { error } = await supabase
+      .from(tableName)
+      .insert(insert)
+      
+      console.log(error)
 
   }
 
@@ -127,6 +156,7 @@ const ObjektDataAdd = () => {
   useEffect(() => {
 
     fetchObject();
+    fetchUser();
 
   }, []);
 
@@ -137,40 +167,40 @@ const ObjektDataAdd = () => {
     return (
       <form onSubmit={handleAddObject}>
       {objekt.definition !== undefined && (
-      <h1>Add data to {objekt.definition.name}</h1>
+      <h1>Add data to {objekt.definition.data[0].Name}</h1>
       )}
         <p>
         <input type="submit" value="Save" />
         </p>
-      {objekt.definition !== undefined && objekt.definition.properties.map(d =>
-        d.name !== "id" && (
-            <div key={d.name}> 
-              <label htmlFor={d.name}>{d.name}<span>:</span></label>
-              {d.dataType == "text" && (
-                <input type="text" name={d.name}></input>
+      {objekt.definition !== undefined && objekt.definition.data[0].ForvaltningsObjektPropertiesMetadata.map(d =>
+        d.Name !== "id" && (
+            <div key={d.Name}> 
+              <label htmlFor={d.Name}>{d.Name}<span>:</span></label>
+              {d.DataType == "text" && (
+                <input type="text" name={d.Name}></input>
               )}
-              {d.dataType == "numeric" && (
-                <input type="number" step="0.01" name={d.name}></input>
+              {d.DataType == "numeric" && (
+                <input type="number" step="0.01" name={d.Name}></input>
               )}
-              {d.dataType == "datetime" && (
-                <input type="datetime-local" name={d.name}></input>
+              {d.DataType == "datetime" && (
+                <input type="datetime-local" name={d.Name}></input>
               )}
-              {d.dataType == "bool" && (
+              {d.DataType == "bool" && (
                 <span >
-                  <span>Ja</span><input type="radio" name={d.name} value="true"></input>
-                  <span>Nei</span><input type="radio" name={d.name} value="false"></input>
-                </span>
-              )}
-              {d.dataType == "geometry" && (
-                <span>
-                  <textarea name={d.name} value={selectedCoord}></textarea>
-                  <div><MapWrapper features={features} handleCoordinateSelected={handleCoordinateSelected} /></div>
+                  <span>Ja</span><input type="radio" name={d.Name} value="true"></input>
+                  <span>Nei</span><input type="radio" name={d.Name} value="false"></input>
                 </span>
               )}
             </div>
           )
         )
       }
+      <div>
+          <span>
+            <textarea name="geometry" value={selectedCoord}></textarea>
+            <div><MapWrapper features={features} handleCoordinateSelected={handleCoordinateSelected} /></div>
+          </span>
+      </div>
     </form>
          
     );
