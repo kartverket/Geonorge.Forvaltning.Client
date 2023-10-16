@@ -14,6 +14,10 @@ const Objekt = () => {
 
   const { id } = useParams();
 
+  var tabellNavn = null;
+
+  const [tableName, setTableName] = useState('');
+
 
   const getDataResult = async (metadataInfo)  => {
 
@@ -24,7 +28,7 @@ const Objekt = () => {
     };
         
     console.log(metadataInfo);
-    var tabellNavn = metadataInfo.data[0].TableName;
+    tabellNavn = metadataInfo.data[0].TableName;
     var properties = metadataInfo.data[0].ForvaltningsObjektPropertiesMetadata;
 
     var props = [];
@@ -40,6 +44,8 @@ const Objekt = () => {
     const { dataTable, errorData } = await supabase
     .from(tabellNavn)
     .select(columns).then((res) => data.objects = res)
+
+    setTableName(tabellNavn);
 
     return data;
 
@@ -63,6 +69,15 @@ const Objekt = () => {
 
   }
 
+  const removeItem = async (event, id) => 
+  {
+    event.preventDefault();
+    const { errorDelete } = await supabase
+    .from(tableName)
+    .delete()
+    .eq('id', id);
+  }
+
 
   useEffect(() => {
 
@@ -82,7 +97,7 @@ const Objekt = () => {
       <table border="1">
       <thead>
       {objekt.definition !== undefined && (
-      <tr><th colSpan={objekt.definition.data[0].ForvaltningsObjektPropertiesMetadata.length + 2}>{objekt.definition.data[0].Name}</th></tr>
+      <tr><th colSpan={objekt.definition.data[0].ForvaltningsObjektPropertiesMetadata.length + 3}>{objekt.definition.data[0].Name}</th></tr>
       )}
       <tr>
       <th>id</th>
@@ -91,6 +106,7 @@ const Objekt = () => {
           )
       }
       <th>geometry</th>
+      <th></th>
       </tr>
       </thead>
       <tbody>
@@ -103,6 +119,7 @@ const Objekt = () => {
               )
             }
             <td>{JSON.stringify(d.geometry)}</td>
+            <td><input type="button" value="Slett" onClick={e => removeItem(e, d.id)} /></td>
             </tr>
             </>
           )
