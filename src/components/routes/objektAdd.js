@@ -135,13 +135,13 @@ const ObjektAdd = () => {
 
     return (
       <div>
-      <h1>Add objekt</h1>
+      <h1>Legg til datasett</h1>
       <form onSubmit={handleAddObject} onChange={handleFieldChange}>
       <label htmlFor="name">Navn:</label>
       <input type="text" name="title"  />
       <br></br>
-      <h2>Properties</h2>
-      <button onClick={AddProperty}>Add property</button>
+      <h2>Egenskaper</h2>
+      <button onClick={AddProperty}>Legg til egenskap</button>
       {objekt.properties ? objekt.properties.map((property, index) => {
         return (
           <div key={index}>
@@ -153,13 +153,13 @@ const ObjektAdd = () => {
               <option value="numeric">tall</option>
               <option value="timestamp">dato-tid</option>
             </select>
-            <button onClick={e => removeProperty(e, index)}>Remove</button>
+            <button onClick={e => removeProperty(e, index)}>Fjern</button>
           </div>
         )
       }): null}
       <hr></hr>
       <p>
-      <input type="submit" value="Add objekt" />
+      <input type="submit" value="Legg til datasett" />
       </p>
       </form>
       </div>  
