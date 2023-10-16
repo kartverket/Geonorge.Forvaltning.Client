@@ -150,6 +150,14 @@ const fetchObject = async (event) => {
       
       console.log(error)
 
+      //todo handle update
+      /*var json = { navn:'Navn1'};
+      var idUpdate=10;
+      const { errorUpdate } = await supabase
+      .from(tableName)
+      .update(json)
+      .eq('id', idUpdate); */
+
   }
 
 
