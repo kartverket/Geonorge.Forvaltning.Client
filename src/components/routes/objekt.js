@@ -115,7 +115,7 @@ const Objekt = () => {
             <tr data-index={index}>
               <td>{d.id}</td>
               {objekt.definition !== undefined && objekt.definition.data[0].ForvaltningsObjektPropertiesMetadata.map(d2 => 
-              <td key={d2.ColumnName}>{d[d2.ColumnName].toString()}</td>
+              <td key={d2.ColumnName}>{d[d2.ColumnName]?.toString()}</td>
               )
             }
             <td>{JSON.stringify(d.geometry)}</td>
