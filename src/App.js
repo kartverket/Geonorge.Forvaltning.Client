@@ -6,6 +6,7 @@ import NotFound from "./components/routes/notFound";
 import Home from "./components/routes/home";
 import Objekt from "./components/routes/objekt";
 import ObjektAdd from "./components/routes/objektAdd";
+import ObjektEdit from "./components/routes/objektEdit";
 import ObjektDataAdd from "./components/routes/objektDataAdd";
 import Layout from "./components/layout"
 
@@ -30,6 +31,10 @@ function App() {
         {
           element: <ObjektAdd />,
           path: "objekt/add"
+        },
+        {
+          element: <ObjektEdit />,
+          path: "objekt/:id/edit"
         },
         {
           element: <Objekt />,

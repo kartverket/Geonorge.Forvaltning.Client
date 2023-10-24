@@ -93,7 +93,8 @@ const Objekt = () => {
 
     return (
       <div>
-      <Link to={`/objekt/${id}/adddata`}>Add data</Link>
+      <Link to={`/objekt/${id}/adddata`}>Legg til data</Link>&nbsp;
+      <Link to={`/objekt/${id}/edit`}>Rediger datasett</Link>
       <table border="1">
       <thead>
       {objekt.definition !== undefined && (
