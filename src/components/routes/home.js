@@ -93,9 +93,11 @@ const Home = () => {
     .catch((err => console.log(err)))
 }
 
-  useEffect(() => {
+  useEffect(()  =>  {
 
-    setLoggedIn(cookies.get('loggedIn'))
+    supabase.auth.getSession().then((res) => {  res?.data?.session?.user != null ? setLoggedIn(true) : setLoggedIn(false) })
+    .catch((err => console.log(err)))
+
     fetchObjects();
     fetchUser();
 
