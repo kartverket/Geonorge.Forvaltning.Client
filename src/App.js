@@ -7,6 +7,7 @@ import Home from "./components/routes/home";
 import Objekt from "./components/routes/objekt";
 import ObjektAdd from "./components/routes/objektAdd";
 import ObjektEdit from "./components/routes/objektEdit";
+import ObjektDelete from "./components/routes/objektDelete";
 import ObjektDataAdd from "./components/routes/objektDataAdd";
 import Layout from "./components/layout"
 
@@ -35,6 +36,10 @@ function App() {
         {
           element: <ObjektEdit />,
           path: "objekt/:id/edit"
+        },
+        {
+          element: <ObjektDelete />,
+          path: "objekt/:id/delete"
         },
         {
           element: <Objekt />,

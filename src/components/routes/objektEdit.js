@@ -141,7 +141,7 @@ const ObjektEdit = () => {
 
     return (
       <div>
-      <h1>Rediger datasett</h1>
+      <h1>Rediger datasett (under konstruksjon)</h1>
       <form onSubmit={handleEditObject} onChange={handleFieldChange}>
       <label htmlFor="name">Navn:</label>
       <input type="text" name="title" value={objektDef.data && objektDef.data[0].Name}  />
