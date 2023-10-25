@@ -10,8 +10,6 @@ import {Link, json, useParams} from "react-router-dom";
 import config from './config.json';
 
 const ObjektDelete = () => {
-  
-  const [objekt, setProperties] = useState({title : "", properties: [{name : "", dataType: ""}] });
 
   const [objektDef, setObjektDef] = useState(undefined || {});
 
