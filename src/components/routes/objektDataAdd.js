@@ -190,7 +190,7 @@ const fetchObject = async (event) => {
               {d.DataType == "numeric" && (
                 <input type="number" step="0.01" name={d.Name}></input>
               )}
-              {d.DataType == "datetime" && (
+              {d.DataType == "timestamp" && (
                 <input type="datetime-local" name={d.Name}></input>
               )}
               {d.DataType == "bool" && (

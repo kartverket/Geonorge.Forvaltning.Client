@@ -15,6 +15,9 @@ const ObjektEdit = () => {
 
   const [objektDef, setObjektDef] = useState(undefined || {});
 
+  var objektDef2 = {};
+  var selected = 'selected';
+
   const { id } = useParams();
 
   const AddProperty = async (event) => {
@@ -31,10 +34,11 @@ const ObjektEdit = () => {
   const AddProperties = async () => {
 
     console.log(objektDef);
-    objektDef.data[0].ForvaltningsObjektPropertiesMetadata.forEach(element => {
+    console.log(objektDef2);
+    objektDef2.data[0].ForvaltningsObjektPropertiesMetadata.forEach(element => {
       setProperties({title: element.title, properties:[
         ...objekt.properties,
-        {name: element.Name, dataType: ""}
+        {name: element.Name, dataType: element.DataType}
       ]  
       });
     });
@@ -113,7 +117,7 @@ const ObjektEdit = () => {
       
   }
 
-  const fetchObject = async (event) => {
+  const fetchObject = async () => {
     await supabase
     .from('ForvaltningsObjektMetadata')
     .select(`
@@ -121,10 +125,15 @@ const ObjektEdit = () => {
     ForvaltningsObjektPropertiesMetadata (
       Id,Name,DataType, ColumnName
     )`).eq('Id', id)
-  .then((res) => {setObjektDef(res); console.log(res);})
+  .then((res) => 
+  {
+    const defs = res;
+    objektDef2 = res;
+    console.log(res); setObjektDef(defs); 
+  })
   .catch((err => console.log(err)))
 
-    console.log(objektDef);
+    //console.log(objektDef);
 
   }   
 
@@ -134,7 +143,7 @@ const ObjektEdit = () => {
     fetchObject();
     setTimeout(() => {
       AddProperties();
-    }, 4000);
+    }, 500);
 
   }, []);
 
@@ -144,19 +153,19 @@ const ObjektEdit = () => {
       <h1>Rediger datasett (under konstruksjon)</h1>
       <form onSubmit={handleEditObject} onChange={handleFieldChange}>
       <label htmlFor="name">Navn:</label>
-      <input type="text" name="title" value={objektDef.data && objektDef.data[0].Name}  />
+      <input type="text" name="title" defaultValue={objektDef.data && objektDef.data[0].Name}  />
       <br></br>
       <h2>Egenskaper</h2>
       <button onClick={AddProperty}>Legg til egenskap</button>
-      {objekt.properties ? objekt.properties.map((property, index) => {
+      {objektDef.data ? objektDef.data[0].ForvaltningsObjektPropertiesMetadata.map((property, index) => {
         return (
           <div key={index}>
-            <input id={index} placeholder="Name" type="text" name="name" />
-            <select id={index} name="dataType">
+            <input id={index} placeholder="Name" type="text" name="name" defaultValue={property.Name} />
+            <select id={index} name="dataType" value={property.DataType}>
             <option value="">Velg datatype</option>
               <option value="text">text</option>
               <option value="bool">ja/nei</option>
-              <option value="numeric">tall</option>
+              <option value="numeric" >tall</option>
               <option value="timestamp">dato-tid</option>
             </select>
             <button onClick={e => removeProperty(e, index)}>Fjern</button>
