@@ -168,12 +168,13 @@ const fetchObject = async (event) => {
 
   }, []);
 
-  
-  //todo Error: Objects are not valid as a React child (found: object with keys {type, coordinates})
-  //first solution: api return object as string
 
     return (
       <form onSubmit={handleAddObject}>
+        <Link to={`/`}>Hovedside</Link>&nbsp;
+        {objekt.definition !== undefined && (
+        <Link to={`/objekt/${objekt.definition.data[0].Id}`}>{objekt.definition.data[0].Name}</Link>
+        )}
       {objekt.definition !== undefined && (
       <h1>Add data to {objekt.definition.data[0].Name}</h1>
       )}

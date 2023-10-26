@@ -87,12 +87,10 @@ const Objekt = () => {
 
   const omittedProps = [];
   var counter = 0;
-  
-  //todo Error: Objects are not valid as a React child (found: object with keys {type, coordinates})
-  //first solution: api return object as string
 
     return (
       <div>
+      <Link to={`/`}>Hovedside</Link>&nbsp;
       <Link to={`/objekt/${id}/adddata`}>Legg til data</Link>&nbsp;
       <Link to={`/objekt/${id}/edit`}>Rediger datasett</Link>&nbsp;
       <Link to={`/objekt/${id}/delete`}>Slett datasett</Link>&nbsp;

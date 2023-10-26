@@ -143,6 +143,10 @@ const ObjektEdit = () => {
 
     return (
       <div>
+        <Link to={`/`}>Hovedside</Link>&nbsp;
+        {objektDef.data !== undefined && (
+        <Link to={`/objekt/${objektDef.data[0].Id}`}>{objektDef.data[0].Name}</Link>
+        )}
       <h1>Rediger datasett</h1>
       <form onSubmit={handleEditObject} onChange={handleFieldChange}>
       <label htmlFor="name">Navn:</label>

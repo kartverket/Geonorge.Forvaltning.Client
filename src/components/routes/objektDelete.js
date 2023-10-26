@@ -75,6 +75,10 @@ const ObjektDelete = () => {
     return (
       <div>
       <h1>Slett datasett</h1>
+      <Link to={`/`}>Hovedside</Link>&nbsp;
+      {objektDef.data !== undefined && (
+        <Link to={`/objekt/${objektDef.data[0].Id}`}>{objektDef.data[0].Name}</Link>
+        )}
       <form onSubmit={handleDeleteObject}>
       <b>Navn:</b>
       <span>{objektDef.data && objektDef.data[0].Name}</span>

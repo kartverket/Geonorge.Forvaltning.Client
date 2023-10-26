@@ -135,6 +135,7 @@ const ObjektAdd = () => {
 
     return (
       <div>
+      <Link to={`/`}>Hovedside</Link>
       <h1>Legg til datasett</h1>
       <form onSubmit={handleAddObject} onChange={handleFieldChange}>
       <label htmlFor="name">Navn:</label>
