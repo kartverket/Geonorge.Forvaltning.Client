@@ -9,6 +9,7 @@ import ObjektAdd from "./components/routes/objektAdd";
 import ObjektEdit from "./components/routes/objektEdit";
 import ObjektDelete from "./components/routes/objektDelete";
 import ObjektDataAdd from "./components/routes/objektDataAdd";
+import ObjektDataImport from "./components/routes/objektDataImport";
 import Layout from "./components/layout"
 
 import style from "./App.module.scss";
@@ -48,6 +49,10 @@ function App() {
         {
           element: <ObjektDataAdd />,
           path: "objekt/:id/adddata"
+        },
+        {
+          element: <ObjektDataImport />,
+          path: "objekt/:id/import"
         },
         {
           element: <NotFound />,

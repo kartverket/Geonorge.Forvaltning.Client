@@ -99,6 +99,7 @@ const Objekt = () => {
       <Link to={`/objekt/${id}/adddata`}>Legg til data</Link>&nbsp;
       <Link to={`/objekt/${id}/edit`}>Rediger datasett</Link>&nbsp;
       <Link to={`/objekt/${id}/delete`}>Slett datasett</Link>&nbsp;
+      <Link to={`/objekt/${id}/import`}>Importer data</Link>&nbsp;
       <table border="1">
       <thead>
       {objekt.definition !== undefined && (
