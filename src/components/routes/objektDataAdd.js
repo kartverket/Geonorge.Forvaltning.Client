@@ -26,6 +26,9 @@ const ObjektDataAdd = () => {
 
   const [user, setUser] = useState(undefined || {});
 
+  const [session, setSession] = useState(undefined || {});
+
+
   const handleCoordinateSelected = (transormedCoord) => {
     console.log(transormedCoord);
     setSelectedCoord('{"type": "Point", "coordinates": ['+ transormedCoord[0] +', '+ transormedCoord[1] +']}');
@@ -37,6 +40,10 @@ const ObjektDataAdd = () => {
   .select('organization,role')
   .then((res) => { setUser(res); console.log(res);})
   .catch((err => console.log(err)))
+
+  supabase.auth.getSession().then((res) => { setSession(res) })
+  .catch((err => console.log(err)))
+
 }
 
  const getDataResult = async (metadataInfo)  => {
@@ -71,7 +78,6 @@ const ObjektDataAdd = () => {
 
 
 const fetchObject = async (event) => {
-  var metaAndData = null;
   await supabase
   .from('ForvaltningsObjektMetadata')
   .select(`
@@ -129,14 +135,16 @@ const fetchObject = async (event) => {
       }
       }
 
-      console.log(user);
+      console.log(session);
 
-      su = su  + ' , "geometry" : '+ JSON.stringify(event.target['geometry'].value) +' '; //Todo handle geometry
+      su = su  + ' , "geometry" : '+ JSON.stringify(event.target['geometry'].value) +' ';
 
       su = su  + ' , "owner_org" : "'+ user.data[0].organization +'" ';
-      
-      //todo updatedate and editor
 
+      su = su  + ' , "editor" : "'+ session.data.session.user.email +'" ';
+
+      su = su  + ' , "updatedate" : "'+ ((new Date()).toISOString()).toLocaleString('no-NO') +'" ';
+      
       su = su + "}";
 
       console.log(su);
