@@ -51,6 +51,9 @@ const Objekt = () => {
 
     };
 
+    function refreshPage() {
+      window.location.reload(false);
+    }
 
   const fetchObject = async (event) => {
     var metaAndData = null;
@@ -76,6 +79,8 @@ const Objekt = () => {
     .from(tableName)
     .delete()
     .eq('id', id);
+
+    refreshPage();
   }
 
 
