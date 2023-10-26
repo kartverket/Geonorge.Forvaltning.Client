@@ -11,6 +11,7 @@ import config from './config.json';
 
 const ObjektEdit = () => {
   
+  //todo remove objekt, not in use, but kept otherwise add and remove not updating UI???
   const [objekt, setProperties] = useState({title : "", properties: [{name : "", dataType: ""}] });
 
   const [objektDef, setObjektDef] = useState(undefined || {});
