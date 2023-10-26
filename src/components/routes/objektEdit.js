@@ -18,6 +18,24 @@ const ObjektEdit = () => {
 
   const { id } = useParams();
 
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [showErrorDialog, setShowErrorDialog] = useState(false);
+  const [errorMessage, setErrorMessage] = useState();
+
+  const setShowSuccessDialogBox = () => {
+    setShowSuccessDialog(false);
+    setTimeout(() => {
+        setShowSuccessDialog(true);
+    });
+  };
+
+  const showDialogErrorBox = () => {
+      setShowErrorDialog(false);
+      setTimeout(() => {
+          setShowErrorDialog(true);
+      });
+  };
+
   const AddProperty = async (event) => {
     event.preventDefault();
 
@@ -110,9 +128,22 @@ const ObjektEdit = () => {
               }
   
               console.log(data);
+              setShowSuccessDialogBox();
           })
           .catch(error => {
-              console.error('There was an error!', error);
+              showDialogErrorBox();
+  
+              if (error.response?.data) {
+                  const messages = Object.values(error.response.data).map((value) => value.join(", "));
+                  setErrorMessage(messages.join("\r\n"));
+              }
+              else if (error?.message) 
+              { 
+                setErrorMessage(error.message);
+              }
+              else {
+                  setErrorMessage(error);
+              }
           });    
       
   }
@@ -174,6 +205,13 @@ const ObjektEdit = () => {
       <input type="submit" value="Rediger datasett" />
       </p>
       </form>
+      <gn-dialog show={showSuccessDialog} width="" overflow="">
+                <body-text>Datasettet ble endret!</body-text>
+            </gn-dialog>
+
+            <gn-dialog show={showErrorDialog} width="" overflow="">
+                <body-text>{errorMessage}</body-text>
+      </gn-dialog>
       </div>  
     );
 };
