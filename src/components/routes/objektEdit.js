@@ -15,14 +15,14 @@ const ObjektEdit = () => {
 
   const [objektDef, setObjektDef] = useState(undefined || {});
 
-  var objektDef2 = {};
-  var selected = 'selected';
-
   const { id } = useParams();
 
   const AddProperty = async (event) => {
     event.preventDefault();
 
+    objektDef.data[0].ForvaltningsObjektPropertiesMetadata.push({Id: 0, Name: '', DataType: ''})
+
+    console.log(objektDef);
 
     setProperties({title: objekt.title, properties:[
       ...objekt.properties,
@@ -31,24 +31,17 @@ const ObjektEdit = () => {
     });
   }
 
-  const AddProperties = async () => {
-
-    console.log(objektDef);
-    console.log(objektDef2);
-    objektDef2.data[0].ForvaltningsObjektPropertiesMetadata.forEach(element => {
-      setProperties({title: element.title, properties:[
-        ...objekt.properties,
-        {name: element.Name, dataType: element.DataType}
-      ]  
-      });
-    });
-  }
-
   const removeProperty = (event, index) => 
   {
     event.preventDefault();
-    console.log(objekt.properties);
-    var props = objekt.properties.splice(index, 1);
+
+    console.log(index);
+
+    objektDef.data[0].ForvaltningsObjektPropertiesMetadata.splice(index, 1);
+    setObjektDef(objektDef);
+
+    //console.log(objekt.properties);
+    var props = objekt.properties;//.splice(index, 1);
     setProperties({title: objekt.title, properties : props});
   }
 
@@ -60,16 +53,22 @@ const ObjektEdit = () => {
 
     if(["name", "dataType"].includes(event.target.name))
     {
-      let properties = [...objekt.properties];
-      properties[event.target.id][event.target.name] = event.target.value;
-      setProperties({title: objekt.title, properties: properties});
+      //let properties = [...objekt.properties];
+      //properties[event.target.id][event.target.name] = event.target.value;
+      //setProperties({title: objekt.title, properties: properties});
+      if(event.target.name == 'name')
+        objektDef.data[0].ForvaltningsObjektPropertiesMetadata[event.target.id].Name = event.target.value;
+
+        if(event.target.name == 'dataType')
+        objektDef.data[0].ForvaltningsObjektPropertiesMetadata[event.target.id].DataType = event.target.value;
     }
     else
     {
-      setProperties({"title": event.target.value, properties: objekt.properties})
+      //setProperties({"title": event.target.value, properties: objekt.properties})
+      objektDef.data[0].Name = event.target.value;
     }
     
-    console.log(objekt);
+    console.log(objektDef);
   }
 
   const handleEditObject = async (event) => {
@@ -77,12 +76,12 @@ const ObjektEdit = () => {
 
     var responseSession = await supabase.auth.getSession();
 
-    console.log(objekt)
+    console.log(objektDef)
 
       var obj = {
-        "name": objekt.title,
+        "name": objektDef.data[0].Name,
         "properties": 
-          objekt.properties
+          objektDef.data[0].ForvaltningsObjektPropertiesMetadata
         };
 
         console.log(obj);
@@ -121,19 +120,15 @@ const ObjektEdit = () => {
     await supabase
     .from('ForvaltningsObjektMetadata')
     .select(`
-    Id, Organization,Name, TableName,
+    Id, Organization,Name,
     ForvaltningsObjektPropertiesMetadata (
-      Id,Name,DataType, ColumnName
+      Id,Name,DataType
     )`).eq('Id', id)
   .then((res) => 
   {
-    const defs = res;
-    objektDef2 = res;
-    console.log(res); setObjektDef(defs); 
+    console.log(res); setObjektDef(res); 
   })
   .catch((err => console.log(err)))
-
-    //console.log(objektDef);
 
   }   
 
@@ -141,16 +136,13 @@ const ObjektEdit = () => {
   useEffect(() => {
 
     fetchObject();
-    setTimeout(() => {
-      AddProperties();
-    }, 500);
 
   }, []);
 
 
     return (
       <div>
-      <h1>Rediger datasett (under konstruksjon)</h1>
+      <h1>Rediger datasett</h1>
       <form onSubmit={handleEditObject} onChange={handleFieldChange}>
       <label htmlFor="name">Navn:</label>
       <input type="text" name="title" defaultValue={objektDef.data && objektDef.data[0].Name}  />
@@ -161,7 +153,7 @@ const ObjektEdit = () => {
         return (
           <div key={index}>
             <input id={index} placeholder="Name" type="text" name="name" defaultValue={property.Name} />
-            <select id={index} name="dataType" value={property.DataType}>
+            <select id={index} name="dataType" defaultValue={property.DataType}>
             <option value="">Velg datatype</option>
               <option value="text">text</option>
               <option value="bool">ja/nei</option>
