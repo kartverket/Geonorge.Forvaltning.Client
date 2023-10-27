@@ -70,7 +70,7 @@ const ObjektDataImport = () => {
             handleOnSubmit(e);
           }}
         >
-          IMPORT CSV
+          Importer CSV
         </button>
       </form>
 
