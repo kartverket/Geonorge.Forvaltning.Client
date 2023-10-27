@@ -56,8 +56,11 @@ const ObjektEdit = () => {
 
     console.log(index);
 
-    objektDef.data[0].ForvaltningsObjektPropertiesMetadata.splice(index, 1);
+    var deleted = objektDef.data[0].ForvaltningsObjektPropertiesMetadata.splice(index, 1);
+    console.log(deleted);
+    console.log(objektDef);
     setObjektDef(objektDef);
+    console.log(objektDef);
 
     //console.log(objekt.properties);
     var props = objekt.properties;//.splice(index, 1);
@@ -181,15 +184,15 @@ const ObjektEdit = () => {
       <h1>Rediger datasett</h1>
       <form onSubmit={handleEditObject} onChange={handleFieldChange}>
       <label htmlFor="name">Navn:</label>
-      <input type="text" name="title" defaultValue={objektDef.data && objektDef.data[0].Name}  />
+      <input type="text" name="title" id="name" defaultValue={objektDef.data && objektDef.data[0].Name}  />
       <br></br>
       <h2>Egenskaper</h2>
       <button onClick={AddProperty}>Legg til egenskap</button>
       {objektDef.data ? objektDef.data[0].ForvaltningsObjektPropertiesMetadata.map((property, index) => {
         return (
           <div key={index}>
-            <input id={index} placeholder="Name" type="text" name="name" defaultValue={property.Name} />
-            <select id={index} name="dataType" defaultValue={property.DataType}>
+            <input placeholder="Name" type="text" name="name" defaultValue={property.Name} />
+            <select name="dataType" defaultValue={property.DataType}>
             <option value="">Velg datatype</option>
               <option value="text">text</option>
               <option value="bool">ja/nei</option>
