@@ -190,7 +190,7 @@ const ObjektEdit = () => {
       <button onClick={AddProperty}>Legg til egenskap</button>
       {objektDef.data ? objektDef.data[0].ForvaltningsObjektPropertiesMetadata.map((property, index) => {
         return (
-          <div key={index}>
+          <div key={property.Id}>
             <input placeholder="Name" type="text" name="name" defaultValue={property.Name} />
             <select name="dataType" defaultValue={property.DataType}>
             <option value="">Velg datatype</option>
