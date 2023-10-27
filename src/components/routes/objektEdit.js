@@ -191,8 +191,8 @@ const ObjektEdit = () => {
       {objektDef.data ? objektDef.data[0].ForvaltningsObjektPropertiesMetadata.map((property, index) => {
         return (
           <div key={property.Id}>
-            <input placeholder="Name" type="text" name="name" defaultValue={property.Name} />
-            <select name="dataType" defaultValue={property.DataType}>
+            <input id={index} placeholder="Name" type="text" name="name" defaultValue={property.Name} />
+            <select id={index} name="dataType" defaultValue={property.DataType}>
             <option value="">Velg datatype</option>
               <option value="text">text</option>
               <option value="bool">ja/nei</option>
