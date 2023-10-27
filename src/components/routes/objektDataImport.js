@@ -14,6 +14,7 @@ const ObjektDataImport = () => {
   
   const [file, setFile] = useState();
   const [array, setArray] = useState([]);
+  const [objekt, setObject] = useState([]);
 
   const fileReader = new FileReader();
 
@@ -22,11 +23,11 @@ const ObjektDataImport = () => {
   };
 
   const csvFileToArray = string => {
-    const csvHeader = string.slice(0, string.indexOf("\n")).split(",");
+    const csvHeader = string.slice(0, string.indexOf("\n")).split(";");
     const csvRows = string.slice(string.indexOf("\n") + 1).split("\n");
 
     const array = csvRows.map(i => {
-      const values = i.split(",");
+      const values = i.split(";");
       const obj = csvHeader.reduce((object, header, index) => {
         object[header] = values[index];
         return object;
@@ -35,6 +36,7 @@ const ObjektDataImport = () => {
     });
 
     setArray(array);
+    console.log(array);
   };
 
   const handleOnSubmit = (e) => {
@@ -51,6 +53,29 @@ const ObjektDataImport = () => {
   };
 
   const headerKeys = Object.keys(Object.assign({}, ...array));
+
+  const fetchObject = async (event) => {
+    var metaAndData = null;
+    await supabase
+    .from('ForvaltningsObjektMetadata')
+    .select(`
+    Id, Organization,Name, TableName,
+    ForvaltningsObjektPropertiesMetadata (
+      Id,Name,DataType, ColumnName
+    )`).eq('Id', id)
+  .then((res) => setObject(res))
+   .catch((err => console.log(err)))
+
+    console.log(objekt);
+
+  }
+
+  useEffect(() => {
+
+    fetchObject();
+
+  }, []);
+
 
   return (
     <div style={{ textAlign: "center" }}>
@@ -72,29 +97,32 @@ const ObjektDataImport = () => {
         >
           Importer CSV
         </button>
+        <input style={{float: "right"}} type="submit" value="Lagre"/>
       </form>
 
       <br />
-
-      <table>
-        <thead>
-          <tr key={"header"}>
-            {headerKeys.map((key) => (
-              <th>{key}</th>
-            ))}
-          </tr>
-        </thead>
-
-        <tbody>
-          {array.map((item) => (
+      <h1>{objekt.data && objekt.data[0].Name}</h1>
+      <p>Velg fil med følgende kolonneoverskrifter:</p>
+      <table border="1">
+      <thead>
+      <tr>
+      {objekt.data !== undefined && objekt.data[0].ForvaltningsObjektPropertiesMetadata.map(d => 
+              <th key={d.Name}>{d.Name}</th>
+          )
+      }
+      <th>geometry</th>
+      </tr>
+      </thead>
+      <tbody>
+      {array.map((item) => (
             <tr key={item.id}>
               {Object.values(item).map((val) => (
                 <td>{val}</td>
               ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          ))}  
+      </tbody>
+    </table>
     </div>
   );
 }
