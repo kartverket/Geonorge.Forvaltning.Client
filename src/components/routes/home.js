@@ -116,10 +116,11 @@ const Home = () => {
                 }
                 {loggedIn &&
                 <div>
-
+                {user && user.data && user.data.length > 0 && user.data[0].organization != null &&(
                 <div>
                 <Link to={`/objekt/add`}>Legg til datasett</Link>
                 </div>
+                )}
                 <h3>Datasett</h3>
                 {objekts && objekts.data && objekts.data.map((objekt) => (
                       <div key={objekt.Id}>
@@ -129,7 +130,7 @@ const Home = () => {
                   )
                 }
 
-                {user && user.data && user.data.length == 0  &&
+                {user && user.data && user.data.length > 0 && user.data[0].organization == null  &&
                 <p><button onClick={handleAuth}>Send forespørsel autorisasjon</button>
                 <span>{info}</span>
                 </p>
