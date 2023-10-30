@@ -135,7 +135,7 @@ const ObjektDataImport = () => {
 
             if(dataType == "bool" || dataType == "numeric")
             {
-              su = su + ' "'+ columnName +'" : '+ value +' ';
+              su = su + ' "'+ columnName +'" : '+ value.replace(",", ".") +' ';
             }
             else{
               su = su + ' "'+ columnName +'" : "'+ value +'" ';
