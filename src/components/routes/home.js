@@ -72,8 +72,23 @@ const Home = () => {
         'Authorization' : 'Bearer ' + responseSession.data.session.access_token,
         'Apikey' :  process.env.REACT_APP_SUPABASE_ANON_KEY
       })
-    }).then((res) => { setInfo('Beskjed sendt'); console.log(res);})
-    .catch((err => console.log(err)))
+    }).then(async response => {
+      const isJson = response.headers.get('content-type')?.includes('application/json');
+      const data = isJson && await response.json();
+
+      // check for error response
+      if (!response.ok) {
+          // get error message from body or default to response status
+          const error = (data && data.message) || response.status;
+          return Promise.reject(error);
+      }
+
+      console.log(data);
+      setInfo('Beskjed sendt');
+  })
+  .catch(error => {
+    setInfo('Beskjed feilet');
+  });
   
   }
 
