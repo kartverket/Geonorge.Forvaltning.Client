@@ -59,9 +59,55 @@ const ObjektDataImport = () => {
       return obj;
     });
 
+    addGeometry(csvHeader, array);
+
     setArray(array);
     console.log(array);
   };
+
+  function addGeometry(csvHeader, array)
+  {
+    if(!(csvHeader.includes("adresse") && csvHeader.includes("kommune")))
+      return;
+
+      array.forEach(element => {
+        var adresse = element['adresse']?.toString();
+        var kommune = element['kommune']?.toString();
+        var searchString = adresse + ' ' + kommune;
+        console.log(searchString);
+
+        fetch("https://ws.geonorge.no/adresser/v1/sok?sok=" +searchString , { 
+          method: 'get',
+        }).then(async response => {
+          const isJson = response.headers.get('content-type')?.includes('application/json');
+          const data = isJson && await response.json();
+    
+          // check for error response
+          if (!response.ok) {
+              // get error message from body or default to response status
+              const error = (data && data.message) || response.status;
+              return Promise.reject(error);
+          }
+    
+          console.log(data);
+
+          element.geometry = null;
+
+          var point = data.adresser[0].representasjonspunkt;
+          console.log(point);
+          if(point != undefined)
+          {
+            element.geometry = JSON.stringify({"type":"Point","coordinates":[point.lon, point.lat]});
+            console.log(element);
+          }
+
+          
+      })
+      .catch(error => {
+        console.log(error);
+      });
+      });
+  }
 
   const handleOnSubmit = (e) => {
     e.preventDefault();
@@ -126,7 +172,7 @@ const ObjektDataImport = () => {
           {
             propName = o2.Name;
             dataType = o2.DataType;
-            value = item[propName]?.toString()  //event.target[propName].value;
+            value = item[propName]?.toString();
             columnName = o2.ColumnName;
             if(columnName == null)
               columnName = propName;
@@ -150,7 +196,7 @@ const ObjektDataImport = () => {
 
         console.log(session);
 
-        //su = su  + ' , "geometry" : '+ JSON.stringify(event.target['geometry'].value) +' ';
+        su = su  + ' , "geometry" : '+ item['geometry'] +' ';
 
         su = su  + ' , "owner_org" : "'+ user.data[0].organization +'" ';
 
@@ -239,7 +285,7 @@ const ObjektDataImport = () => {
 
       <br />
       <h1>{objekt.data && objekt.data[0].Name}</h1>
-      <p>Velg fil med følgende kolonneoverskrifter:</p>
+      <p>Velg fil med følgende kolonneoverskrifter (for oppslag koordinat benytt kolonne adresse og kommune):</p>
       <table border="1">
       <thead>
       <tr>
