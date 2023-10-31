@@ -195,8 +195,8 @@ const ObjektDataImport = () => {
         }
 
         console.log(session);
-
-        su = su  + ' , "geometry" : '+ item['geometry'] +' ';
+        if(item['geometry'] != undefined)
+          su = su  + ' , "geometry" : '+ item['geometry'] +' ';
 
         su = su  + ' , "owner_org" : "'+ user.data[0].organization +'" ';
 
