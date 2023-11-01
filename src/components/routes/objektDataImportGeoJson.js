@@ -13,8 +13,9 @@ const ObjektDataImportGeoJson = () => {
   const { id } = useParams();
   
   const [file, setFile] = useState();
-  const [array, setArray] = useState([]);
+  const [geoJson, setGeoJson] = useState();
   const [objekt, setObject] = useState([]);
+  const [preview, setPreview] = useState(false);
 
   const [user, setUser] = useState(undefined || {});
 
@@ -45,69 +46,14 @@ const ObjektDataImportGeoJson = () => {
     setFile(e.target.files[0]);
   };
 
-  const csvFileToArray = string => {
-    const csvHeader = string.slice(0, string.indexOf("\r\n")).split(";");
-    var csvRows = string.slice(string.indexOf("\n") + 1).split("\r\n");
-    csvRows = csvRows.slice(0, csvRows.length - 1);
+  const getGeoJSON = string => {
 
-    const array = csvRows.map(i => {
-      const values = i.split(";");
-      const obj = csvHeader.reduce((object, header, index) => {
-        object[header] = values[index];
-        return object;
-      }, {});
-      return obj;
-    });
+    var json = JSON.parse(string);
+    setGeoJson(json);
+    console.log(json);
 
-    addGeometry(csvHeader, array);
-
-    setArray(array);
-    console.log(array);
   };
 
-  function addGeometry(csvHeader, array)
-  {
-    if(!(csvHeader.includes("adresse") && csvHeader.includes("kommune")))
-      return;
-
-      array.forEach(element => {
-        var adresse = element['adresse']?.toString();
-        var kommune = element['kommune']?.toString();
-        var searchString = adresse + ' ' + kommune;
-        console.log(searchString);
-
-        fetch("https://ws.geonorge.no/adresser/v1/sok?sok=" +searchString , { 
-          method: 'get',
-        }).then(async response => {
-          const isJson = response.headers.get('content-type')?.includes('application/json');
-          const data = isJson && await response.json();
-    
-          // check for error response
-          if (!response.ok) {
-              // get error message from body or default to response status
-              const error = (data && data.message) || response.status;
-              return Promise.reject(error);
-          }
-    
-          console.log(data);
-
-          element.geometry = null;
-
-          var point = data.adresser[0].representasjonspunkt;
-          console.log(point);
-          if(point != undefined)
-          {
-            element.geometry = JSON.stringify({"type":"Point","coordinates":[point.lon, point.lat]});
-            console.log(element);
-          }
-
-          
-      })
-      .catch(error => {
-        console.log(error);
-      });
-      });
-  }
 
   const handleOnSubmit = (e) => {
     e.preventDefault();
@@ -115,14 +61,19 @@ const ObjektDataImportGeoJson = () => {
     if (file) {
       fileReader.onload = function (event) {
         const text = event.target.result;
-        csvFileToArray(text);
+        getGeoJSON(text);
       };
 
       fileReader.readAsText(file);
     }
   };
 
-  const headerKeys = Object.keys(Object.assign({}, ...array));
+  const handlePreview = async (event) => {
+    event.preventDefault();
+    setPreview(true);
+
+  }
+
 
   const fetchObject = async (event) => {
     await supabase
@@ -151,97 +102,7 @@ const ObjektDataImportGeoJson = () => {
   
   }
 
-  const handleImport = async (event) => {
-    event.preventDefault();
-
-    var propName;
-    var value;
-    var dataType;
-    var columnName = '';
-    var tableName = objekt.data[0].TableName;
-
-    console.log(tableName);
-
-    array.map( async (item) => {
-      var su = '{';
-
-        for(var i = 0; i < objekt.data[0].ForvaltningsObjektPropertiesMetadata.length; i++)
-        {
-          var o2 = objekt.data[0].ForvaltningsObjektPropertiesMetadata[i];
-          if(o2.name !== "id")
-          {
-            propName = o2.Name;
-            dataType = o2.DataType;
-            value = item[propName]?.toString();
-            columnName = o2.ColumnName;
-            if(columnName == null)
-              columnName = propName;
-
-            console.log(propName + ":" + value);
-
-            if(dataType == "bool" || dataType == "numeric")
-            {
-              su = su + ' "'+ columnName +'" : '+ value.replace(",", ".") +' ';
-            }
-            else{
-              su = su + ' "'+ columnName +'" : "'+ value +'" ';
-            }
-
-            if( i < objekt.data[0].ForvaltningsObjektPropertiesMetadata.length -1)
-            {
-              su = su + ",";
-            }
-        }
-        }
-
-        console.log(session);
-        if(item['geometry'] != undefined)
-          su = su  + ' , "geometry" : '+ item['geometry'] +' ';
-
-        su = su  + ' , "owner_org" : "'+ user.data[0].organization +'" ';
-
-        su = su  + ' , "editor" : "'+ session.data.session.user.email +'" ';
-
-        su = su  + ' , "updatedate" : "'+ ((new Date()).toISOString()).toLocaleString('no-NO') +'" ';
-        
-        su = su + "}";
-
-        console.log(su);
-
-        var insert = JSON.parse(su);
-        console.log(insert);
-
-        const { error } = await supabase
-        .from(tableName)
-        .insert(insert)
-
-        console.log(error);
-
-        if(error == null)
-        {
-          setShowSuccessDialogBox();
-        }
-        else
-        {
-          showDialogErrorBox();
-
-          if (error.response?.data) {
-              const messages = Object.values(error.response.data).map((value) => value.join(", "));
-              setErrorMessage(messages.join("\r\n"));
-          }
-          else if (error?.message) 
-          { 
-            setErrorMessage(error.message);
-          }
-          else {
-              setErrorMessage(error);
-          }
-        }
-        
-        console.log(error)
-      
-      });
-  }
+ 
 
 
 
@@ -261,7 +122,7 @@ const ObjektDataImportGeoJson = () => {
       <form>
         <input
           type={"file"}
-          id={"csvFileInput"}
+          id={"geoJSONFileInput"}
           accept={".geojson"}
           onChange={handleOnChange}
         />
@@ -273,7 +134,7 @@ const ObjektDataImportGeoJson = () => {
         >
           Importer geojson
         </button>
-        <input style={{float: "right"}} type="submit" value="Lagre" onClick={handleImport}/>
+        <input style={{float: "right"}} type="submit" value="Lagre" />
         <gn-dialog show={showSuccessDialog} width="" overflow="">
                 <body-text>Dataene ble lagt til</body-text>
             </gn-dialog>
@@ -285,26 +146,50 @@ const ObjektDataImportGeoJson = () => {
 
       <br />
       <h1>{objekt.data && objekt.data[0].Name}</h1>
-      <p>Velg fil med følgende kolonneoverskrifter (for oppslag koordinat benytt kolonne adresse og kommune):</p>
+      <p>Velg geojson fil:</p>
       <table border="1">
-      <thead>
-      <tr>
-      {objekt.data !== undefined && objekt.data[0].ForvaltningsObjektPropertiesMetadata.map(d => 
-              <th key={d.Name}>{d.Name}</th>
-          )
-      }
-      </tr>
+      <thead> 
       </thead>
       <tbody>
-      {array.map((item) => (
-            <tr key={item.id}>
-              {Object.values(item).map((val) => (
-                <td>{val}</td>
-              ))}
-            </tr>
-          ))}  
+      {geoJson && Object.keys(geoJson.features[0].properties).map((key, i) => (
+          <tr key={i}>
+            <td>{key}</td>
+            <td><select name={key}>
+            <option value={key}>Ikke mappet</option>
+            {objekt.data !== undefined && objekt.data[0].ForvaltningsObjektPropertiesMetadata.map(d => 
+              <option key={d.Name} value={key +':'+ d.Name}>{d.Name}</option>
+          )}
+          </select>
+          </td>
+          </tr>
+       ))
+      } 
+
+    {geoJson &&
+      (
+        <tr><td>geometry</td><td>geometry</td></tr>
+      )
+      }  
+      {geoJson &&
+      (
+        <tr><td></td><td><button onClick={handlePreview}>Forhåndsvis</button></td></tr>
+      )
+      }      
       </tbody>
     </table>
+
+    {preview && 
+    (
+      <table>
+      <thead> 
+      </thead>
+      <tbody>
+      <tr><td>Under konstruksjon</td></tr>
+      </tbody>
+      </table>
+    )
+    }
+
     </div>
   );
 }
