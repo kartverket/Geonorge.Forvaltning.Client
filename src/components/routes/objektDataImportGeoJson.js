@@ -25,6 +25,8 @@ const ObjektDataImportGeoJson = () => {
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const [errorMessage, setErrorMessage] = useState();
 
+  const [mapping, setMapping] = useState([]);
+
 
   const setShowSuccessDialogBox = () => {
     setShowSuccessDialog(false);
@@ -66,6 +68,30 @@ const ObjektDataImportGeoJson = () => {
 
       fileReader.readAsText(file);
     }
+  };
+
+
+  const updateMapping = (e) => {
+    e.preventDefault();
+    console.log(e.target.value);
+    var name = e.target.value;
+    
+    for(var i = 0; i < mapping.length; i++)
+    {
+      if(mapping[i].startsWith(name))
+      {
+          mapping.splice(i, 1);
+      }
+    }
+
+    if(name.includes(':') && !mapping.includes(name))
+    {
+      mapping.push(name);
+    }
+
+    console.log(mapping);
+    setMapping(mapping);
+
   };
 
   const handlePreview = async (event) => {
@@ -154,7 +180,7 @@ const ObjektDataImportGeoJson = () => {
       {geoJson && Object.keys(geoJson.features[0].properties).map((key, i) => (
           <tr key={i}>
             <td>{key}</td>
-            <td><select name={key}>
+            <td><select name={key} onChange={(event) => updateMapping(event)}>
             <option value={key}>Ikke mappet</option>
             {objekt.data !== undefined && objekt.data[0].ForvaltningsObjektPropertiesMetadata.map(d => 
               <option key={d.Name} value={key +':'+ d.Name}>{d.Name}</option>
@@ -184,7 +210,7 @@ const ObjektDataImportGeoJson = () => {
       <thead> 
       </thead>
       <tbody>
-      <tr><td>Under konstruksjon</td></tr>
+      <tr><td>{mapping}</td></tr>
       </tbody>
       </table>
     )
