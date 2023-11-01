@@ -206,11 +206,16 @@ const ObjektDataImportGeoJson = () => {
 
     {preview && 
     (
-      <table>
+      <table border="1">
       <thead> 
+      <tr>{mapping.map(d => 
+              <th>{d.split(':')[1]}</th>
+          )}</tr>
       </thead>
       <tbody>
-      <tr><td>{mapping}</td></tr>
+      <tr>{mapping.map(d => 
+              <td>{geoJson.features[0].properties[d.split(':')[0]]}</td>
+          )}</tr>
       </tbody>
       </table>
     )
