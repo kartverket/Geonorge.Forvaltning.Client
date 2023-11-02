@@ -94,6 +94,21 @@ const ObjektDataImportGeoJson = () => {
 
   };
 
+  const getMapping = (name) => {
+    
+    for(var i = 0; i < mapping.length; i++)
+    {
+      if(mapping[i].endsWith(":" + name))
+      {
+          var item = mapping[i].split(':')[0];
+          return item;
+      }
+    }
+
+    return name;
+
+  };
+
   const handlePreview = async (event) => {
     event.preventDefault();
     setPreview(true);
@@ -128,7 +143,100 @@ const ObjektDataImportGeoJson = () => {
   
   }
 
- 
+  const handleImport = async (event) => {
+    event.preventDefault();
+
+    var propName;
+    var value;
+    var dataType;
+    var columnName = '';
+    var tableName = objekt.data[0].TableName;
+
+    console.log(tableName);
+
+    geoJson.features.map( async (item) => {
+      var su = '{';
+
+        for(var i = 0; i < objekt.data[0].ForvaltningsObjektPropertiesMetadata.length; i++)
+        {
+          var o2 = objekt.data[0].ForvaltningsObjektPropertiesMetadata[i];
+          if(o2.name !== "id")
+          {
+            propName = getMapping(o2.Name);
+            dataType = o2.DataType;
+            value = item.properties[propName]?.toString();
+            columnName = o2.ColumnName;
+            if(columnName == null)
+              columnName = propName;
+
+            console.log(propName + ":" + value);
+
+            if(dataType == "bool" || dataType == "numeric" )
+            {
+              if(value)
+                su = su + ' "'+ columnName +'" : '+ value.replace(",", ".") +' ';
+              else
+                su = su + ' "'+ columnName +'" : 0 ';
+            }
+            else{
+              su = su + ' "'+ columnName +'" : "'+ value +'" ';
+            }
+
+            if( i < objekt.data[0].ForvaltningsObjektPropertiesMetadata.length -1)
+            {
+              su = su + ",";
+            }
+        }
+        }
+
+        console.log(session);
+        if(item.geometry != undefined)
+          su = su  + ' , "geometry" : '+ JSON.stringify(item.geometry) +' ';
+
+        su = su  + ' , "owner_org" : "'+ user.data[0].organization +'" ';
+
+        su = su  + ' , "editor" : "'+ session.data.session.user.email +'" ';
+
+        su = su  + ' , "updatedate" : "'+ ((new Date()).toISOString()).toLocaleString('no-NO') +'" ';
+        
+        su = su + "}";
+
+        console.log(su);
+
+        var insert = JSON.parse(su);
+        console.log(insert);
+
+        const { error } = await supabase
+        .from(tableName)
+        .insert(insert)
+
+        console.log(error);
+
+        if(error == null)
+        {
+          setShowSuccessDialogBox();
+        }
+        else
+        {
+          showDialogErrorBox();
+
+          if (error.response?.data) {
+              const messages = Object.values(error.response.data).map((value) => value.join(", "));
+              setErrorMessage(messages.join("\r\n"));
+          }
+          else if (error?.message) 
+          { 
+            setErrorMessage(error.message);
+          }
+          else {
+              setErrorMessage(error);
+          }
+        }
+        
+        console.log(error)
+      
+      });
+  }
 
 
 
@@ -160,7 +268,7 @@ const ObjektDataImportGeoJson = () => {
         >
           Importer geojson
         </button>
-        <input style={{float: "right"}} type="submit" value="Lagre" />
+        <input style={{float: "right"}} type="submit" value="Lagre" onClick={handleImport} />
         <gn-dialog show={showSuccessDialog} width="" overflow="">
                 <body-text>Dataene ble lagt til</body-text>
             </gn-dialog>
@@ -198,7 +306,7 @@ const ObjektDataImportGeoJson = () => {
       }  
       {geoJson &&
       (
-        <tr><td></td><td><button onClick={handlePreview}>Forhåndsvis</button></td></tr>
+        <tr><td></td><td><button onClick={handlePreview}>Forhåndsvis 1 rad</button></td></tr>
       )
       }      
       </tbody>
