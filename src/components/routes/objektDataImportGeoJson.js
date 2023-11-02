@@ -173,8 +173,19 @@ const ObjektDataImportGeoJson = () => {
 
             if(dataType == "bool" || dataType == "numeric" )
             {
-              if(value)
-                su = su + ' "'+ columnName +'" : '+ value.replace(",", ".") +' ';
+              if(value){
+
+                value = value.replace(",", ".");
+
+                if(value === "Yes")
+                  value = 1;
+                if(value === "No")
+                  value = 0;
+                if(value === "Unknown")
+                  value = null;
+
+                su = su + ' "'+ columnName +'" : '+ value +' ';
+              }
               else
                 su = su + ' "'+ columnName +'" : 0 ';
             }
