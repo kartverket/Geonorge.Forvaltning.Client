@@ -154,8 +154,14 @@ const ObjektDataImportGeoJson = () => {
 
     console.log(tableName);
 
+    var su = "[";
+
+    var length = geoJson.features.length;
+    var counter = 0;
+    console.log("length:" + length);
+
     geoJson.features.map( async (item) => {
-      var su = '{';
+      su = su + '{';
 
         for(var i = 0; i < objekt.data[0].ForvaltningsObjektPropertiesMetadata.length; i++)
         {
@@ -211,45 +217,52 @@ const ObjektDataImportGeoJson = () => {
         su = su  + ' , "updatedate" : "'+ ((new Date()).toISOString()).toLocaleString('no-NO') +'" ';
         
         su = su + "}";
-
-        console.log(su);
-
-        var insert = JSON.parse(su);
-        console.log(insert);
-
-        const { error } = await supabase
-        .from(tableName)
-        .insert(insert)
-
-        console.log(error);
-
-        if(error == null)
-        {
-          setShowSuccessDialogBox();
-        }
-        else
-        {
-          showDialogErrorBox();
-
-          if (error.response?.data) {
-              const messages = Object.values(error.response.data).map((value) => value.join(", "));
-              setErrorMessage(messages.join("\r\n"));
-          }
-          else if (error?.message) 
-          { 
-            setErrorMessage(error.message);
-          }
-          else {
-              setErrorMessage(error);
-          }
-        }
         
-        console.log(error)
+        if(counter + 1 !== length){ 
+          su = su + ",";
+        }
       
+        counter++;
+
       });
+
+      su = su + "]";
+
+      console.log(su);
+
+      var insert = JSON.parse(su);
+      console.log(insert);
+
+      const { error } = await supabase
+      .from(tableName)
+      .insert(insert)
+
+      console.log(error);
+
+      if(error == null)
+      {
+        setShowSuccessDialogBox();
+      }
+      else
+      {
+        showDialogErrorBox();
+
+        if (error.response?.data) {
+            const messages = Object.values(error.response.data).map((value) => value.join(", "));
+            setErrorMessage(messages.join("\r\n"));
+        }
+        else if (error?.message) 
+        { 
+          setErrorMessage(error.message);
+        }
+        else {
+            setErrorMessage(error);
+        }
+      }
+      
+      console.log(error)
+
   }
-
-
 
   useEffect(() => {
 
