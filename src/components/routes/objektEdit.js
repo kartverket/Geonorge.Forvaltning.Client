@@ -22,6 +22,8 @@ const ObjektEdit = () => {
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const [errorMessage, setErrorMessage] = useState();
 
+  const [newAllowedValue, setNewAllowedValue] = useState('');
+
   const setShowSuccessDialogBox = () => {
     setShowSuccessDialog(false);
     setTimeout(() => {
@@ -84,7 +86,7 @@ const ObjektEdit = () => {
         if(event.target.name == 'dataType')
         objektDef.data[0].ForvaltningsObjektPropertiesMetadata[event.target.id].DataType = event.target.value;
     }
-    else
+    else if (["title"].includes(event.target.name))
     {
       //setProperties({"title": event.target.value, properties: objekt.properties})
       objektDef.data[0].Name = event.target.value;
@@ -92,6 +94,41 @@ const ObjektEdit = () => {
     
     console.log(objektDef);
   }
+
+  const handleUpdateAllowedValue = (event, index, row) => 
+  {
+    event.preventDefault();
+
+    objektDef.data[0].ForvaltningsObjektPropertiesMetadata[index].AllowedValues[row] = event.target.value;
+    
+    console.log(objektDef);
+  }
+
+  const handleRemoveAllowedValue = (event, index, row) => 
+  {
+    event.preventDefault();
+    var metadata = Object.create(objektDef);
+    metadata.data[0].ForvaltningsObjektPropertiesMetadata[index].AllowedValues.splice(row,1);
+
+    setObjektDef(metadata);
+    
+    console.log(objektDef);
+  }
+  
+  const handleAddAllowedValue = (event, index) => 
+  {
+    event.preventDefault();
+    var metadata = Object.create(objektDef);
+    if(metadata.data[0].ForvaltningsObjektPropertiesMetadata[index].AllowedValues === null)
+      metadata.data[0].ForvaltningsObjektPropertiesMetadata[index].AllowedValues = [];
+    metadata.data[0].ForvaltningsObjektPropertiesMetadata[index].AllowedValues.push(newAllowedValue);
+
+    setObjektDef(metadata);
+    
+    console.log(objektDef);
+
+    setNewAllowedValue('');
+  } 
 
   const handleEditObject = async (event) => {
     event.preventDefault();
@@ -157,7 +194,7 @@ const ObjektEdit = () => {
     .select(`
     Id, Organization,Name,
     ForvaltningsObjektPropertiesMetadata (
-      Id,Name,DataType
+      Id,Name,DataType,AllowedValues
     )`).eq('Id', id)
   .then((res) => 
   {
@@ -199,7 +236,15 @@ const ObjektEdit = () => {
               <option value="numeric" >tall</option>
               <option value="timestamp">dato-tid</option>
             </select>
-            <button onClick={e => removeProperty(e, index)}>Fjern</button>
+            <br></br>
+            Begrens tillatte verdier til:<br></br><input type="text" name="allowedValueAdd" onChange={(e) => setNewAllowedValue(e.target.value)}/><button onClick={e => handleAddAllowedValue(e, index)}>Legg til tillatt verdi</button>
+            {property.AllowedValues && property.AllowedValues.map((value, row) => (
+              <div key={value}>
+              <input id={row} type="text" name="allowedValue" defaultValue={value} onChange={e => handleUpdateAllowedValue(e, index, row)} />
+              <button id={row} onClick={e => handleRemoveAllowedValue(e, index, row)}>Fjern tillatt verdi</button>
+              </div>
+            ))}
+            <button onClick={e => removeProperty(e, index)}>Fjern egenskap</button>
           </div>
         )
       }): null}
