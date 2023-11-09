@@ -61,7 +61,7 @@ const ObjektAdd = () => {
     //setProperties({properties : props});
     //setProperties({properties: [... properties, { name: "", datatype: "" }]});
     //setProperties({properties: objekt.properties.concat({ name:  event.target.name.value, datatype: event.target.dataType.value })});
-    setProperties({title: objekt.title, properties:[
+    setProperties({title: objekt.title, description: objekt.description, isopendata : objekt.isopendata, properties:[
       ...objekt.properties,
       {name: "", dataType: ""}
     ]  
@@ -74,12 +74,12 @@ const ObjektAdd = () => {
     event.preventDefault();
     console.log(objekt.properties);
     var props = objekt.properties.splice(index, 1);
-    setProperties({title: objekt.title, properties : props});
+    setProperties({title: objekt.title, description: objekt.description, isopendata : objekt.isopendata, properties : props});
   }
 
   const handleFieldChange = event => 
   {
-    event.preventDefault();
+    event.persist();
 
     
 
@@ -87,11 +87,21 @@ const ObjektAdd = () => {
     {
       let properties = [...objekt.properties];
       properties[event.target.id][event.target.name] = event.target.value;
-      setProperties({title: objekt.title, properties: properties});
+      setProperties({title: objekt.title, description: objekt.description, isopendata : objekt.isopendata, properties: properties});
     }
-    else
+    else if (["title","description", "isopendata"].includes(event.target.name))
     {
-      setProperties({"title": event.target.value, properties: objekt.properties})
+
+      if(event.target.name == 'title')
+        setProperties({"title": event.target.value, "description" : objekt.description, "isopendata" : objekt.isopendata , properties: objekt.properties})
+
+      if(event.target.name == 'description')
+        setProperties({"title": objekt.title, "description" : event.target.value, "isopendata" : objekt.isopendata , properties: objekt.properties})
+
+      if(event.target.name == 'isopendata')
+      {
+        setProperties({"title": objekt.title, "description" : objekt.description, "isopendata" : event.target.checked , properties: objekt.properties})
+      }
     }
     
     console.log(objekt);
@@ -109,6 +119,8 @@ const ObjektAdd = () => {
 
       var obj = {
         "name": objekt.title,
+        "description" : objekt.description,
+        "isopendata" : objekt.isopendata,
         "properties": 
           objekt.properties
         };
@@ -173,6 +185,12 @@ const ObjektAdd = () => {
       <form onSubmit={handleAddObject} onChange={handleFieldChange}>
       <label htmlFor="name">Navn:</label>
       <input type="text" name="title"  />
+      <br></br>
+      <label htmlFor="description">Beskrivelse:</label>
+      <textarea name="description" id="description"></textarea>
+      <br></br>
+      <label htmlFor="isopendata">Åpne data:</label>
+      <input type="checkbox" name="isopendata" id="isopendata" value={true}  />
       <br></br>
       <h2>Egenskaper</h2>
       <button onClick={AddProperty}>Legg til egenskap</button>

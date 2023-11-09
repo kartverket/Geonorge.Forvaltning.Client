@@ -88,7 +88,7 @@ const ObjektEdit = () => {
     }
     else if (["title","description", "isopendata"].includes(event.target.name))
     {
-      if(event.target.name == 'name')
+      if(event.target.name == 'title')
         objektDef.data[0].Name = event.target.value;
 
       if(event.target.name == 'description')
@@ -242,7 +242,7 @@ const ObjektEdit = () => {
       <textarea name="description" id="description" defaultValue={objektDef.data && objektDef.data[0].Description}></textarea>
       <br></br>
       <label htmlFor="isopendata">Åpne data:</label>
-      <input type="checkbox" name="isopendata" id="isopendata" onChange={handleFieldChange} checked={objektDef.data && objektDef.data[0].IsOpenData ? true : false} value={true}  />
+      <input type="checkbox" name="isopendata" id="isopendata" checked={objektDef.data && objektDef.data[0].IsOpenData ? true : false} value={true}  />
       <br></br>
       <h2>Egenskaper</h2>
       <button onClick={AddProperty}>Legg til egenskap</button>
