@@ -71,7 +71,7 @@ const ObjektEdit = () => {
 
   const handleFieldChange = event => 
   {
-    event.preventDefault();
+    event.persist();
 
     
 
