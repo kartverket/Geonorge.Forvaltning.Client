@@ -86,13 +86,26 @@ const ObjektEdit = () => {
         if(event.target.name == 'dataType')
         objektDef.data[0].ForvaltningsObjektPropertiesMetadata[event.target.id].DataType = event.target.value;
     }
-    else if (["title"].includes(event.target.name))
+    else if (["title","description", "isopendata"].includes(event.target.name))
     {
-      //setProperties({"title": event.target.value, properties: objekt.properties})
-      objektDef.data[0].Name = event.target.value;
+      if(event.target.name == 'name')
+        objektDef.data[0].Name = event.target.value;
+
+      if(event.target.name == 'description')
+        objektDef.data[0].Description = event.target.value;
+
+      if(event.target.name == 'isopendata')
+      {
+          objektDef.data[0].IsOpenData = event.target.checked;
+      }
+
+        console.log(objektDef.data[0].IsOpenData);
     }
     
-    console.log(objektDef);
+    var newObjekt = Object.create(objektDef);
+    setObjektDef(newObjekt);
+
+    console.log(event);
   }
 
   const handleUpdateAllowedValue = (event, index, row) => 
@@ -139,6 +152,8 @@ const ObjektEdit = () => {
 
       var obj = {
         "name": objektDef.data[0].Name,
+        "description" : objektDef.data[0].Description,
+        "isopendata" : objektDef.data[0].IsOpenData,
         "properties": 
           objektDef.data[0].ForvaltningsObjektPropertiesMetadata
         };
@@ -192,7 +207,7 @@ const ObjektEdit = () => {
     await supabase
     .from('ForvaltningsObjektMetadata')
     .select(`
-    Id, Organization,Name,
+    Id, Organization,Name,Description,IsOpenData,
     ForvaltningsObjektPropertiesMetadata (
       Id,Name,DataType,AllowedValues
     )`).eq('Id', id)
@@ -222,6 +237,12 @@ const ObjektEdit = () => {
       <form onSubmit={handleEditObject} onChange={handleFieldChange}>
       <label htmlFor="name">Navn:</label>
       <input type="text" name="title" id="name" defaultValue={objektDef.data && objektDef.data[0].Name}  />
+      <br></br>
+      <label htmlFor="description">Beskrivelse:</label>
+      <textarea name="description" id="description" defaultValue={objektDef.data && objektDef.data[0].Description}></textarea>
+      <br></br>
+      <label htmlFor="isopendata">Åpne data:</label>
+      <input type="checkbox" name="isopendata" id="isopendata" onChange={handleFieldChange} checked={objektDef.data && objektDef.data[0].IsOpenData ? true : false} value={true}  />
       <br></br>
       <h2>Egenskaper</h2>
       <button onClick={AddProperty}>Legg til egenskap</button>
