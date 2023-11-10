@@ -207,7 +207,7 @@ const ObjektEdit = () => {
     await supabase
     .from('ForvaltningsObjektMetadata')
     .select(`
-    Id, Organization,Name,Description,IsOpenData,
+    Id, Organization,Name,Description,IsOpenData, srid,
     ForvaltningsObjektPropertiesMetadata (
       Id,Name,DataType,AllowedValues
     )`).eq('Id', id)
@@ -244,6 +244,7 @@ const ObjektEdit = () => {
       <label htmlFor="isopendata">Åpne data:</label>
       <input type="checkbox" name="isopendata" id="isopendata" checked={objektDef.data && objektDef.data[0].IsOpenData ? true : false} value={true}  />
       <br></br>
+      <span>Srid: {objektDef.data && objektDef.data[0].srid}</span>
       <h2>Egenskaper</h2>
       <button onClick={AddProperty}>Legg til egenskap</button>
       {objektDef.data ? objektDef.data[0].ForvaltningsObjektPropertiesMetadata.map((property, index) => {
