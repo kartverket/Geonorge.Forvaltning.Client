@@ -163,20 +163,28 @@ const ObjektDataImportGeoJson = () => {
     console.log('geoJson:' + geoJson);
 
     var crs = geoJson?.crs?.properties?.name;
-    var sid = null;
+    var srid = null;
     console.log('crs:' + crs);
     if(crs !== undefined)
     {
       var crsName = crs.split(':');
       if(crsName !== undefined && crsName.length > 0)
       {
-        console.log("hhhhhhh");
         //if(Number.isInteger(crsName[crsName.length -1 ]))
-          sid = crsName[crsName.length -1];
+        srid = crsName[crsName.length -1];
+
+        var json = { "srid": srid };
+        const { errorUpdate } = await supabase
+        .from("ForvaltningsObjektMetadata")
+        .update(json)
+        .eq('Id', objekt.data[0].Id);
+
+        console.log(errorUpdate);
+
       }
     }
 
-    console.log('sid:' + sid);
+    console.log('srid:' + srid);
 
     geoJson.features.map( async (item) => {
       su = su + '{';
@@ -225,11 +233,8 @@ const ObjektDataImportGeoJson = () => {
         }
 
         console.log(session);
-        if(item.geometry != undefined){
+        if(item.geometry != undefined)
           su = su  + ' , "geometry" : '+ JSON.stringify(item.geometry) +' ';
-          if(sid !== null)
-            su = su  + ' , "sid" : '+ sid +' ';
-        }
 
         su = su  + ' , "owner_org" : "'+ user.data[0].organization +'" ';
 
