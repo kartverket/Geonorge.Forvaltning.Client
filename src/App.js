@@ -11,6 +11,8 @@ import ObjektDelete from "./components/routes/objektDelete";
 import ObjektDataAdd from "./components/routes/objektDataAdd";
 import ObjektDataImport from "./components/routes/objektDataImport";
 import ObjektDataImportGeoJson from "./components/routes/objektDataImportGeoJson";
+import ObjektAccessByProperties from "./components/routes/objektAccessByProperties";
+
 import Layout from "./components/layout"
 
 import style from "./App.module.scss";
@@ -58,6 +60,10 @@ function App() {
         {
           element: <ObjektDataImportGeoJson />,
           path: "objekt/:id/importgeojson"
+        },
+        {
+          element: <ObjektAccessByProperties />,
+          path: "objekt/:id/accessbyproperties"
         },
         {
           element: <NotFound />,

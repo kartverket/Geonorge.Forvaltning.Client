@@ -287,13 +287,14 @@ const ObjektEdit = () => {
 
       {objektDef.data && (
       <div>
-        Bidragsytere (organisasjonsnummer):<br></br><input type="text" name="ContributorsAdd" onChange={(e) => setNewContributor(e.target.value)}/><button onClick={e => handleAddContributor(e)}>Legg organisasjon</button>
+        Bidragsytere med editeringstilgang (organisasjonsnummer):<br></br><input type="text" name="ContributorsAdd" onChange={(e) => setNewContributor(e.target.value)}/><button onClick={e => handleAddContributor(e)}>Legg organisasjon</button>
         {objektDef.data[0].Contributors && objektDef.data[0].Contributors.map((value, row) => (
           <div key={value}>
           <input id={row} type="text" name="Contributors" defaultValue={value} onChange={e => handleUpdateContributor(e, row)} />
           <button id={row} onClick={e => handleRemoveContributor(e, row)}>Fjern organisasjon</button>
           </div>
         ))}
+        <Link to={`/objekt/${objektDef.data[0].Id}/accessbyproperties`}>Egenskaps-basert tilgang</Link>
       </div>
       )}
 
