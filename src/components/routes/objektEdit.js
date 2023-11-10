@@ -23,6 +23,7 @@ const ObjektEdit = () => {
   const [errorMessage, setErrorMessage] = useState();
 
   const [newAllowedValue, setNewAllowedValue] = useState('');
+  const [newContributor, setNewContributor] = useState('');
 
   const setShowSuccessDialogBox = () => {
     setShowSuccessDialog(false);
@@ -117,11 +118,31 @@ const ObjektEdit = () => {
     console.log(objektDef);
   }
 
+  const handleUpdateContributor = (event, row) => 
+  {
+    event.preventDefault();
+
+    objektDef.data[0].Contributors[row] = event.target.value;
+    
+    console.log(objektDef);
+  }
+
   const handleRemoveAllowedValue = (event, index, row) => 
   {
     event.preventDefault();
     var metadata = Object.create(objektDef);
     metadata.data[0].ForvaltningsObjektPropertiesMetadata[index].AllowedValues.splice(row,1);
+
+    setObjektDef(metadata);
+    
+    console.log(objektDef);
+  }
+
+  const handleRemoveContributor = (event, row) => 
+  {
+    event.preventDefault();
+    var metadata = Object.create(objektDef);
+    metadata.data[0].Contributors.splice(row,1);
 
     setObjektDef(metadata);
     
@@ -143,6 +164,22 @@ const ObjektEdit = () => {
     setNewAllowedValue('');
   } 
 
+  const handleAddContributor= (event) => 
+  {
+    event.preventDefault();
+    var metadata = Object.create(objektDef);
+    console.log(metadata.data[0].Contributors);
+    if(metadata.data[0].Contributors === null || metadata.data[0].Contributors === undefined)
+      metadata.data[0].Contributors = [];
+    metadata.data[0].Contributors.push(newContributor);
+
+    setObjektDef(metadata);
+    
+    console.log(objektDef);
+
+    setNewContributor('');
+  } 
+
   const handleEditObject = async (event) => {
     event.preventDefault();
 
@@ -154,6 +191,7 @@ const ObjektEdit = () => {
         "name": objektDef.data[0].Name,
         "description" : objektDef.data[0].Description,
         "isopendata" : objektDef.data[0].IsOpenData,
+        "contributors" : objektDef.data[0].Contributors,
         "properties": 
           objektDef.data[0].ForvaltningsObjektPropertiesMetadata
         };
@@ -207,7 +245,7 @@ const ObjektEdit = () => {
     await supabase
     .from('ForvaltningsObjektMetadata')
     .select(`
-    Id, Organization,Name,Description,IsOpenData, srid,
+    Id, Organization,Name,Description,IsOpenData, srid, Contributors,
     ForvaltningsObjektPropertiesMetadata (
       Id,Name,DataType,AllowedValues
     )`).eq('Id', id)
@@ -245,6 +283,21 @@ const ObjektEdit = () => {
       <input type="checkbox" name="isopendata" id="isopendata" checked={objektDef.data && objektDef.data[0].IsOpenData ? true : false} value={true}  />
       <br></br>
       <span>Srid: {objektDef.data && objektDef.data[0].srid}</span>
+
+
+      {objektDef.data && (
+      <div>
+        Bidragsytere (organisasjonsnummer):<br></br><input type="text" name="ContributorsAdd" onChange={(e) => setNewContributor(e.target.value)}/><button onClick={e => handleAddContributor(e)}>Legg organisasjon</button>
+        {objektDef.data[0].Contributors && objektDef.data[0].Contributors.map((value, row) => (
+          <div key={value}>
+          <input id={row} type="text" name="Contributors" defaultValue={value} onChange={e => handleUpdateContributor(e, row)} />
+          <button id={row} onClick={e => handleRemoveContributor(e, row)}>Fjern organisasjon</button>
+          </div>
+        ))}
+      </div>
+      )}
+
+
       <h2>Egenskaper</h2>
       <button onClick={AddProperty}>Legg til egenskap</button>
       {objektDef.data ? objektDef.data[0].ForvaltningsObjektPropertiesMetadata.map((property, index) => {
