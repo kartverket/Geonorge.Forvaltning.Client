@@ -36,35 +36,18 @@ const ObjektAccessByProperties = () => {
       });
   };
 
-  const AddProperty = async (event) => {
+  const AddProperty = async (event, property, index) => {
     event.preventDefault();
 
-    objektDef.data[0].ForvaltningsObjektPropertiesMetadata.push({Id: 0, Name: '', DataType: ''})
-
-    console.log(objektDef);
-
-    setProperties({title: objekt.title, properties:[
-      ...objekt.properties,
-      {name: "", dataType: ""}
-    ]  
-    });
+    //todo
   }
 
   const removeProperty = (event, index) => 
   {
     event.preventDefault();
 
-    console.log(index);
+    //todo
 
-    var deleted = objektDef.data[0].ForvaltningsObjektPropertiesMetadata.splice(index, 1);
-    console.log(deleted);
-    console.log(objektDef);
-    setObjektDef(objektDef);
-    console.log(objektDef);
-
-    //console.log(objekt.properties);
-    var props = objekt.properties;//.splice(index, 1);
-    setProperties({title: objekt.title, properties : props});
   }
 
   const handleFieldChange = event => 
@@ -115,26 +98,38 @@ const ObjektAccessByProperties = () => {
 
     console.log(objektDef)
 
+    var access = [];
+    
+    objektDef.data[0].ForvaltningsObjektPropertiesMetadata.map((property, index) => {
+  
+      if(property.AccessByProperties && property.AccessByProperties.length > 0)
+      {
+        for(var a = 0; a < property.AccessByProperties.length; a++)
+        {
+          access.push(
+            { 
+              "PropertyId": property.Id,
+              "Value": property.AccessByProperties[a].Value,
+              "Contributors": property.AccessByProperties[a].Contributors 
+            }
+          );
+        }
+      }
+    
+    });
+
       var obj = {
         "objekt": id,
-        //todo
-        "AccessByProperties": 
-        [
-          {
-            "PropertyId": 89,
-            "Value": "Esso",
-            "Contributors": [
-              "914994780"
-            ]
-          }
-        ]
+        "AccessByProperties": access
         };
 
         console.log(obj);
 
+        //return;
+
         // POST request using fetch with error handling
       const requestOptions = {
-          method: 'PUT',
+          method: 'POST',
           headers: new Headers({
             'Content-Type': 'application/json',
             'Authorization' : 'Bearer ' + responseSession.data.session.access_token,
@@ -215,12 +210,14 @@ const ObjektAccessByProperties = () => {
         return (
           <div key={property.Id}>
             <b>{property.Name}</b><br></br>
-            <button onClick={AddProperty}>Legg til</button><br></br>
-
-            <label>Verdi:</label><input type="text" name="value"  />
-            <label>Organisasjon:</label><input type="text" name="contributor"  />
+            <button onClick={e => AddProperty(e, property, index)}>Legg til</button>
+            {property.AccessByProperties && property.AccessByProperties.map((value, row) => (
+              <div>
+            <label>Verdi:</label><input type="text" name="value" defaultValue={value.Value}  />
+            <label>Organisasjon:</label><input type="text" name="contributor" defaultValue={value.Contributors}  />
             <button onClick={e => removeProperty(e, index)}>Fjern</button>
-
+            </div>
+            ))}
           </div>
         )
       }): null}
