@@ -39,7 +39,9 @@ const ObjektAccessByProperties = () => {
   const AddProperty = async (event, property, index) => {
     event.preventDefault();
 
+    //todo handle value for other datatypes than string?
     var value = document.getElementById('value'+property.Id).value;
+    //todo handle input more than one contributor
     var contributors = document.getElementById('contributors'+property.Id).value;
 
     objektDef.data[0].ForvaltningsObjektPropertiesMetadata[index].AccessByProperties.push
@@ -83,33 +85,19 @@ const ObjektAccessByProperties = () => {
   {
     event.persist();
 
-    
+    console.log(event.target.id);
 
-    if(["name", "dataType"].includes(event.target.name))
+    var event_id = event.target.id.split("-");
+    var propertyIndex = event_id[0];
+    var accessIndex = event_id[1];
+
+    if(["value", "contributor"].includes(event.target.name))
     {
-      //let properties = [...objekt.properties];
-      //properties[event.target.id][event.target.name] = event.target.value;
-      //setProperties({title: objekt.title, properties: properties});
-      if(event.target.name == 'name')
-        objektDef.data[0].ForvaltningsObjektPropertiesMetadata[event.target.id].Name = event.target.value;
+      if(event.target.name == 'value')
+        objektDef.data[0].ForvaltningsObjektPropertiesMetadata[propertyIndex].AccessByProperties[accessIndex].Value = event.target.value;
 
-        if(event.target.name == 'dataType')
-        objektDef.data[0].ForvaltningsObjektPropertiesMetadata[event.target.id].DataType = event.target.value;
-    }
-    else if (["title","description", "isopendata"].includes(event.target.name))
-    {
-      if(event.target.name == 'title')
-        objektDef.data[0].Name = event.target.value;
-
-      if(event.target.name == 'description')
-        objektDef.data[0].Description = event.target.value;
-
-      if(event.target.name == 'isopendata')
-      {
-          objektDef.data[0].IsOpenData = event.target.checked;
-      }
-
-        console.log(objektDef.data[0].IsOpenData);
+        if(event.target.name == 'contributor')
+          objektDef.data[0].ForvaltningsObjektPropertiesMetadata[propertyIndex].AccessByProperties[accessIndex].Contributors = [event.target.value];
     }
     
     var newObjekt = Object.create(objektDef);
@@ -216,10 +204,7 @@ const ObjektAccessByProperties = () => {
   .catch((err => console.log(err)))
 
   }   
-
-
   useEffect(() => {
-
     fetchObject();
 
   }, []);
@@ -231,24 +216,23 @@ const ObjektAccessByProperties = () => {
         {objektDef.data !== undefined && (
         <Link to={`/objekt/${id}/edit`}>Tilbake</Link>
         )}
-      <h1>Egenskapsbaserte tilgangsrettigheter</h1>
-      <h2>todo page under construction</h2>
+      <h1>Egenskapsbaserte-tilgangsrettigheter</h1>
       <form onSubmit={handleEditObject} onChange={handleFieldChange}>
 
       {objektDef.data ? objektDef.data[0].ForvaltningsObjektPropertiesMetadata.map((property, index) => {
         return (
           <div key={property.Id}>
             <b>{property.Name}</b><br></br>
-            <label>Verdi:</label><input type="text" id={'value' + property.Id}  />
-            <label>Organisasjon:</label><input type="text" id={'contributors' + property.Id}  />
-            <button onClick={e => AddProperty(e, property, index)}>Legg til</button>
             {property.AccessByProperties && property.AccessByProperties.map((value, row) => (
               <div>
-            <label>Verdi:</label><input type="text" name="value" defaultValue={value.Value}  />
-            <label>Organisasjon:</label><input type="text" name="contributor" defaultValue={value.Contributors}  />
+            <label>Verdi:</label><input type="text" id={index+'-'+row} name="value" defaultValue={value.Value}  />
+            <label>Organisasjon:</label><input type="text" id={index+'-'+row} name="contributor" defaultValue={value.Contributors}  />
             <button onClick={e => removeProperty(e, index, row)}>Fjern</button>
             </div>
             ))}
+            <label>Verdi:</label><input type="text" id={'value' + property.Id}  />
+            <label>Organisasjon:</label><input type="text" id={'contributors' + property.Id}  />
+            <button onClick={e => AddProperty(e, property, index)}>Legg til</button>
           </div>
         )
       }): null}
