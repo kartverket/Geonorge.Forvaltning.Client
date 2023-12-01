@@ -39,7 +39,26 @@ const ObjektAccessByProperties = () => {
   const AddProperty = async (event, property, index) => {
     event.preventDefault();
 
-    //todo
+    var value = document.getElementById('value'+property.Id).value;
+    var contributors = document.getElementById('contributors'+property.Id).value;
+
+    objektDef.data[0].ForvaltningsObjektPropertiesMetadata[index].AccessByProperties.push
+    (
+      {
+        Id: property.Id,
+        Value: value,
+        Contributors: [contributors] 
+      }
+    );
+
+    console.log(objektDef);
+
+    //todo why needed?
+    setProperties({title: objekt.title, properties:[
+      ...objekt.properties,
+      {name: "", dataType: ""}
+    ]  
+    });
   }
 
   const removeProperty = (event, index) => 
@@ -210,6 +229,8 @@ const ObjektAccessByProperties = () => {
         return (
           <div key={property.Id}>
             <b>{property.Name}</b><br></br>
+            <label>Verdi:</label><input type="text" id={'value' + property.Id}  />
+            <label>Organisasjon:</label><input type="text" id={'contributors' + property.Id}  />
             <button onClick={e => AddProperty(e, property, index)}>Legg til</button>
             {property.AccessByProperties && property.AccessByProperties.map((value, row) => (
               <div>
