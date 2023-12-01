@@ -61,11 +61,21 @@ const ObjektAccessByProperties = () => {
     });
   }
 
-  const removeProperty = (event, index) => 
+  const removeProperty = (event, index, row) => 
   {
     event.preventDefault();
 
-    //todo
+    console.log(index);
+
+    var deleted = objektDef.data[0].ForvaltningsObjektPropertiesMetadata[index].AccessByProperties.splice(row, 1);
+    console.log(deleted);
+    console.log(objektDef);
+    setObjektDef(objektDef);
+    console.log(objektDef);
+
+    //console.log(objekt.properties);
+    var props = objekt.properties;//.splice(index, 1);
+    setProperties({title: objekt.title, properties : props});
 
   }
 
@@ -236,7 +246,7 @@ const ObjektAccessByProperties = () => {
               <div>
             <label>Verdi:</label><input type="text" name="value" defaultValue={value.Value}  />
             <label>Organisasjon:</label><input type="text" name="contributor" defaultValue={value.Contributors}  />
-            <button onClick={e => removeProperty(e, index)}>Fjern</button>
+            <button onClick={e => removeProperty(e, index, row)}>Fjern</button>
             </div>
             ))}
           </div>
