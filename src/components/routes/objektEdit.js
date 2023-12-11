@@ -283,21 +283,9 @@ const ObjektEdit = () => {
       <input type="checkbox" name="isopendata" id="isopendata" checked={objektDef.data && objektDef.data[0].IsOpenData ? true : false} value={true}  />
       <br></br>
       <span>Srid: {objektDef.data && objektDef.data[0].srid}</span>
-
-
-      {objektDef.data && (
-      <div>
-        Bidragsytere med editeringstilgang (organisasjonsnummer):<br></br><input type="text" name="ContributorsAdd" onChange={(e) => setNewContributor(e.target.value)}/><button onClick={e => handleAddContributor(e)}>Legg organisasjon</button>
-        {objektDef.data[0].Contributors && objektDef.data[0].Contributors.map((value, row) => (
-          <div key={value}>
-          <input id={row} type="text" name="Contributors" defaultValue={value} onChange={e => handleUpdateContributor(e, row)} />
-          <button id={row} onClick={e => handleRemoveContributor(e, row)}>Fjern organisasjon</button>
-          </div>
-        ))}
-        <Link to={`/objekt/${objektDef.data[0].Id}/accessbyproperties`}>Egenskaps-basert tilgang</Link>
-      </div>
-      )}
-
+      
+      <br></br>
+      <Link to={`/objekt/${id}/accessbyproperties`}>Rediger tilgangsrettigheter</Link>
 
       <h2>Egenskaper</h2>
       <button onClick={AddProperty}>Legg til egenskap</button>

@@ -22,6 +22,8 @@ const ObjektAccessByProperties = () => {
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const [errorMessage, setErrorMessage] = useState();
 
+  const [newContributor, setNewContributor] = useState('');
+
   const setShowSuccessDialogBox = () => {
     setShowSuccessDialog(false);
     setTimeout(() => {
@@ -106,7 +108,41 @@ const ObjektAccessByProperties = () => {
     console.log(event);
   }
 
+  const handleAddContributor= (event) => 
+  {
+    event.preventDefault();
+    var metadata = Object.create(objektDef);
+    console.log(metadata.data[0].Contributors);
+    if(metadata.data[0].Contributors === null || metadata.data[0].Contributors === undefined)
+      metadata.data[0].Contributors = [];
+    metadata.data[0].Contributors.push(newContributor);
 
+    setObjektDef(metadata);
+    
+    console.log(objektDef);
+
+    setNewContributor('');
+  } 
+
+  const handleRemoveContributor = (event, row) => 
+  {
+    event.preventDefault();
+    var metadata = Object.create(objektDef);
+    metadata.data[0].Contributors.splice(row,1);
+
+    setObjektDef(metadata);
+    
+    console.log(objektDef);
+  }
+
+  const handleUpdateContributor = (event, row) => 
+  {
+    event.preventDefault();
+
+    objektDef.data[0].Contributors[row] = event.target.value;
+    
+    console.log(objektDef);
+  }
 
   const handleEditObject = async (event) => {
     event.preventDefault();
@@ -135,9 +171,16 @@ const ObjektAccessByProperties = () => {
     
     });
 
+    console.log(objektDef);
+    var contributors = null;
+    var metadata = Object.create(objektDef);
+    if(metadata.data[0].Contributors !== null || metadata.data[0].Contributors !== undefined)
+      contributors = metadata.data[0].Contributors;
+
       var obj = {
         "objekt": id,
-        "AccessByProperties": access
+        "AccessByProperties": access,
+        "contributors": contributors
         };
 
         console.log(obj);
@@ -216,7 +259,20 @@ const ObjektAccessByProperties = () => {
         {objektDef.data !== undefined && (
         <Link to={`/objekt/${id}/edit`}>Tilbake</Link>
         )}
-      <h1>Egenskapsbaserte-tilgangsrettigheter</h1>
+
+      {objektDef.data && (
+      <div>
+        <h1>Redigere tilgangsrettigheter</h1>
+        <h2>Bidragsytere med editeringstilgang (organisasjonsnummer):</h2><input type="text" name="ContributorsAdd" onChange={(e) => setNewContributor(e.target.value)}/><button onClick={e => handleAddContributor(e)}>Legg organisasjon</button>
+        {objektDef.data[0].Contributors && objektDef.data[0].Contributors.map((value, row) => (
+          <div key={value}>
+          <input id={row} type="text" name="Contributors" defaultValue={value} onChange={e => handleUpdateContributor(e, row)} />
+          <button id={row} onClick={e => handleRemoveContributor(e, row)}>Fjern organisasjon</button>
+          </div>
+        ))}
+      </div>
+      )}
+      <h2>Egenskapsbaserte-tilgangsrettigheter</h2>
       <form onSubmit={handleEditObject} onChange={handleFieldChange}>
 
       {objektDef.data ? objektDef.data[0].ForvaltningsObjektPropertiesMetadata.map((property, index) => {
