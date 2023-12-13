@@ -285,7 +285,7 @@ const ObjektEdit = () => {
       <span>Srid: {objektDef.data && objektDef.data[0].srid}</span>
       
       <br></br>
-      <Link to={`/objekt/${id}/accessbyproperties`}>Rediger tilgangsrettigheter</Link>
+      <Link to={`/objekt/${id}/access`}>Rediger tilgangsrettigheter</Link>
 
       <h2>Egenskaper</h2>
       <button onClick={AddProperty}>Legg til egenskap</button>

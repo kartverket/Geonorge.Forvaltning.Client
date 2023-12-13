@@ -9,7 +9,7 @@ import { ContentContainer, HeadingText } from "@kartverket/geonorge-web-componen
 import {Link, json,useParams} from "react-router-dom";
 import config from './config.json';
 
-const ObjektAccessByProperties = () => {
+const ObjektAccess = () => {
   
   //todo remove objekt, not in use, but kept otherwise add and remove not updating UI???
   const [objekt, setProperties] = useState({title : "", properties: [{name : "", dataType: ""}] });
@@ -308,4 +308,4 @@ const ObjektAccessByProperties = () => {
     );
 };
 
-export default ObjektAccessByProperties;
+export default ObjektAccess;
