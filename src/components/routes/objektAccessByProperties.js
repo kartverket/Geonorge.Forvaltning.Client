@@ -197,7 +197,7 @@ const ObjektAccessByProperties = () => {
           }),
           body: JSON.stringify(obj)
         };
-      fetch(config.apiBaseURL + "/Admin/access-by-properties", requestOptions)
+      fetch(config.apiBaseURL + "/Admin/access", requestOptions)
           .then(async response => {
               const isJson = response.headers.get('content-type')?.includes('application/json');
               const data = isJson && await response.json();
