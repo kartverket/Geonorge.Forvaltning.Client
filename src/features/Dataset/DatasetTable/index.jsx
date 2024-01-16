@@ -149,7 +149,7 @@ export default function DatasetTable() {
          revalidator.revalidate();
          dispatch(updateDataObject({ id: objectId, properties: payload }));
       } catch (error) {
-         console.log(error);
+         console.error(error);
 
          await showModal({
             type: modalType.INFO,
@@ -190,7 +190,7 @@ export default function DatasetTable() {
          revalidator.revalidate();
          dispatch(deleteDataObjects(toDelete));
       } catch (error) {
-         console.log(error);
+         console.error(error);
 
          await showModal({
             type: modalType.INFO,
