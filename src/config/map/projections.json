@@ -1,0 +1,614 @@
+[
+   {
+      "srId": 3006,
+      "epsg": "EPSG:3006",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/3006",
+      "projStr": "+proj=utm +zone=33 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 3007,
+      "epsg": "EPSG:3007",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/3007",
+      "projStr": "+proj=tmerc +lat_0=0 +lon_0=12 +k=1 +x_0=150000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 3008,
+      "epsg": "EPSG:3008",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/3008",
+      "projStr": "+proj=tmerc +lat_0=0 +lon_0=13.5 +k=1 +x_0=150000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 3009,
+      "epsg": "EPSG:3009",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/3009",
+      "projStr": "+proj=tmerc +lat_0=0 +lon_0=15 +k=1 +x_0=150000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 3010,
+      "epsg": "EPSG:3010",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/3010",
+      "projStr": "+proj=tmerc +lat_0=0 +lon_0=16.5 +k=1 +x_0=150000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 3011,
+      "epsg": "EPSG:3011",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/3011",
+      "projStr": "+proj=tmerc +lat_0=0 +lon_0=18 +k=1 +x_0=150000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 3012,
+      "epsg": "EPSG:3012",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/3012",
+      "projStr": "+proj=tmerc +lat_0=0 +lon_0=14.25 +k=1 +x_0=150000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 3013,
+      "epsg": "EPSG:3013",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/3013",
+      "projStr": "+proj=tmerc +lat_0=0 +lon_0=15.75 +k=1 +x_0=150000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 3014,
+      "epsg": "EPSG:3014",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/3014",
+      "projStr": "+proj=tmerc +lat_0=0 +lon_0=17.25 +k=1 +x_0=150000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 3015,
+      "epsg": "EPSG:3015",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/3015",
+      "projStr": "+proj=tmerc +lat_0=0 +lon_0=18.75 +k=1 +x_0=150000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 3016,
+      "epsg": "EPSG:3016",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/3016",
+      "projStr": "+proj=tmerc +lat_0=0 +lon_0=20.25 +k=1 +x_0=150000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 3017,
+      "epsg": "EPSG:3017",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/3017",
+      "projStr": "+proj=tmerc +lat_0=0 +lon_0=21.75 +k=1 +x_0=150000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 3018,
+      "epsg": "EPSG:3018",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/3018",
+      "projStr": "+proj=tmerc +lat_0=0 +lon_0=23.25 +k=1 +x_0=150000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 3029,
+      "epsg": "EPSG:3029",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/3029",
+      "projStr": "+proj=tmerc +lat_0=0 +lon_0=20.3082777777778 +k=1 +x_0=1500000 +y_0=0 +ellps=bessel +units=m +no_defs"
+   },
+   {
+      "srId": 3030,
+      "epsg": "EPSG:3030",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/3030",
+      "projStr": "+proj=tmerc +lat_0=0 +lon_0=22.5582777777778 +k=1 +x_0=1500000 +y_0=0 +ellps=bessel +units=m +no_defs"
+   },
+   {
+      "srId": 3031,
+      "epsg": "EPSG:3031",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/3031",
+      "projStr": "+proj=stere +lat_0=-90 +lat_ts=-71 +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
+   },
+   {
+      "srId": 3032,
+      "epsg": "EPSG:3032",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/3032",
+      "projStr": "+proj=stere +lat_0=-90 +lat_ts=-71 +lon_0=70 +x_0=6000000 +y_0=6000000 +datum=WGS84 +units=m +no_defs"
+   },
+   {
+      "srId": 3033,
+      "epsg": "EPSG:3033",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/3033",
+      "projStr": "+proj=lcc +lat_0=-50 +lon_0=70 +lat_1=-68.5 +lat_2=-74.5 +x_0=6000000 +y_0=6000000 +datum=WGS84 +units=m +no_defs"
+   },
+   {
+      "srId": 3034,
+      "epsg": "EPSG:3034",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/3034",
+      "projStr": "+proj=lcc +lat_0=52 +lon_0=10 +lat_1=35 +lat_2=65 +x_0=4000000 +y_0=2800000 +ellps=GRS80 +units=m +no_defs"
+   },
+   {
+      "srId": 3035,
+      "epsg": "EPSG:3035",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/3035",
+      "projStr": "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs"
+   },
+   {
+      "srId": 3036,
+      "epsg": "EPSG:3036",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/3036",
+      "projStr": "+proj=utm +zone=36 +south +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 3046,
+      "epsg": "EPSG:3046",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/3046",
+      "projStr": "+proj=utm +zone=34 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 3047,
+      "epsg": "EPSG:3047",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/3047",
+      "projStr": "+proj=utm +zone=35 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 3575,
+      "epsg": "EPSG:3575",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/3575",
+      "projStr": "+proj=laea +lat_0=90 +lon_0=10 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
+   },
+   {
+      "srId": 3857,
+      "epsg": "EPSG:3857",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/3857",
+      "projStr": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs"
+   },
+   {
+      "srId": 4258,
+      "epsg": "EPSG:4258",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/4258",
+      "projStr": "+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs"
+   },
+   {
+      "srId": 4326,
+      "epsg": "EPSG:4326",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/4326",
+      "projStr": "+proj=longlat +datum=WGS84 +no_defs"
+   },
+   {
+      "srId": 5105,
+      "epsg": "EPSG:5105",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5105",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=5.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 5106,
+      "epsg": "EPSG:5106",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5106",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=6.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 5107,
+      "epsg": "EPSG:5107",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5107",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=7.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 5108,
+      "epsg": "EPSG:5108",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5108",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=8.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 5109,
+      "epsg": "EPSG:5109",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5109",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=9.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 5110,
+      "epsg": "EPSG:5110",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5110",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=10.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 5111,
+      "epsg": "EPSG:5111",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5111",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=11.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 5112,
+      "epsg": "EPSG:5112",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5112",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=12.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 5113,
+      "epsg": "EPSG:5113",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5113",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=13.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 5114,
+      "epsg": "EPSG:5114",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5114",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=14.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 5115,
+      "epsg": "EPSG:5115",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5115",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=15.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 5116,
+      "epsg": "EPSG:5116",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5116",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=16.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 5117,
+      "epsg": "EPSG:5117",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5117",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=17.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 5118,
+      "epsg": "EPSG:5118",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5118",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=18.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 5119,
+      "epsg": "EPSG:5119",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5119",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=19.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 5120,
+      "epsg": "EPSG:5120",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5120",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=20.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 5121,
+      "epsg": "EPSG:5121",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5121",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=21.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 5122,
+      "epsg": "EPSG:5122",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5122",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=22.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 5123,
+      "epsg": "EPSG:5123",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5123",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=23.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 5124,
+      "epsg": "EPSG:5124",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5124",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=24.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 5125,
+      "epsg": "EPSG:5125",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5125",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=25.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 5126,
+      "epsg": "EPSG:5126",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5126",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=26.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 5127,
+      "epsg": "EPSG:5127",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5127",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=27.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 5128,
+      "epsg": "EPSG:5128",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5128",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=28.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 5129,
+      "epsg": "EPSG:5129",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5129",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=29.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 5130,
+      "epsg": "EPSG:5130",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5130",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=30.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 5950,
+      "epsg": "EPSG:5950",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5950",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=10.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +vunits=m +no_defs"
+   },
+   {
+      "srId": 5951,
+      "epsg": "EPSG:5951",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5951",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=11.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +vunits=m +no_defs"
+   },
+   {
+      "srId": 5952,
+      "epsg": "EPSG:5952",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5952",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=12.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +vunits=m +no_defs"
+   },
+   {
+      "srId": 5953,
+      "epsg": "EPSG:5953",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5953",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=13.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +vunits=m +no_defs"
+   },
+   {
+      "srId": 5954,
+      "epsg": "EPSG:5954",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5954",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=14.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +vunits=m +no_defs"
+   },
+   {
+      "srId": 5955,
+      "epsg": "EPSG:5955",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5955",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=15.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +vunits=m +no_defs"
+   },
+   {
+      "srId": 5956,
+      "epsg": "EPSG:5956",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5956",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=16.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +vunits=m +no_defs"
+   },
+   {
+      "srId": 5957,
+      "epsg": "EPSG:5957",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5957",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=17.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +vunits=m +no_defs"
+   },
+   {
+      "srId": 5958,
+      "epsg": "EPSG:5958",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5958",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=18.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +vunits=m +no_defs"
+   },
+   {
+      "srId": 5959,
+      "epsg": "EPSG:5959",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5959",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=19.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +vunits=m +no_defs"
+   },
+   {
+      "srId": 5960,
+      "epsg": "EPSG:5960",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5960",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=20.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +vunits=m +no_defs"
+   },
+   {
+      "srId": 5961,
+      "epsg": "EPSG:5961",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5961",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=21.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +vunits=m +no_defs"
+   },
+   {
+      "srId": 5962,
+      "epsg": "EPSG:5962",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5962",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=22.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +vunits=m +no_defs"
+   },
+   {
+      "srId": 5963,
+      "epsg": "EPSG:5963",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5963",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=23.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +vunits=m +no_defs"
+   },
+   {
+      "srId": 5964,
+      "epsg": "EPSG:5964",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5964",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=24.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +vunits=m +no_defs"
+   },
+   {
+      "srId": 5965,
+      "epsg": "EPSG:5965",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5965",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=25.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +vunits=m +no_defs"
+   },
+   {
+      "srId": 5966,
+      "epsg": "EPSG:5966",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5966",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=26.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +vunits=m +no_defs"
+   },
+   {
+      "srId": 5967,
+      "epsg": "EPSG:5967",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5967",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=27.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +vunits=m +no_defs"
+   },
+   {
+      "srId": 5968,
+      "epsg": "EPSG:5968",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5968",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=28.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +vunits=m +no_defs"
+   },
+   {
+      "srId": 5969,
+      "epsg": "EPSG:5969",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5969",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=29.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +vunits=m +no_defs"
+   },
+   {
+      "srId": 5970,
+      "epsg": "EPSG:5970",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5970",
+      "projStr": "+proj=tmerc +lat_0=58 +lon_0=30.5 +k=1 +x_0=100000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +vunits=m +no_defs"
+   },
+   {
+      "srId": 5972,
+      "epsg": "EPSG:5972",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5972",
+      "projStr": "+proj=utm +zone=32 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +vunits=m +no_defs"
+   },
+   {
+      "srId": 5973,
+      "epsg": "EPSG:5973",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5973",
+      "projStr": "+proj=utm +zone=33 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +vunits=m +no_defs"
+   },
+   {
+      "srId": 5975,
+      "epsg": "EPSG:5975",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/5975",
+      "projStr": "+proj=utm +zone=35 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +vunits=m +no_defs"
+   },
+   {
+      "srId": 23029,
+      "epsg": "EPSG:23029",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/23029",
+      "projStr": "+proj=utm +zone=29 +ellps=intl +units=m +no_defs"
+   },
+   {
+      "srId": 23030,
+      "epsg": "EPSG:23030",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/23030",
+      "projStr": "+proj=utm +zone=30 +ellps=intl +units=m +no_defs"
+   },
+   {
+      "srId": 23031,
+      "epsg": "EPSG:23031",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/23031",
+      "projStr": "+proj=utm +zone=31 +ellps=intl +units=m +no_defs"
+   },
+   {
+      "srId": 23032,
+      "epsg": "EPSG:23032",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/23032",
+      "projStr": "+proj=utm +zone=32 +ellps=intl +units=m +no_defs"
+   },
+   {
+      "srId": 23033,
+      "epsg": "EPSG:23033",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/23033",
+      "projStr": "+proj=utm +zone=33 +ellps=intl +units=m +no_defs"
+   },
+   {
+      "srId": 23034,
+      "epsg": "EPSG:23034",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/23034",
+      "projStr": "+proj=utm +zone=34 +ellps=intl +units=m +no_defs"
+   },
+   {
+      "srId": 23035,
+      "epsg": "EPSG:23035",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/23035",
+      "projStr": "+proj=utm +zone=35 +ellps=intl +units=m +no_defs"
+   },
+   {
+      "srId": 23036,
+      "epsg": "EPSG:23036",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/23036",
+      "projStr": "+proj=utm +zone=36 +ellps=intl +units=m +no_defs"
+   },
+   {
+      "srId": 25829,
+      "epsg": "EPSG:25829",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/25829",
+      "projStr": "+proj=utm +zone=29 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 25830,
+      "epsg": "EPSG:25830",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/25830",
+      "projStr": "+proj=utm +zone=30 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 25831,
+      "epsg": "EPSG:25831",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/25831",
+      "projStr": "+proj=utm +zone=31 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 25832,
+      "epsg": "EPSG:25832",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/25832",
+      "projStr": "+proj=utm +zone=32 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 25833,
+      "epsg": "EPSG:25833",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/25833",
+      "projStr": "+proj=utm +zone=33 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 25834,
+      "epsg": "EPSG:25834",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/25834",
+      "projStr": "+proj=utm +zone=34 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 25835,
+      "epsg": "EPSG:25835",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/25835",
+      "projStr": "+proj=utm +zone=35 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 25836,
+      "epsg": "EPSG:25836",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/25836",
+      "projStr": "+proj=utm +zone=36 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+   },
+   {
+      "srId": 32629,
+      "epsg": "EPSG:32629",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/32629",
+      "projStr": "+proj=utm +zone=29 +datum=WGS84 +units=m +no_defs"
+   },
+   {
+      "srId": 32630,
+      "epsg": "EPSG:32630",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/32630",
+      "projStr": "+proj=utm +zone=30 +datum=WGS84 +units=m +no_defs"
+   },
+   {
+      "srId": 32631,
+      "epsg": "EPSG:32631",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/32631",
+      "projStr": "+proj=utm +zone=31 +datum=WGS84 +units=m +no_defs"
+   },
+   {
+      "srId": 32632,
+      "epsg": "EPSG:32632",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/32632",
+      "projStr": "+proj=utm +zone=32 +datum=WGS84 +units=m +no_defs"
+   },
+   {
+      "srId": 32633,
+      "epsg": "EPSG:32633",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/32633",
+      "projStr": "+proj=utm +zone=33 +datum=WGS84 +units=m +no_defs"
+   },
+   {
+      "srId": 32634,
+      "epsg": "EPSG:32634",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/32634",
+      "projStr": "+proj=utm +zone=34 +datum=WGS84 +units=m +no_defs"
+   },
+   {
+      "srId": 32635,
+      "epsg": "EPSG:32635",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/32635",
+      "projStr": "+proj=utm +zone=35 +datum=WGS84 +units=m +no_defs"
+   },
+   {
+      "srId": 32636,
+      "epsg": "EPSG:32636",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/32636",
+      "projStr": "+proj=utm +zone=36 +datum=WGS84 +units=m +no_defs"
+   },
+   {
+      "srId": 900913,
+      "epsg": "EPSG:900913",
+      "uri": "http://www.opengis.net/def/crs/EPSG/0/900913",
+      "projStr": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs"
+   }
+]

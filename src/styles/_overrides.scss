@@ -1,0 +1,35 @@
+gn-button button,
+gn-button a,
+gn-input input,
+gn-textarea textarea,
+gn-select select {
+   font-size: 15px !important;
+}
+
+gn-select select {
+   height: 32px !important;
+}
+
+gn-label[block] {
+   margin-bottom: 3px;
+}
+
+.szh-menu__item {
+   cursor: pointer;   
+   display: flex;
+   align-items: center;
+   padding: 10px 12px;
+}
+
+.szh-menu__divider {
+   margin: 0;
+}
+
+.szh-menu__item--hover {
+   background-color: rgba(0, 0, 0, .05);
+}
+
+.szh-menu__submenu>.szh-menu__item:after {
+   content: "❯";
+   margin-left: 12px;
+}
