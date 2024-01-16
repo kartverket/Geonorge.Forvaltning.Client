@@ -4,7 +4,7 @@ import { useLocation, useParams } from 'react-router-dom';
 import { ZoomToExtent } from 'ol/control';
 import { useMap } from 'context/MapProvider';
 import { selectFeature } from 'store/slices/mapSlice';
-import { getFeatureById, getLayer, getVectorSource, hasFeatures, zoomToFeature, zoomToGeoJsonFeature } from 'utils/helpers/map';
+import { getFeatureById, getLayer, getVectorSource, hasFeatures, zoomToFeature } from 'utils/helpers/map';
 import { setNextAndPreviousFeatureId } from 'utils/map/feature';
 import baseMap from 'config/map/baseMap';
 import FeatureTooltip from './FeatureTooltip';
@@ -16,7 +16,6 @@ export default function MapView() {
    const location = useLocation();
    const mapElementRef = useRef(null);
    const selectedFeature = useSelector(state => state.map.selectedFeature);
-   const zoomTo = useSelector(state => state.map.zoomTo);
    const epsgCode = map?.getView().getProjection().getCode();
    const dispatch = useDispatch();
 
@@ -44,17 +43,6 @@ export default function MapView() {
          }
       },
       [selectedFeature, map, location.pathname, id]
-   );
-
-   useEffect(
-      () => {
-         if (map === null || zoomTo === null) {
-            return;
-         }
-
-         zoomToGeoJsonFeature(map, zoomTo);
-      },
-      [zoomTo, map]
    );
 
    useEffect(

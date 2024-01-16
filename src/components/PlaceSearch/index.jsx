@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { useDataset } from 'context/DatasetProvider';
-import { zoomTo } from 'store/slices/mapSlice';
+import { useMap } from 'context/MapProvider';
+import { zoomToGeoJsonFeature } from 'utils/helpers/map';
 import useDebounce from 'hooks/useDebounce'
 import AsyncSelect from 'react-select/async';
 import axios from 'axios';
@@ -10,10 +10,10 @@ import './PlaceSearch.scss';
 
 export default function PlaceSearch() {
    const { definition } = useDataset();
+   const { map } = useMap();
    const crs = definition.srid || 4326;
    const [inputValue, setInputValue] = useState('');
    const [value, setValue] = useState(null);
-   const dispatch = useDispatch();
 
    const loadOptions = useDebounce(
       (query, callback) => {
@@ -38,7 +38,7 @@ export default function PlaceSearch() {
 
    function handleChange(value) {
       setValue(null);
-      dispatch(zoomTo(value));
+      zoomToGeoJsonFeature(map, value, 14);
    }
 
    return (

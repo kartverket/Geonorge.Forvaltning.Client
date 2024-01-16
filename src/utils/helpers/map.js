@@ -73,23 +73,23 @@ export function getPropertyValue(feature, propName) {
    return feature.get(propName)?.value;
 }
 
-export function zoomToGeoJsonFeature(map, geoJson) {
+export function zoomToGeoJsonFeature(map, geoJson, zoom) {
    const feature = new GeoJSON().readFeature(geoJson)
    const geometry = feature.getGeometry();
 
-   zoomToGeometry(map, geometry);
+   zoomToGeometry(map, geometry, zoom);
 }
 
-export function zoomToFeature(map, feature) {
+export function zoomToFeature(map, feature, zoom) {
    const geometry = feature.getGeometry();
 
-   zoomToGeometry(map, geometry);
+   zoomToGeometry(map, geometry, zoom);
 }
 
-export function zoomToGeometry(map, geometry) {
+export function zoomToGeometry(map, geometry, zoom = 15) {
    const view = map.getView();
    view.fit(geometry, { padding: [50, 50, 50, 50] });
-   view.setZoom(15);
+   view.setZoom(zoom)
 }
 
 export function cloneFeature(feature) {
