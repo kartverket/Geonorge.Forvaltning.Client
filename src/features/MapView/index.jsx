@@ -7,6 +7,7 @@ import { selectFeature } from 'store/slices/mapSlice';
 import { getFeatureById, getLayer, getVectorSource, hasFeatures, zoomToFeature, zoomToGeoJsonFeature } from 'utils/helpers/map';
 import { setNextAndPreviousFeatureId } from 'utils/map/feature';
 import baseMap from 'config/map/baseMap';
+import FeatureTooltip from './FeatureTooltip';
 import styles from './MapView.module.scss';
 
 export default function MapView() {
@@ -101,8 +102,9 @@ export default function MapView() {
 
    return (
       <div className={styles.mapContainer}>
-         <div ref={mapElementRef} className={styles.map}></div>
+         <div ref={mapElementRef} className={styles.map}></div>         
          <div className={styles.epsgCode}>{epsgCode}</div>
+         <FeatureTooltip />
       </div>
    );
 }
