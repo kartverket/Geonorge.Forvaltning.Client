@@ -108,6 +108,10 @@ export function removeEmptyValues(object) {
 }
 
 export function formatOrgNo(orgNo) {
+   if (isNil(orgNo)) {
+      return null;
+   }
+
    const matches = orgNo.match(/.{1,3}/g);
    return matches.join(' ');
 }
