@@ -119,7 +119,9 @@ const router = createBrowserRouter([
             element: <Login />,
             path: '/logg-inn',
             handle: {
-               pageName: () => 'Logg inn'
+               pageName: () => {
+                  return 'Logg inn'
+               }
             },
             errorElement: <ErrorBoundary />
          },

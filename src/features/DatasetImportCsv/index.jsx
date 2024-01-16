@@ -148,7 +148,7 @@ export default function DatasetImportCsv() {
 
          resetForm();
       } catch (error) {
-         console.log(error);
+         console.error(error);
          setLoading(false);
 
          await showModal({

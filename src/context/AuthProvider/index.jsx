@@ -7,7 +7,6 @@ import environment from 'config/environment';
 
 export default function AuthProvider({ children }) {
    const [session, setSession] = useState();
-   const [userLoaded, setUserLoaded] = useState(false);
    const navigate = useNavigate();
    const dispatch = useDispatch();
 
@@ -34,7 +33,6 @@ export default function AuthProvider({ children }) {
          const { name, email } = session.user.user_metadata;
 
          dispatch(setUser({ name, email, organization: data.organization }));
-         setUserLoaded(true);
       },
       [dispatch]
    );
@@ -48,9 +46,10 @@ export default function AuthProvider({ children }) {
       () => {
          history.replaceState('', document.title, window.location.pathname + window.location.search);
 
-         supabase.auth.getSession().then(({ data: { session } }) => {
-            setSession(session);
-         });
+         supabase.auth.getSession()
+            .then(({ data: { session } }) => {
+               setSession(session);
+            });
 
          const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
             setSession(session);
@@ -68,8 +67,8 @@ export default function AuthProvider({ children }) {
    );
 
    return (
-      <AuthContext.Provider value={{ session, signIn, signOut }}>
-         {userLoaded && children}
+      <AuthContext.Provider value={{ session, signIn, signOut }}>         
+         {children}
       </AuthContext.Provider>
    );
 }

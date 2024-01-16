@@ -49,7 +49,7 @@ export default function DatasetImportGeoJson() {
          const contents = await file.text();
          return JSON.parse(contents);
       } catch (error) {
-         console.log(error);
+         console.error(error);
       }
    }
 
@@ -112,7 +112,7 @@ export default function DatasetImportGeoJson() {
 
          resetForm();
       } catch (error) {
-         console.log(error);
+         console.error(error);
          setLoading(false);
 
          await showModal({
