@@ -1,0 +1,112 @@
+.checkbox {
+   display: flex;
+   align-items: center;
+
+   input {
+      display: flex;
+   }
+}
+
+.textArea {
+   gn-textarea {
+      display: flex !important;
+   }   
+}
+
+.select {
+   position: relative;
+
+   gn-select select {
+      font-size: 15px;
+      height: 32px;
+
+      &:disabled {
+         border-color: transparent;
+         background: transparent;
+         cursor: default;
+         color: #2f3940;
+         opacity: 1;
+      }
+   }
+
+   &.disabled::after {
+      content: "";
+      width: 32px;
+      height: 32px;
+      background: #ffffff;
+      display: flex;
+      position: absolute;
+      top: 0;
+      right: 0;
+      z-index: 1;
+   }
+}
+
+.error {
+   color: #d32f2f;
+   font-size: 13px;
+}
+
+.optional {
+   font-style: italic;
+   font-size: 14px;
+   color: #939393;
+   font-family: 'Open Sans';
+   font-weight: 500;
+   margin-left: 6px;
+   line-height: 1.5;
+}
+
+.tagsInput {
+   display: flex;
+   flex-direction: column;
+
+   .inputElement {
+      input {
+         width: 100%;
+      }
+
+      margin-bottom: 12px;
+   }
+
+   .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+
+      .tag {
+         display: flex;
+         align-items: center;
+         padding: 5px 12px;
+         height: 32px;
+         line-height: 1;
+         box-sizing: border-box;
+         border: 1px solid #d8d8d8;
+         border-radius: 4px;
+         user-select: none;
+         transition: background-color 0.15s ease-in-out;
+
+         &:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+         }
+
+         button {
+            font-size: 0;
+            padding: 0;
+            border: 0 none;
+            background: none;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            margin-left: 12px;
+
+            &::before {
+               content: "";
+               background: url(../../../assets/gfx/icon-close.svg) center no-repeat;
+               width: 13px;
+               height: 13px;
+            }
+         }
+      }
+   }
+}

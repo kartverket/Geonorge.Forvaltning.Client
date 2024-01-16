@@ -1,0 +1,16 @@
+.filters {
+   display: grid;
+   padding-bottom: 4px;
+   border-top: 1px dashed #d8d8d8;
+   padding-top: 16px;
+   margin-bottom: 0;
+
+   > div {
+      padding: 0 8px;
+   }
+
+   gn-button button {
+      font-size: 15px;
+      height: 32px;
+   }
+}

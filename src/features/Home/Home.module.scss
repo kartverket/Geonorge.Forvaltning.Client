@@ -1,0 +1,45 @@
+.datasets {
+   margin: 0 0 36px 0;
+
+   th:nth-child(1) {
+      width: 25%;
+   }
+
+   th:nth-child(2) {
+      width: 60%;
+   }
+
+   th:nth-child(3) {
+      width: 15%;
+   }
+
+   tbody tr {
+      cursor: pointer;
+   }
+
+   .description {
+      font-style: italic;
+   }
+}
+
+.addButton a {
+   display: inline-flex;
+   align-items: center;
+   margin-right: 12px;
+
+   &::before {
+      content: "";
+      background: url(../../assets/gfx/icon-add.svg) center no-repeat;
+      display: flex;
+      width: 20px;
+      height: 33px;
+      background-size: 20px;
+      margin-right: 5px;
+   }
+}
+
+.submit {
+   display: flex;
+   position: relative;
+   width: fit-content;
+}

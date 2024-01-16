@@ -1,0 +1,28 @@
+.modal {
+   display: flex;
+   flex-direction: column;
+   width: 480px;
+
+   &:focus-visible {
+      outline: none;
+   }
+   
+   h1 {
+      font-size: 20px;
+      margin: 0 0 18px 0;
+   }
+   
+   .body {
+      margin-bottom: 24px;
+   }
+   
+   .buttons {
+      display: flex;
+      justify-content: flex-end;
+
+      button {
+         font-size: 15px;
+         margin-left: 12px;
+      }
+   }
+}
