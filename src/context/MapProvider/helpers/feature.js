@@ -2,18 +2,25 @@ import { Cluster, Vector as VectorSource } from 'ol/source';
 import { Vector as VectorLayer } from 'ol/layer';
 import { GeoJSON } from 'ol/format';
 import { Style } from 'ol/style';
-import { getLayer, getVectorSource, readGeoJsonFeature } from 'utils/helpers/map';
+import { getEpsgCode, getLayer, getVectorSource, readGeoJsonFeature, transformCoordinates } from 'utils/helpers/map';
 import { clusterStyle, getFeatureStyle } from './style';
+import environment from 'config/environment';
 
 export function createFeaturesLayer(featureCollection) {
    const vectorSource = new VectorSource();
    const reader = new GeoJSON();
-   const features = reader.readFeatures(featureCollection);
+   const epsgCode = getEpsgCode(featureCollection);
 
-   features.forEach(feature => {
-      feature.setStyle(getFeatureStyle(7, 8));
-      feature.set('_visible', true);
-   });
+   const features = featureCollection.features
+      .map(feature => {
+         const olFeature = reader.readFeature(feature, { dataProjection: epsgCode, featureProjection: environment.MAP_EPSG });
+
+         olFeature.setStyle(getFeatureStyle(7, 8));
+         olFeature.set('_visible', true);
+         olFeature.set('_coordinates', feature.geometry?.coordinates);
+         
+         return olFeature;
+      });
 
    vectorSource.addFeatures(features);
 
@@ -23,7 +30,7 @@ export function createFeaturesLayer(featureCollection) {
    });
 
    clusterSource.set('id', 'cluster-source');
-   
+
    const featuresLayer = new VectorLayer({
       source: clusterSource,
       style: clusterStyle

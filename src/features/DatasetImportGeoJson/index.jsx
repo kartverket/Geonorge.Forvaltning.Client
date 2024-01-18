@@ -9,6 +9,7 @@ import { mapGeoJsonToObjects } from './helpers';
 import { Checkbox } from 'components/Form/Controllers';
 import { useModal } from 'context/ModalProvider';
 import { modalType } from 'components/Modals';
+import { isNil } from 'lodash';
 import gjv from 'geojson-validation';
 import Files from 'react-files';
 import projections from 'config/map/projections.json';
@@ -20,7 +21,6 @@ export default function DatasetImportGeoJson() {
    useBreadcrumbs(dataset);
 
    const metadatas = dataset.ForvaltningsObjektPropertiesMetadata;
-   const datasetSrId = dataset.srid || 4326;
    const [file, setFile] = useState(null);
    const [properties, setProperties] = useState(null);
    const [mappings, setMappings] = useState(createMappings());
@@ -32,26 +32,6 @@ export default function DatasetImportGeoJson() {
    const [addDatasetObjects] = useAddDatasetObjectsMutation();
    const [deleteAllDatasetObjects] = useDeleteAllDatasetObjectsMutation();
    const { showModal } = useModal();
-
-   async function readFile(file) {
-      const parsed = await parseFile(file);
-      const isValid = gjv.isFeatureCollection(parsed);
-
-      if (isValid) {
-         setImportSrId(getSrId(parsed));
-         setProperties(parsed.features[0].properties);
-         geoJsonRef.current = parsed;
-      }
-   }
-
-   async function parseFile(file) {
-      try {
-         const contents = await file.text();
-         return JSON.parse(contents);
-      } catch (error) {
-         console.error(error);
-      }
-   }
 
    function createMappings() {
       const mappings = {};
@@ -71,9 +51,44 @@ export default function DatasetImportGeoJson() {
          [columnName]: propName
       });
    }
+   
+   async function readFile(file) {
+      let parsed;
+
+      try {
+         const contents = await file.text();
+         parsed = JSON.parse(contents);
+      } catch (error) {
+         console.error(error);
+
+         await showModal({
+            type: modalType.INFO,
+            variant: 'error',
+            title: 'Feil',
+            body: 'Kunne ikke lese JSON-filen.'
+         });
+
+         return;
+      }
+
+      const isValid = gjv.isFeatureCollection(parsed);
+
+      if (isValid) {
+         setImportSrId(getSrId(parsed));
+         setProperties(parsed.features[0].properties);
+         geoJsonRef.current = parsed;
+      } else {
+         await showModal({
+            type: modalType.INFO,
+            variant: 'error',
+            title: 'Feil',
+            body: 'GeoJSON-filen er ikke en gyldig FeatureCollection'
+         });
+      }
+   }
 
    async function handleImport() {
-      const objects = mapGeoJsonToObjects(geoJsonRef.current, mappings, datasetSrId, importSrId, user);
+      const objects = mapGeoJsonToObjects(geoJsonRef.current, mappings, importSrId, user);
 
       if (!objects.length) {
          return;
@@ -131,6 +146,11 @@ export default function DatasetImportGeoJson() {
       setProperties(null);
       setEmptyFirst(null);
       geoJsonRef.current = null;
+   }
+
+   function renderProperty(propName) {
+      const property = properties[propName];     
+      return !isNil(property) ? property.toString() : '-';
    }
 
    function getFileSize() {
@@ -221,7 +241,7 @@ export default function DatasetImportGeoJson() {
                            </thead>
                            <tbody>
                               <tr>
-                                 {Object.entries(mappings).map(entry => <td key={entry[0]}>{properties[entry[1]] || '-'}</td>)}
+                                 {Object.entries(mappings).map(entry => <td key={entry[0]}>{renderProperty(entry[1])}</td>)}
                               </tr>
                            </tbody>
                         </table>

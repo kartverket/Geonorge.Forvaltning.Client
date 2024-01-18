@@ -5,7 +5,7 @@ import { ZoomToExtent } from 'ol/control';
 import { useMap } from 'context/MapProvider';
 import { selectFeature } from 'store/slices/mapSlice';
 import { getFeatureById, getLayer, getVectorSource, hasFeatures, zoomToFeature } from 'utils/helpers/map';
-import { setNextAndPreviousFeatureId } from 'utils/map/feature';
+import { setNextAndPreviousFeatureId } from 'context/MapProvider/helpers/feature';
 import baseMap from 'config/map/baseMap';
 import FeatureTooltip from './FeatureTooltip';
 import styles from './MapView.module.scss';
@@ -16,7 +16,6 @@ export default function MapView() {
    const location = useLocation();
    const mapElementRef = useRef(null);
    const selectedFeature = useSelector(state => state.map.selectedFeature);
-   const epsgCode = map?.getView().getProjection().getCode();
    const dispatch = useDispatch();
 
    useEffect(
@@ -61,9 +60,9 @@ export default function MapView() {
          if (hasFeatures(map)) {
             extent = source.getExtent();
          } else {
-            extent = view.getProjection().getExtent();
+            extent = baseMap.extent;
          }
-
+         
          map.addControl(new ZoomToExtent({ extent }));
 
          if (!isNaN(objId)) {
@@ -91,7 +90,6 @@ export default function MapView() {
    return (
       <div className={styles.mapContainer}>
          <div ref={mapElementRef} className={styles.map}></div>         
-         <div className={styles.epsgCode}>{epsgCode}</div>
          <FeatureTooltip />
       </div>
    );

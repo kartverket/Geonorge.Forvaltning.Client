@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useDataset } from 'context/DatasetProvider';
-import createMap from 'utils/map';
+import createMap from './helpers/map';
 
 export default function MapProvider({ children }) {
    const { featureCollection } = useDataset();

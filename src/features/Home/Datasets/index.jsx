@@ -1,5 +1,4 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { formatOrgNo } from 'utils/helpers/general';
 import styles from '../Home.module.scss';
 
 export default function Datasets({ datasets }) {
@@ -23,8 +22,8 @@ export default function Datasets({ datasets }) {
                            datasets.map(dataset => (
                               <tr key={dataset.Id} onClick={() => navigate(`/datasett/${dataset.Id}`)}>
                                  <td>{dataset.Name}</td>
-                                 <td className={styles.description}>{dataset.Description || '-'}</td>
-                                 <td>{formatOrgNo(dataset.Organization)}</td>
+                                 <td>{dataset.Description || '-'}</td>
+                                 <td>{dataset.organizationName}</td>
                               </tr>
                            ))
                         }

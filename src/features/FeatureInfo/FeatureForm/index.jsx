@@ -1,21 +1,25 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useMap } from 'context/MapProvider';
 import { useDataset } from 'context/DatasetProvider';
-import { getProperties, zoomToFeature } from 'utils/helpers/map';
+import { getProperties, transformCoordinates, zoomToFeature } from 'utils/helpers/map';
 import { BooleanSelect, DatePicker, Select, TextField } from 'components/Form';
 import { Point } from 'ol/geom';
+import environment from 'config/environment';
 import styles from '../FeatureInfo.module.scss';
 
 export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
    const { map } = useMap();
    const { allowedValues } = useDataset();
-   const [coordinates, setCoordinates] = useState(feature.getGeometry()?.getCoordinates() || null);
+   const [coordinates, setCoordinates] = useState(feature.get('_coordinates') || null);
    const properties = getProperties(feature);
 
    const getCoordinate = useCallback(
       event => {
          const coords = event.coordinate;
-         setCoordinates(coords);
+
+         const transformed = transformCoordinates(environment.MAP_EPSG, `EPSG:${environment.DATASET_SRID}`, coords);
+         setCoordinates(transformed);
+
          const point = new Point(coords);
          feature.setGeometry(point);
       },
@@ -72,6 +76,10 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
       const selectOptions = allowedValues[name];
 
       if (dataType === 'text' && selectOptions !== null) {
+         if (!selectOptions.includes(value)) {
+            handleChange({ name, value: selectOptions[0] });
+         }
+
          return (
             <div className={styles.formControl}>
                <Select
@@ -148,7 +156,7 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
                      <div className={styles.row}>
                         <div className={styles.label}>Posisjon:</div>
                         <div className={styles.value}>
-                           <div className={styles.noInput} title={coordinates.join(', ')}>{coordinates[0].toFixed(2)}, {coordinates[1].toFixed(2)}</div>
+                           <div className={styles.noInput} title={coordinates.join(', ')}>{coordinates[1].toFixed(6)}, {coordinates[0].toFixed(6)}</div>
                         </div>
                      </div> :
                      null

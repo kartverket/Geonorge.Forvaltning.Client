@@ -7,22 +7,25 @@ export async function getDatasetDefinitions() {
    if (!await signedIn()) {
       return redirect('/logg-inn');
    }
-   
+
    const promise = store.dispatch(api.endpoints.getDatasetDefinitions.initiate());
    promise.unsubscribe();
 
-   return await promise.unwrap()
+   const response = await promise.unwrap();
+   const definitions = await setOrganizationNames(response);
+
+   return definitions;
 }
 
 export async function getDatasetDefinition({ params }) {
    if (!await signedIn()) {
       return redirect('/logg-inn');
    }
-   
+
    const promise = store.dispatch(api.endpoints.getDatasetDefinition.initiate(params.id));
    promise.unsubscribe();
 
-   return await promise.unwrap()
+   return await promise.unwrap();
 }
 
 export async function getDataset({ params }) {
@@ -33,5 +36,31 @@ export async function getDataset({ params }) {
    const promise = store.dispatch(api.endpoints.getDataset.initiate(params.id));
    promise.unsubscribe();
 
-   return await promise.unwrap()
+   return await promise.unwrap();
+}
+
+export async function getOrganizationName(orgNo) {
+   const promise = store.dispatch(api.endpoints.getOrganizationName.initiate(orgNo));
+   promise.unsubscribe();
+
+   return await promise.unwrap();
+}
+
+async function setOrganizationNames(definitions) {
+   const newDefinitions = [];
+
+   for (let i = 0; i < definitions.length; i++) {
+      const definition = definitions[i];
+
+      const newDefinition = { 
+         ...definition, 
+         organizationName: definition.Organization !== null ? 
+            await getOrganizationName(definition.Organization) :
+            null
+      };
+
+      newDefinitions.push(newDefinition);
+   }
+
+   return newDefinitions;
 }

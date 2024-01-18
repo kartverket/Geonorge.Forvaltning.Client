@@ -1,4 +1,4 @@
-import { forwardRef, useState } from 'react';
+import { forwardRef, useEffect, useRef, useState } from 'react';
 import { isFunction, orderBy } from 'lodash';
 import { hasError } from '../helpers';
 import TagsInput from 'react-tagsinput';
@@ -28,7 +28,7 @@ const Tags = forwardRef(({ id, field, fieldState, validator, formatTag, placehol
             const { onChange, value, addTag, ...other } = props;
 
             return (
-               <gn-input>
+               <gn-input block="">
                   <input id={id} ref={ref} type="text" value={value} onChange={onChange} {...other} placeholder={placeholder} />
                </gn-input>
             );

@@ -6,19 +6,15 @@
    }
 
    th:nth-child(2) {
-      width: 60%;
+      width: 55%;
    }
 
    th:nth-child(3) {
-      width: 15%;
+      width: 20%;
    }
 
    tbody tr {
       cursor: pointer;
-   }
-
-   .description {
-      font-style: italic;
    }
 }
 

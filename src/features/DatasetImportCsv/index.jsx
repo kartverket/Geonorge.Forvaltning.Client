@@ -7,7 +7,9 @@ import { filesize } from 'filesize';
 import { detectGeometryColumns, mapCsvToObjects } from './helpers';
 import { Checkbox } from 'components/Form/Controllers';
 import { useModal } from 'context/ModalProvider';
-import { modalType } from 'components/Modals';import Papa from 'papaparse';
+import { modalType } from 'components/Modals';
+import { isNil } from 'lodash';
+import Papa from 'papaparse';
 import Files from 'react-files';
 import projections from 'config/map/projections.json';
 import Spinner from 'components/Spinner';
@@ -18,7 +20,6 @@ export default function DatasetImportCsv() {
    useBreadcrumbs(dataset);
 
    const metadatas = dataset.ForvaltningsObjektPropertiesMetadata;
-   const datasetSrId = dataset.srid || 4326;
    const [file, setFile] = useState(null);
    const [properties, setProperties] = useState(null);
    const [mappings, setMappings] = useState(createMappings());
@@ -71,6 +72,15 @@ export default function DatasetImportCsv() {
       return new Promise((resolve, reject) => {
          const _options = {
             ...options,
+            transform: value => {
+               if (value.toLowerCase() === 'true') {
+                  return true;
+               }
+               if (value.toLowerCase() === 'false') {
+                  return false;
+               }               
+               return value.length > 0 ? value : null;
+            },
             error: error => {
                reject(error);
             },
@@ -103,7 +113,7 @@ export default function DatasetImportCsv() {
    }
 
    async function handleImport() {
-      const { objects } = mapCsvToObjects(csvRef.current, geomColumnsRef.current, mappings, importSrId, datasetSrId, user);
+      const { objects } = mapCsvToObjects(csvRef.current, geomColumnsRef.current, mappings, importSrId, user);
 
       if (!objects.length) {
          await showModal({
@@ -136,7 +146,7 @@ export default function DatasetImportCsv() {
       }
 
       try {
-         const response = await addDatasetObjects({ payload: objects, table: dataset.TableName, tableId: dataset.Id }).unwrap();         
+         const response = await addDatasetObjects({ payload: objects, table: dataset.TableName, tableId: dataset.Id }).unwrap();
          setLoading(false);
 
          await showModal({
@@ -168,6 +178,11 @@ export default function DatasetImportCsv() {
       setEmptyFirst(false);
       csvRef.current = null;
       geomColumnsRef.current = null;
+   }
+
+   function renderProperty(propName) {
+      const property = properties[propName];     
+      return !isNil(property) ? property.toString() : '-';
    }
 
    function getFileSize() {
@@ -258,7 +273,7 @@ export default function DatasetImportCsv() {
                            </thead>
                            <tbody>
                               <tr>
-                                 {Object.entries(mappings).map(entry => <td key={entry[0]}>{properties[entry[1]] || '-'}</td>)}
+                                 {Object.entries(mappings).map(entry => <td key={entry[0]}>{renderProperty([entry[1]])}</td>)}
                               </tr>
                            </tbody>
                         </table>

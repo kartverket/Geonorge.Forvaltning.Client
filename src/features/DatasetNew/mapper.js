@@ -5,7 +5,6 @@ export function fromDbModel(dbModel) {
       description: dbModel.Description || '',
       isopendata: dbModel.IsOpenData,
       tableName: dbModel.TableName,
-      srid: dbModel.srid || 4326,
       properties: dbModel.ForvaltningsObjektPropertiesMetadata.map(metadata => ({
          id: metadata.Id,
          name: metadata.Name,
@@ -21,7 +20,6 @@ export function toDbModel(model) {
       name: model.name,
       description: model.description.trim() !== '' ? model.description : null,
       isopendata: model.isopendata,
-      srid: model.srid,
       properties: model.properties.map(property => ({
          id: property.id,
          name: property.name,
@@ -36,7 +34,6 @@ export function getDefaultValues() {
       name: '',
       description: '',
       isopendata: false,
-      srid: 4326,
       properties: [
          {
             name: '',

@@ -6,7 +6,7 @@ import { useModal } from 'context/ModalProvider';
 import { selectFeature, toggleEditMode } from 'store/slices/mapSlice';
 import { createDataObject, deleteDataObjects, updateDataObject } from 'store/slices/objectSlice';
 import { getFeatureById, getPropertyValue, hasFeatures, zoomToFeature } from 'utils/helpers/map';
-import { addFeatureToMap, createFeature, removeFeatureFromMap, setNextAndPreviousFeatureId, toggleFeature } from 'utils/map/feature';
+import { addFeatureToMap, createFeature, removeFeatureFromMap, setNextAndPreviousFeatureId, toggleFeature } from 'context/MapProvider/helpers/feature';
 import { useAddDatasetObjectMutation, useDeleteDatasetObjectsMutation, useUpdateDatasetObjectMutation } from 'store/services/api';
 import { deleteFeatures } from 'utils/helpers/general';
 import { toDbModel, updateFeature } from './helpers';

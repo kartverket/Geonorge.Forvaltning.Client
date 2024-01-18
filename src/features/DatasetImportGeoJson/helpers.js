@@ -1,18 +1,17 @@
 import { isUndefined } from 'lodash';
+import { reproject } from 'reproject';
 import gjv from 'geojson-validation';
-import proj4 from 'proj4';
 import dayjs from 'dayjs';
+import environment from 'config/environment';
 
-export function mapGeoJsonToObjects(featureCollection, mappings, importSrId, datasetSrId, user) {
+export function mapGeoJsonToObjects(geoJson, mappings, importSrId, user) {
    const ownerOrg = user.organization;
    const editor = user.email;
    const updateDate = dayjs().format();
-   let srcProjection, destProjection;
 
-   if (importSrId !== datasetSrId) {
-      srcProjection = proj4(`EPSG:${importSrId}`);
-      destProjection = proj4(`EPSG:${datasetSrId}`);
-   }
+   const featureCollection = importSrId !== environment.DATASET_SRID ?
+      reproject(geoJson, `EPSG:${importSrId}`, `EPSG:${environment.DATASET_SRID}`) :
+      geoJson;
 
    return featureCollection.features
       .map(feature => {
@@ -20,16 +19,6 @@ export function mapGeoJsonToObjects(featureCollection, mappings, importSrId, dat
 
          if (!gjv.isPoint(geometry)) {
             return null;
-         }
-
-         if (importSrId !== datasetSrId) {
-            const transformed  = transformCoordinates(srcProjection, destProjection, geometry.coordinates);
-
-            if (transformed === null) {
-               return null;
-            }
-
-            geometry.coordinates = [transformed.x, transformed.y];
          }
 
          const object = {
@@ -47,12 +36,4 @@ export function mapGeoJsonToObjects(featureCollection, mappings, importSrId, dat
          return object;
       })
       .filter(feature => feature !== null);
-}
-
-function transformCoordinates(srcProjection, destProjection, coordinates) {
-   try {
-      return proj4.transform(srcProjection.oProj, destProjection.oProj, coordinates)
-   } catch {
-      return null;  
-   }
 }

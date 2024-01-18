@@ -26,17 +26,10 @@ export function getAllowedValuesForUser(columnName, metadata, user) {
 
 export function createFeatureCollectionGeoJson(dataset) {
    const metadata = dataset.definition.ForvaltningsObjektPropertiesMetadata;
-   const srid = dataset.definition.srid;
    const features = dataset.objects.map(object => createFeatureGeoJson(metadata, object));
 
    return {
       type: 'FeatureCollection',
-      crs: {
-         type: 'name',
-         properties: {
-            name: `urn:ogc:def:crs:EPSG::${srid || 4326}`
-         }
-      },
       features
    };
 }

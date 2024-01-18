@@ -2,21 +2,20 @@ import { Map, View } from 'ol';
 import { defaults as defaultInteractions, DragRotateAndZoom } from 'ol/interaction';
 import { createFeaturesLayer, createSelectedFeaturesLayer } from './feature';
 import { createTileLayer } from './tileLayer';
-import { getEpsgCode } from 'utils/helpers/map';
 import { createEmpty, extend } from 'ol/extent';
 import { selectFeature } from 'store/slices/mapSlice';
 import store from 'store';
+import environment from 'config/environment';
 
 const MAP_PADDING = [50, 50, 50, 50];
 
 export default async function createMap(featureCollection) {
-   const epsgCode = getEpsgCode(featureCollection);
    const featuresLayer = createFeaturesLayer(featureCollection);
    
    const map = new Map({
       interactions: defaultInteractions().extend([new DragRotateAndZoom()]),
       layers: [
-         await createTileLayer(epsgCode),
+         await createTileLayer(),
          featuresLayer,
          createSelectedFeaturesLayer()
       ]
@@ -36,8 +35,7 @@ export default async function createMap(featureCollection) {
 
    map.setView(new View({
       padding: MAP_PADDING,
-      projection: epsgCode,
-      //constrainResolution: true
+      projection: environment.MAP_EPSG
    }));
 
    return map;

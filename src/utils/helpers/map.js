@@ -1,5 +1,4 @@
 import GeoJSON from 'ol/format/GeoJSON';
-import { getFeatureStyle } from 'utils/map/style';
 import proj4 from 'proj4';
 
 const EPSG_REGEX = /^(http:\/\/www\.opengis\.net\/def\/crs\/EPSG\/0\/|^urn:ogc:def:crs:EPSG::|^EPSG:)(?<epsg>\d+)$/m;
@@ -92,14 +91,6 @@ export function zoomToGeometry(map, geometry, zoom = 15) {
    view.setZoom(zoom)
 }
 
-export function cloneFeature(feature) {
-   const geoJson = writeGeoJsonFeature(feature);
-   const clone = readGeoJsonFeature(geoJson);
-   clone.setStyle(getFeatureStyle(7, 8));
-
-   return clone;
-}
-
 export function readGeoJsonFeature(feature) {
    if (feature === null) {
       return null;
@@ -108,12 +99,21 @@ export function readGeoJsonFeature(feature) {
    return new GeoJSON().readFeature(feature);
 }
 
-export function readGeoJson(geometry) {
+export function readGeoJson(geometry, srcEpsg, destEpsg) {
    if (geometry === null) {
       return null;
    }
 
-   return new GeoJSON().readGeometry(geometry);
+   let options = {};
+
+   if (srcEpsg && destEpsg) {
+      options = {
+         dataProjection: srcEpsg,
+         featureProjection: destEpsg
+      };
+   }
+
+   return new GeoJSON().readGeometry(geometry, options);
 }
 
 export function writeGeoJsonFeature(feature) {
@@ -124,12 +124,21 @@ export function writeGeoJsonFeature(feature) {
    return new GeoJSON().writeFeatureObject(feature);
 }
 
-export function writeGeoJson(geometry) {
+export function writeGeoJson(geometry, srcEpsg, destEpsg) {
    if (geometry === null) {
       return null;
    }
 
-   return new GeoJSON().writeGeometry(geometry);
+   let options = {};
+      
+   if (srcEpsg && destEpsg) {
+      options = {
+         dataProjection: destEpsg,
+         featureProjection: srcEpsg
+      };
+   }
+
+   return new GeoJSON().writeGeometry(geometry, options);
 }
 
 export function transformCoordinates(srcEpsg, destEpsg, coordinates) {

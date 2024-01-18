@@ -4,7 +4,7 @@ import styles from '../FeatureInfo.module.scss';
 
 export default function Feature({ feature }) {
    const properties = getProperties(feature);
-   const coordinates = feature.getGeometry()?.getCoordinates();
+   const coordinates = feature.get('_coordinates');
 
    return (
       <div>
@@ -24,7 +24,7 @@ export default function Feature({ feature }) {
                <div className={`${styles.row} ${styles.position}`}>
                   <div className={styles.label}>Posisjon:</div>
                   <div className={styles.value}>
-                     <div className={styles.noInput} title={coordinates.join(', ')}>{coordinates[0].toFixed(2)}, {coordinates[1].toFixed(2)}</div>
+                     <div className={styles.noInput} title={coordinates.join(', ')}>{coordinates[1].toFixed(6)}, {coordinates[0].toFixed(6)}</div>
                   </div>
                </div> :
                null

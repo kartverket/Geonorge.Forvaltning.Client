@@ -45,7 +45,7 @@ export const api = createApi({
       getDataset: builder.query({
          queryFn: async id => {
             const { data, error } = await getDataset(id);
-            
+
             if (error !== null) {
                throw error;
             }
@@ -53,6 +53,12 @@ export const api = createApi({
             return { data, error };
          },
          providesTags: (result, error, arg) => [{ type: 'Dataset', id: arg }],
+      }),
+      getOrganizationName: builder.query({
+         query: orgName => ({
+            url: `organizationSearch/${orgName}`,
+            responseHandler: 'text'
+         })
       }),
       addDataset: builder.mutation({
          query: dataset => ({
