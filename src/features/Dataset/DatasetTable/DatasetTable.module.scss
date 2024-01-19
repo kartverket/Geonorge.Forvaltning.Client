@@ -4,6 +4,25 @@
       justify-content: space-between;
       margin-bottom: 18px;
       
+      > div {
+         display: flex;
+         align-items: center;
+
+         > * {
+            margin-right: 24px;
+         }
+
+         .checkbox {
+            display: flex;
+            align-items: center;
+            user-select: none;
+         
+            input {
+               display: flex;
+            }
+         }
+      }
+
       button {
          &.edit {
             display: flex;

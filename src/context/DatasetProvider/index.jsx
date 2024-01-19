@@ -7,6 +7,14 @@ export default function DatasetProvider({ dataset, children }) {
    const user = useSelector(state => state.app.user);
    const datasetRef = useRef(dataset);
    const featureCollection = useMemo(() => createFeatureCollectionGeoJson(datasetRef.current), []);
+   const featuresInExtent = useSelector(state => state.map.featuresInExtent);
+
+   const objects = useMemo(
+      () => {
+         return featuresInExtent.map(featureId => dataset.objects.find(object => featureId === object.id));
+      },
+      [featuresInExtent, dataset.objects]
+   );
 
    const allowedValues = useMemo(
       () => {
@@ -22,7 +30,7 @@ export default function DatasetProvider({ dataset, children }) {
    );
 
    return (
-      <DatasetContext.Provider value={{ objects: dataset.objects, definition: dataset.definition, metadata, featureCollection, allowedValues }}>
+      <DatasetContext.Provider value={{ objects, definition: dataset.definition, metadata, featureCollection, allowedValues }}>
          {children}
       </DatasetContext.Provider>
    );

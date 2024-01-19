@@ -22,7 +22,7 @@ import Filters from './Filters';
 import styles from './DatasetTable.module.scss';
 
 export default function DatasetTable() {
-   const { objects, definition, metadata, allowedValues  } = useDataset();
+   const { objects, definition, metadata, allowedValues } = useDataset();
    const [editMode, setEditMode] = useState(false);
    const [update] = useUpdateDatasetObjectMutation();
    const [_delete] = useDeleteDatasetObjectsMutation();
@@ -30,6 +30,7 @@ export default function DatasetTable() {
    const dispatch = useDispatch();
    const { showModal } = useModal();
    const [selectedRows, setSelectedRows] = useState({ ids: [] });
+   const [showFeaturesInExtent, setShowFeaturesInExtent] = useState(false);
    const visibleTableRowsRef = useRef([]);
    const theme = useTheme(tableTheme);
    const { data, setFilters } = useFilters(objects, metadata);
@@ -205,10 +206,25 @@ export default function DatasetTable() {
       <>
          <div className={styles.container}>
             <div className={styles.buttonsTop}>
-               <gn-button>
-                  <button onClick={() => setEditMode(!editMode)} className={styles.edit}>{!editMode ? 'Rediger tabell' : 'Avslutt redigering'}</button>
-               </gn-button>
+               <div>
+                  <gn-button>
+                     <button onClick={() => setEditMode(!editMode)} className={styles.edit}>{!editMode ? 'Rediger tabell' : 'Avslutt redigering'}</button>
+                  </gn-button>
 
+                  <div className={styles.checkbox}>
+                     <gn-input>
+                        <input 
+                           id="features-in-extent" 
+                           type="checkbox" 
+                           checked={showFeaturesInExtent} 
+                           onChange={event => setShowFeaturesInExtent(event.target.checked)}
+                        />
+                     </gn-input>
+                     <gn-label>
+                        <label htmlFor="features-in-extent">Vis kun objekter i kartutsnitt</label>
+                     </gn-label>
+                  </div>
+               </div>
                {
                   editMode && selectedRows.ids.length > 0 ?
                      <gn-button color="danger">

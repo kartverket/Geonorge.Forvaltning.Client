@@ -2,7 +2,7 @@ import { Cluster, Vector as VectorSource } from 'ol/source';
 import { Vector as VectorLayer } from 'ol/layer';
 import { GeoJSON } from 'ol/format';
 import { Style } from 'ol/style';
-import { getEpsgCode, getLayer, getVectorSource, readGeoJsonFeature, transformCoordinates } from 'utils/helpers/map';
+import { getEpsgCode, getLayer, getVectorSource, readGeoJsonFeature } from 'utils/helpers/map';
 import { clusterStyle, getFeatureStyle } from './style';
 import environment from 'config/environment';
 

@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
    selectedFeature: null,
+   featuresInExtent: [],
    editMode: false
 };
 
@@ -15,6 +16,12 @@ export const mapSlice = createSlice({
             selectedFeature: action.payload
          };
       },
+      setFeaturesInExtent: (state, action) => {
+         return {
+            ...state,
+            featuresInExtent: action.payload
+         };
+      },
       toggleEditMode: (state, action) => {
          return {
             ...state,
@@ -24,6 +31,6 @@ export const mapSlice = createSlice({
    }
 });
 
-export const { selectFeature, toggleEditMode } = mapSlice.actions;
+export const { selectFeature, setFeaturesInExtent, toggleEditMode } = mapSlice.actions;
 
 export default mapSlice.reducer;

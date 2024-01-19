@@ -3,15 +3,20 @@ import { defaults as defaultInteractions, DragRotateAndZoom } from 'ol/interacti
 import { createFeaturesLayer, createSelectedFeaturesLayer } from './feature';
 import { createTileLayer } from './tileLayer';
 import { createEmpty, extend } from 'ol/extent';
-import { selectFeature } from 'store/slices/mapSlice';
+import { selectFeature, setFeaturesInExtent } from 'store/slices/mapSlice';
 import store from 'store';
 import environment from 'config/environment';
+import { getLayer, getVectorSource } from 'utils/helpers/map';
+import { point as createPoint } from '@turf/helpers';
+import getDistance from '@turf/distance';
+import { inPlaceSort } from 'fast-sort';
+import { reproject } from 'reproject';
 
 const MAP_PADDING = [50, 50, 50, 50];
 
 export default async function createMap(featureCollection) {
    const featuresLayer = createFeaturesLayer(featureCollection);
-   
+
    const map = new Map({
       interactions: defaultInteractions().extend([new DragRotateAndZoom()]),
       layers: [
@@ -29,9 +34,13 @@ export default async function createMap(featureCollection) {
       map.getTargetElement().classList.remove('spinner');
    });
 
-   map.on('click', async event => {
+   map.on('click', event => {
       handleMapClick(event, map, featuresLayer);
    })
+
+   map.on('moveend', () => {
+      setFeatureIdsInExtent(map);
+   });
 
    map.setView(new View({
       padding: MAP_PADDING,
@@ -63,6 +72,30 @@ async function handleMapClick(event, map, featuresLayer) {
       const view = map.getView();
       view.fit(extent, { duration: 500, padding: MAP_PADDING });
    }
+}
+
+function setFeatureIdsInExtent(map) {
+   const view = map.getView();
+   const point = createPoint(view.getCenter());
+   const centerPoint = reproject(point, environment.MAP_EPSG, `EPSG:${environment.DATASET_SRID}`);
+   const extent = view.calculateExtent(map.getSize());
+   const layer = getLayer(map, 'features');
+   const source = getVectorSource(layer);
+   const features = [];
+
+   source.forEachFeatureInExtent(extent, feature => {
+      const distance = getDistance(centerPoint, feature.get('_coordinates'), { units: 'meters' });
+
+      features.push({
+         id: feature.get('id').value,
+         distance
+      });
+   });
+
+   inPlaceSort(features).by({ asc: feature => feature.distance });
+   const featureIds = features.map(feature => feature.id);
+
+   store.dispatch(setFeaturesInExtent(featureIds));
 }
 
 function isEditMode() {

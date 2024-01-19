@@ -1,76 +1,148 @@
-import { forwardRef, useEffect, useRef, useState } from 'react';
-import { isFunction, orderBy } from 'lodash';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { inPlaceSort } from 'fast-sort';
+import { isFunction } from 'lodash';
 import { hasError } from '../helpers';
-import TagsInput from 'react-tagsinput';
 import styles from '../Controllers.module.scss';
+import './Tags.scss';
 
-const Tags = forwardRef(({ id, field, fieldState, validator, formatTag, placeholder, errorMessage, className }, ref) => {
-   const [tags, setTags] = useState(field.value);
+export default function Tags({ id, field, fieldState, validator, formatTag, placeholder, unique = true, sort = true, errorMessage, className = '' }) {
+   const [tagInput, setTagInput] = useState('');
+   const [formattedTags, setFormattedTags] = useState([]);
+   const tagsRef = useRef(field.value);
 
-   function handleChange(tags) {
-      const _tags = orderBy(tags, tag => tag.toLowerCase());
-      setTags(_tags);
-      field.onChange({ target: { name: field.name, value: _tags } });
+   function getRandomId() {
+      return Math.random().toString(36).replace(/[^a-z]+/g, '');
    }
 
-   function _formatTag(tag) {
-      return isFunction(formatTag) ?
-         formatTag(tag) :
-         tag;
+   const formatTags = useCallback(
+      async tags => {
+         const formattedTags = [];
+
+         for (let i = 0; i < tags.length; i++) {
+            const tag = tags[i];
+
+            const formatted = isFunction(formatTag) ?
+               await formatTag(tag) :
+               tag;
+
+            formattedTags.push({ value: tag, format: formatted });
+         }
+
+         setFormattedTags(formattedTags);
+      },
+      [formatTag]
+   );
+
+   useEffect(
+      () => {
+         (async () => {
+            await formatTags(field.value);
+         })();
+      },
+      [field.value, formatTags]
+   );
+
+   function handlePaste(event) {
+      event.preventDefault();
+
+      if (!event.clipboardData) {
+         return;
+      }
+
+      const text = event.clipboardData.getData('text/plain');
+      setTagInput(text);
+      addTag(text);
+   }
+
+   function handleKeyDown(event) {
+      if (event.key === 'Enter') {
+         addTag(tagInput);
+      }
+   }
+
+   async function addTag(text) {
+      let values = text.split(',').map(value => value.trim());
+
+      if (unique) {
+         values = values.filter(value => !tagsRef.current.includes(value));
+      }
+
+      if (isFunction(validator)) {
+         values = await validateTags(values);
+      }
+
+      const updatedTags = [...tagsRef.current, ...values];
+
+      if (sort) {
+         inPlaceSort(updatedTags).asc();
+      }
+
+      tagsRef.current = updatedTags;
+      await formatTags(updatedTags);
+      setTagInput('');
+
+      field.onChange({ target: { name: field.name, value: updatedTags } });
+   }
+
+   async function validateTags(tags) {
+      const validTags = [];
+
+      for (let i = 0; i < tags.length; i++) {
+         const tag = tags[i];
+
+         if (validator(tag)) {
+            validTags.push(tag);
+         }
+      }
+
+      return validTags;
+   }
+
+   function deleteTag(index) {
+      const formatted = [...formattedTags];
+      formatted.splice(index, 1);
+
+      setFormattedTags(formatted);
+      tagsRef.current.splice(index, 1);
+
+      field.onChange({ target: { name: field.name, value: tagsRef.current } });
    }
 
    return (
-      <TagsInput
-         value={tags}
-         onChange={handleChange}
-         validate={validator}
-         renderInput={props => {
-            const { onChange, value, addTag, ...other } = props;
-
-            return (
-               <gn-input block="">
-                  <input id={id} ref={ref} type="text" value={value} onChange={onChange} {...other} placeholder={placeholder} />
-               </gn-input>
-            );
-         }}
-         renderTag={props => {
-            const { tag, key, disabled, onRemove, classNameRemove, getTagDisplayValue, ...other } = props;
-            
-            return (
-               <span key={key} {...other} className={styles.tag}>
-                  {_formatTag(tag)}
+      <div className={`tagsinput ${className}`}>
+         <div className="tagsinput-input">
+            <gn-input block="">
+               <input
+                  id={id}
+                  type="text"
+                  name={getRandomId()}
+                  value={tagInput}
+                  onChange={event => setTagInput(event.target.value)}
+                  onKeyDown={handleKeyDown}
+                  onPaste={handlePaste}
+                  placeholder={placeholder}
+               />
+            </gn-input>
+            {
+               hasError(fieldState.error) ?
+                  <div className={styles.error}>{errorMessage}</div> :
+                  null
+            }
+         </div>
+         {
+            formattedTags.length > 0 ?
+               <div className="tagsinput-tags">
                   {
-                     !disabled && <button onClick={() => onRemove(key)}></button>
+                     formattedTags.map((tag, index) => (
+                        <div key={tag.value} className="tagsinput-tag">
+                           {tag.format}
+                           <button onClick={() => deleteTag(index)}></button>
+                        </div>
+                     ))
                   }
-               </span>
-            );
-         }}
-         renderLayout={(tagElements, inputElement) => {
-            return (
-               <div className={styles.tagsInput}>
-                  <div className={styles.inputElement}>
-                     {inputElement}
-                     {
-                        hasError(fieldState.error) ?
-                           <div className={styles.error}>{errorMessage}</div> :
-                           null
-                     }
-                  </div>
-                  <div className={styles.tags}>
-                     {tagElements}
-                  </div>
-               </div>
-            );
-         }}
-         pasteSplit={data => data.split(',').map(value => value.trim())}
-         addOnPaste={true}
-         removeKeys={[]}
-         onlyUnique={true}
-         className={className}
-      />
+               </div> :
+               null
+         }
+      </div>
    );
-});
-
-Tags.displayName = 'Tags';
-
-export default Tags;
+}

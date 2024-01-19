@@ -122,23 +122,23 @@ export default function Dataset() {
                </div>
 
                <FeatureContextMenu />
+
+               <div className={`${styles.tableContainer} ${tableExpanded ? styles.expanded : ''}`}>
+                  <div className={styles.expandTable}>
+                     <gn-button>
+                        <button
+                           onClick={() => setTableExpanded(!tableExpanded)}
+                        >
+                           {!tableExpanded ? 'Åpne' : 'Lukk'} tabellvisning
+                        </button>
+                     </gn-button>
+                  </div>
+
+                  <div className={styles.table}>
+                     <DatasetTable />
+                  </div>
+               </div>
             </MapProvider>
-
-            <div className={`${styles.tableContainer} ${tableExpanded ? styles.expanded : ''}`}>
-               <div className={styles.expandTable}>
-                  <gn-button>
-                     <button
-                        onClick={() => setTableExpanded(!tableExpanded)}
-                     >
-                        {!tableExpanded ? 'Åpne' : 'Lukk'} tabellvisning
-                     </button>
-                  </gn-button>
-               </div>
-
-               <div className={styles.table}>
-                  <DatasetTable />
-               </div>
-            </div>
          </DatasetProvider>
       </>
    );

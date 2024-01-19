@@ -1,11 +1,27 @@
+import { useCallback } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { Select, Tags, TextField } from 'components/Form/Controllers';
 import { isValidOrgNo } from '../helpers';
 import { formatOrgNo } from 'utils/helpers/general';
+import { getOrganizationName } from 'store/services/loaders';
 import styles from '../DatasetAccessControl.module.scss';
 
 export default function DatasetAccessPropertyValue({ valueIndex, propertyIndex, property }) {
    const { control } = useFormContext();
+
+   const formatTag = useCallback(
+      async tag => {
+         const formatted = formatOrgNo(tag);
+         const orgName = await getOrganizationName(tag);
+   
+         return orgName !== null ?
+            <>
+               <span className={styles.orgNo}>{formatted}</span>{orgName}
+            </> :
+            formatted;
+      },
+      []
+   );
 
    return (
       <div className={styles.row}>
@@ -54,7 +70,7 @@ export default function DatasetAccessPropertyValue({ valueIndex, propertyIndex, 
                      errorMessage="Minst én organisasjon må legges til"
                      className={styles.organizations}
                      validator={isValidOrgNo}
-                     formatTag={formatOrgNo}
+                     formatTag={formatTag}
                      {...props}                     
                   />
                )}
