@@ -19,9 +19,10 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
 
          const transformed = transformCoordinates(environment.MAP_EPSG, `EPSG:${environment.DATASET_SRID}`, coords);
          setCoordinates(transformed);
+         feature.set('_coordinates', transformed);
 
          const point = new Point(coords);
-         feature.setGeometry(point);
+         feature.setGeometry(point);         
       },
       [feature]
    );

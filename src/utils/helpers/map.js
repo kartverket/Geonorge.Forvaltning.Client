@@ -55,6 +55,14 @@ export function getFeatureById(map, id, layerName = 'features') {
       .find(feature => feature.get('id')?.value === id);
 }
 
+export function getFeaturesById(map, ids, layerName = 'features') {
+   const layer = getLayer(map, layerName);
+   const source = getVectorSource(layer);
+
+   return source.getFeatures()
+      .filter(feature => ids.includes(feature.get('id')?.value));
+}
+
 export function getProperties(feature) {
    const { geometry, ...properties } = feature.getProperties();
    const props = {};
@@ -87,6 +95,7 @@ export function zoomToFeature(map, feature, zoom) {
 
 export function zoomToGeometry(map, geometry, zoom = 15) {
    const view = map.getView();
+   
    view.fit(geometry, { padding: [50, 50, 50, 50] });
    view.setZoom(zoom)
 }

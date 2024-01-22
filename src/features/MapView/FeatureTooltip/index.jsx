@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useMap } from 'context/MapProvider';
 import { renderProperty } from 'utils/helpers/general';
-import { getProperties } from 'utils/helpers/map';
+import { getLayer, getProperties } from 'utils/helpers/map';
 import styles from './FeatureTooltip.module.scss';
 
 export default function FeatureTooltip() {
@@ -15,8 +15,16 @@ export default function FeatureTooltip() {
             map.forEachFeatureAtPixel(pixel, feature => feature) :
             null;
 
-         const features = clusterFeature?.get('features') || [];
-         const feature = features.length === 1 ? features[0] : null;
+         const layer = getLayer(map, 'features');
+         let feature;
+
+         if (layer.get('_isCluster')) {
+            const features = clusterFeature?.get('features') || [];
+            feature = features.length === 1 ? features[0] : null;
+         } else {
+            feature = clusterFeature;
+         }
+
          const tooltip = tooltipRef.current;
 
          if (feature) {

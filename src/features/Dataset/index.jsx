@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useLoaderData, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { createDataObject } from 'store/slices/objectSlice';
-import { FeatureInfo, FeatureContextMenu, MapView } from 'features';
+import { FeatureInfo, FeatureContextMenu, MapView, MapContextMenu } from 'features';
 import { useBreadcrumbs } from 'features/Breadcrumbs';
 import { Menu, MenuItem, SubMenu, MenuDivider } from '@szhsin/react-menu';
 import { useModal } from 'context/ModalProvider';
@@ -118,10 +118,12 @@ export default function Dataset() {
                      </div>
 
                      <MapView />
+
+                     <MapContextMenu />
+
+                     <FeatureContextMenu />
                   </div>
                </div>
-
-               <FeatureContextMenu />
 
                <div className={`${styles.tableContainer} ${tableExpanded ? styles.expanded : ''}`}>
                   <div className={styles.expandTable}>

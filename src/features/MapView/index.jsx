@@ -5,7 +5,7 @@ import { ZoomToExtent } from 'ol/control';
 import { useMap } from 'context/MapProvider';
 import { selectFeature } from 'store/slices/mapSlice';
 import { getFeatureById, getLayer, getVectorSource, hasFeatures, zoomToFeature } from 'utils/helpers/map';
-import { setNextAndPreviousFeatureId } from 'context/MapProvider/helpers/feature';
+import { highlightFeature, setNextAndPreviousFeatureId } from 'context/MapProvider/helpers/feature';
 import baseMap from 'config/map/baseMap';
 import FeatureTooltip from './FeatureTooltip';
 import styles from './MapView.module.scss';
@@ -32,7 +32,7 @@ export default function MapView() {
          const feature = getFeatureById(map, selectedFeature.id);
 
          setNextAndPreviousFeatureId(map, feature);
-         //highlightFeature(map, feature);
+         highlightFeature(map, feature);
 
          const route = `/datasett/${id}/objekt/${selectedFeature.id}`;
          history.replaceState(null, document.title, route);
@@ -89,7 +89,8 @@ export default function MapView() {
 
    return (
       <div className={styles.mapContainer}>
-         <div ref={mapElementRef} className={styles.map}></div>         
+         <div ref={mapElementRef} className={styles.map}></div>
+
          <FeatureTooltip />
       </div>
    );

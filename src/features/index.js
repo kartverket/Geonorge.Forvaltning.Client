@@ -9,6 +9,7 @@ export { default as FeatureContextMenu } from './FeatureContextMenu';
 export { default as FeatureInfo } from './FeatureInfo';
 export { default as Home } from './Home';
 export { default as Login } from './Login';
+export { default as MapContextMenu } from './MapContextMenu';
 export { default as MapView } from './MapView';
 export { default as NotFound } from './NotFound';
 

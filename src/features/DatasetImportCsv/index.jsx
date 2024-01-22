@@ -78,7 +78,11 @@ export default function DatasetImportCsv() {
                }
                if (value.toLowerCase() === 'false') {
                   return false;
-               }               
+               }
+               if (value.toLowerCase() === 'null') {
+                  return null;
+               }
+                
                return value.length > 0 ? value : null;
             },
             error: error => {

@@ -5,7 +5,6 @@ import createMap from './helpers/map';
 export default function MapProvider({ children }) {
    const { featureCollection } = useDataset();
    const [map, setMap] = useState(null);
-   const [contextMenuData, setContextMenuData] = useState(null);
    const initRef = useRef(true);
 
    useEffect(
@@ -24,7 +23,7 @@ export default function MapProvider({ children }) {
    );
 
    return (
-      <MapContext.Provider value={{ map, setMap, contextMenuData, setContextMenuData }}>
+      <MapContext.Provider value={{ map, setMap }}>
          {children}
       </MapContext.Provider>
    );

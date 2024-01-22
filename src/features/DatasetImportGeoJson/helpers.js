@@ -1,4 +1,4 @@
-import { isUndefined } from 'lodash';
+import { isNil } from 'lodash';
 import { reproject } from 'reproject';
 import gjv from 'geojson-validation';
 import dayjs from 'dayjs';
@@ -30,10 +30,18 @@ export function mapGeoJsonToObjects(geoJson, mappings, importSrId, user) {
 
          Object.entries(mappings).forEach(entry => {
             const prop = properties[entry[1]];
-            object[entry[0]] = !isUndefined(prop) ? prop : null;
+            object[entry[0]] = getPropValue(prop);
          });
 
          return object;
       })
       .filter(feature => feature !== null);
+}
+
+function getPropValue(prop) {   
+   if (isNil(prop) || prop.toString().toLowerCase() === 'null') {
+      return null;
+   }
+
+   return prop;
 }

@@ -3,7 +3,7 @@ import { Vector as VectorLayer } from 'ol/layer';
 import { GeoJSON } from 'ol/format';
 import { Style } from 'ol/style';
 import { getEpsgCode, getLayer, getVectorSource, readGeoJsonFeature } from 'utils/helpers/map';
-import { clusterStyle, getFeatureStyle } from './style';
+import { clusterStyle, getFeatureStyle, getSelectedFeatureStyle } from './style';
 import environment from 'config/environment';
 
 export function createFeaturesLayer(featureCollection) {
@@ -36,7 +36,13 @@ export function createFeaturesLayer(featureCollection) {
       style: clusterStyle
    });
 
+   const disabledSource = new VectorSource({
+      features
+   });
+   
    featuresLayer.set('id', 'features');
+   featuresLayer.set('_isCluster', true);
+   featuresLayer.set('_disabledSource', disabledSource);
 
    return featuresLayer;
 }
@@ -89,16 +95,27 @@ export function toggleFeature(feature) {
    feature.set('_visible', visible);
 }
 
-// export function highlightFeature(map, feature) {
-//    const layer = getLayer(map, 'selected-features');
-//    const source = getVectorSource(layer);
-//    source.clear();
+export function highlightFeature(map, feature) {
+   const layer = getLayer(map, 'features');
+   const source = getVectorSource(layer);
+   const featureId = layer.get('_highlightedFeatureId');
 
-//    const cloned = feature.clone();
-//    cloned.setStyle(createStyle(11, 4));
+   if (featureId) {
+      const highlighted = source.getFeatures().find(feature => feature.get('id').value === featureId);
 
-//    source.addFeature(cloned);
-// }
+      if (highlighted) {
+         const savedStyle = highlighted.get('_savedStyle');
+         highlighted.setStyle(savedStyle);
+      }
+   }
+
+   const style = feature.getStyle();
+
+   feature.set('_savedStyle', style);
+   feature.setStyle(getSelectedFeatureStyle(7, 8));
+
+   layer.set('_highlightedFeatureId', feature.get('id').value);
+}
 
 export function setNextAndPreviousFeatureId(map, feature) {
    const layer = getLayer(map, 'features');
