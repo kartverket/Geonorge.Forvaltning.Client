@@ -7,7 +7,7 @@ export default function Feature({ feature }) {
    const coordinates = feature.get('_coordinates');
 
    return (
-      <div>
+      <div className={styles.properties}>
          {
             Object.entries(properties)
                .map(entry => (

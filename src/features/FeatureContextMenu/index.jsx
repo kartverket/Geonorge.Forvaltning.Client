@@ -49,7 +49,7 @@ export default function FeatureContextMenu() {
    }
 
    function renderMenu() {
-      if (menuData === null) {
+      if (map === null || menuData === null) {
          return null;
       }
 

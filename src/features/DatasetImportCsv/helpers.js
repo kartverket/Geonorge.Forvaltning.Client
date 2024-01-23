@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import WKT from 'ol/format/WKT';
 import { Point } from 'ol/geom';
 import { isUndefined, orderBy } from 'lodash';
-import { writeGeoJson } from 'utils/helpers/map';
+import { roundCoordinates, writeGeoJson } from 'utils/helpers/map';
 import environment from 'config/environment';
 
 const WKT_REGEX = /^POINT\s?\(-?\d+(\.\d+)?\s-?\d+(\.\d+)?\)$/;
@@ -69,13 +69,17 @@ function createGeometryFromXY(row, columnNames, options) {
       throw new Error('Ugyldige koordinater');
    }
 
-   const point = new Point([x, y]);
+   const geometry = new Point([x, y]);
 
    if (options !== null) {
-      point.transform(options.srcProjection, options.destProjection);
+      geometry.transform(options.srcProjection, options.destProjection);
    }
 
-   return writeGeoJson(point);
+   const geoJson = JSON.parse(writeGeoJson(geometry));
+
+   geoJson.coordinates = roundCoordinates(geoJson.coordinates);
+   
+   return JSON.stringify(geoJson);
 }
 
 function createGeometryFromWkt(row, columnNames, options) {
@@ -100,7 +104,11 @@ function createGeometryFromWkt(row, columnNames, options) {
       throw new Error('Geometrien er ikke et punkt');
    }
 
-   return writeGeoJson(geometry);
+   const geoJson = JSON.parse(writeGeoJson(geometry));
+
+   geoJson.coordinates = roundCoordinates(geoJson.coordinates);
+   
+   return JSON.stringify(geoJson);
 }
 
 export function detectGeometryColumns(rows) {

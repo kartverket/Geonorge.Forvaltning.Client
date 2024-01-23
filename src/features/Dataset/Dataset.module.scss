@@ -25,27 +25,17 @@
    top: 12px;
 }
 
-.buttonsTop {
+.header {
    display: flex;
+   align-items: center;
    justify-content: space-between;
-   margin-bottom: 18px;
 
-   >div {
-      display: flex;
-   }
+   heading-text {
+      margin-top: 32px; 
 
-   button {
-      display: flex;
-      align-items: center;
-   }
-
-   .createObject::before {
-      content: "";
-      background: url(../../assets/gfx/icon-add.svg) no-repeat center;
-      width: 20px;
-      height: 33px;
-      background-size: 20px;
-      margin-right: 5px;
+      h1 {
+         margin-top: 0;
+      }   
    }
 
    .importMenu {
@@ -55,6 +45,20 @@
          box-shadow: 0 3px 7px rgba(0, 0, 0, .133), 0 0.6px 2px rgba(0, 0, 0, .1);
          border: 0 none;
          margin-top: 1px !important;
+      }
+
+      .createObject {
+         display: flex;
+         align-items: center;
+
+         &::before {
+            content: "";
+            background: url(../../assets/gfx/icon-add.svg) no-repeat center;
+            width: 20px;
+            height: 22px;
+            background-size: 20px;
+            margin-right: 6px;
+         }
       }
 
       .definitions {
@@ -116,12 +120,15 @@
    }
 
    .menu {
+      display: flex;
+      align-items: center;
       width: 34px;
       height: 34px;
       border: 1px solid #d8d8d8;
       border-radius: 50%;
       transition: all .35s linear 0s;
       cursor: pointer;
+      margin-top: 48px;
 
       &:hover {
          background-color: #dddddd;

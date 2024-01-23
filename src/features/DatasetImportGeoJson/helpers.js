@@ -3,23 +3,22 @@ import { reproject } from 'reproject';
 import gjv from 'geojson-validation';
 import dayjs from 'dayjs';
 import environment from 'config/environment';
+import { roundCoordinates } from 'utils/helpers/map';
 
 export function mapGeoJsonToObjects(geoJson, mappings, importSrId, user) {
    const ownerOrg = user.organization;
    const editor = user.email;
    const updateDate = dayjs().format();
 
-   const featureCollection = importSrId !== environment.DATASET_SRID ?
-      reproject(geoJson, `EPSG:${importSrId}`, `EPSG:${environment.DATASET_SRID}`) :
-      geoJson;
-
-   return featureCollection.features
+   return geoJson.features
       .map(feature => {
-         const { geometry, properties } = feature;
+         const geometry = getGeometry(feature.geometry, importSrId);
 
-         if (!gjv.isPoint(geometry)) {
+         if (geometry === null) {
             return null;
          }
+
+         const { properties } = feature;
 
          const object = {
             geometry: JSON.stringify(geometry),
@@ -38,7 +37,21 @@ export function mapGeoJsonToObjects(geoJson, mappings, importSrId, user) {
       .filter(feature => feature !== null);
 }
 
-function getPropValue(prop) {   
+function getGeometry(geometry, importSrId) {
+   if (!gjv.isPoint(geometry)) {
+      return null;
+   }
+
+   const transformed = importSrId !== environment.DATASET_SRID ?
+      reproject(geometry, `EPSG:${importSrId}`, `EPSG:${environment.DATASET_SRID}`) :
+      geometry;
+
+   transformed.coordinates = roundCoordinates(transformed.coordinates);
+
+   return transformed;
+}
+
+function getPropValue(prop) {
    if (isNil(prop) || prop.toString().toLowerCase() === 'null') {
       return null;
    }

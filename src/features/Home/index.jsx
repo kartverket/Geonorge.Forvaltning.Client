@@ -27,7 +27,7 @@ export default function Home() {
             <h1 underline="true">Mine datasett</h1>
          </heading-text>
 
-         <div className="container">
+         <div className="container">            
             {renderContents()}
          </div>
       </>

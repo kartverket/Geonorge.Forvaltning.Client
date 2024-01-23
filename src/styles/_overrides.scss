@@ -1,3 +1,11 @@
+content-container {
+   max-width: 1902px;
+   min-width: 1170px;
+   width: auto !important;
+   box-sizing: border-box;
+   padding: 0 96px !important;
+}
+
 gn-button button,
 gn-button a,
 gn-input input,

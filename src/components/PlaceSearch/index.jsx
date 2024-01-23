@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useDataset } from 'context/DatasetProvider';
 import { useMap } from 'context/MapProvider';
 import { zoomToGeoJsonFeature } from 'utils/helpers/map';
 import useDebounce from 'hooks/useDebounce'
@@ -8,19 +7,19 @@ import axios from 'axios';
 import environment from 'config/environment';
 import './PlaceSearch.scss';
 
+const MAP_CRS = 3857;
+
 export default function PlaceSearch() {
-   const { definition } = useDataset();
    const { map } = useMap();
-   const crs = definition.srid || 4326;
    const [inputValue, setInputValue] = useState('');
    const [value, setValue] = useState(null);
-
+   
    const loadOptions = useDebounce(
       (query, callback) => {
          const _query = query.replace(/\s+/g, ' ').trim();
 
          if (_query.length >= 3) {
-            const url = `${environment.API_BASE_URL}/placesearch/${query}/${crs}`;
+            const url = `${environment.API_BASE_URL}/placesearch/${query}/${MAP_CRS}`;
 
             axios.get(url)
                .then(response => {

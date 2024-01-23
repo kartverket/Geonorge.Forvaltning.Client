@@ -163,6 +163,11 @@ export function transformCoordinates(srcEpsg, destEpsg, coordinates) {
    }
 }
 
+export function roundCoordinates(coordinates) {
+   return coordinates
+      .map(coordinate => Math.round((coordinate + Number.EPSILON) * 1000000) / 1000000);
+}
+
 function getCrsName(geoJson) {
    return geoJson?.crs?.properties?.name;
 }

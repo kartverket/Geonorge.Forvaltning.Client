@@ -1,9 +1,20 @@
 import { hasError } from '../helpers';
 import styles from '../Controllers.module.scss';
+import { isFunction } from 'lodash';
 
-export default function TextField({ id, field, fieldState, errorMessage, label, className }) {   
+export default function TextField({ id, field, fieldState, onChange, errorMessage, label, className }) {
    function getRandomId() {
       return Math.random().toString(36).replace(/[^a-z]+/g, '');
+   }
+
+   function handleChange(event) {
+      const payload = { target: { name: field.name, value: event.target.value } };
+
+      if (isFunction(onChange)) {
+         onChange(payload);
+      } else {
+         field.onChange(payload);
+      }
    }
 
    return (
@@ -21,7 +32,7 @@ export default function TextField({ id, field, fieldState, errorMessage, label, 
                type="text"
                {...field}
                name={getRandomId()}
-               onChange={event => field.onChange({ target: { name: field.name, value: event.target.value }})}
+               onChange={handleChange}
             />
          </gn-input>
          {

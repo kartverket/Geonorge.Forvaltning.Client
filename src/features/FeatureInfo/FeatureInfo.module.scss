@@ -34,7 +34,7 @@
       display: none;
       flex-direction: column;
       justify-content: space-between;
-      width: 420px;
+      width: 480px;
       background: #ffffff;
       border: 1px solid #d8d8d8;
       padding: 18px;
@@ -113,6 +113,11 @@
          }
       }
 
+      .properties {
+         max-height: 343px;
+         overflow-y: auto;
+      }
+
       .buttonsBottom {
          display: flex;
          justify-content: space-between;
@@ -180,8 +185,10 @@
          }
 
          .label {
-            text-transform: capitalize;
-            flex: 0 0 30%;
+            flex: 0 0 33%;
+            display: flex;
+            align-self: flex-start;
+            margin-top: 6px;
          }
 
          .value {
@@ -189,7 +196,7 @@
             overflow-wrap: anywhere;
 
             .formControl {
-               margin-top: -2px;
+               margin-top: -1px;
             }
          }
 
@@ -199,6 +206,10 @@
             display: flex;
             align-items: center;
          }
+
+         .coordinates input {
+            width: 100%;
+         }
       }
 
       .form {
@@ -206,6 +217,11 @@
          flex-direction: column;
          justify-content: space-between;
          flex: 1;
+
+         >div {
+            max-height: 343px;
+            overflow-y: auto;
+         }
 
          .row {
             align-items: center;

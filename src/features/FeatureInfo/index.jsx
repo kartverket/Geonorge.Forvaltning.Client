@@ -247,7 +247,7 @@ function FeatureInfo() {
    }
 
    function zoomToObject() {
-      zoomToFeature(map, feature, 18);
+      zoomToFeature(map, feature, 15);
    }
 
    function goToNextFeature() {

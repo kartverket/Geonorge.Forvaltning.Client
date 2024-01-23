@@ -1,6 +1,7 @@
 import { diff } from 'deep-object-diff';
-import { getFeatureById, getProperties, readGeoJson, writeGeoJson } from 'utils/helpers/map';
+import { getFeatureById, getProperties, readGeoJson } from 'utils/helpers/map';
 import { reproject } from 'reproject';
+import { point as createPoint } from '@turf/helpers';
 import environment from 'config/environment';
 
 const DATASET_EPSG = `EPSG:${environment.DATASET_SRID}`;
@@ -41,16 +42,22 @@ export function toDbModel(original, updated) {
 
    if (original !== null) {
       origProps = getProperties(original);
-      origProps.geometry = { value: writeGeoJson(original.getGeometry(), environment.MAP_EPSG, DATASET_EPSG) };
+      origProps._coordinates = original.get('_coordinates');
    }
 
    const updatedProps = getProperties(updated);
-   updatedProps.geometry = { value: writeGeoJson(updated.getGeometry(), environment.MAP_EPSG, DATASET_EPSG) };
+   updatedProps._coordinates = updated.get('_coordinates');
 
    const toUpdate = diff(origProps, updatedProps)
 
    if (Object.keys(toUpdate).length === 0) {
       return null;
+   }
+
+   if ('_coordinates' in toUpdate) {
+      const feature = createPoint(updated.get('_coordinates'));
+      toUpdate.geometry = { value: JSON.stringify(feature.geometry) };
+      delete toUpdate._coordinates;
    }
 
    const payload = {};

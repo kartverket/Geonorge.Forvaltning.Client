@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { selectFeature } from 'store/slices/mapSlice';
 import { deleteDataObjects, setShowObjectsInExtent, updateDataObject } from 'store/slices/objectSlice';
 import { useRevalidator } from 'react-router-dom';
@@ -17,6 +17,7 @@ import { useMap } from 'context/MapProvider';
 import { useModal } from 'context/ModalProvider';
 import { modalType } from 'components/Modals';
 import { BooleanSelect, DatePicker, Select, TextField } from 'components/Form';
+import useDebounceValue from 'hooks/useDebouceValue';
 import ReactPaginate from 'react-paginate';
 import useFilters from './Filters/useFilters';
 import Filters from './Filters';
@@ -32,10 +33,28 @@ export default function DatasetTable() {
    const dispatch = useDispatch();
    const { showModal } = useModal();
    const [selectedRows, setSelectedRows] = useState({ ids: [] });
-   const showObjectsInExtent = useSelector(state => state.object.showObjectsInExtent);
+   const [showOnlyInExtent, setShowOnlyInExtent] = useState(false);
+   const debouncedShowOnlyInExtent = useDebounceValue(showOnlyInExtent, 500);
    const visibleTableRowsRef = useRef([]);
    const theme = useTheme(tableTheme);
-   const { data, setFilters } = useFilters(objects, metadata);
+   const { data, setFilters } = useFilters(objects, metadata);  
+   
+   useEffect(
+      () => {
+         if (map !== null) {
+            dispatch(setShowObjectsInExtent(debouncedShowOnlyInExtent));
+            map.dispatchEvent('moveend');
+         }
+      },
+      [debouncedShowOnlyInExtent, dispatch, map]
+   );
+
+   useEffect(
+      () => {
+         return () => dispatch(setShowObjectsInExtent(false));
+      },
+      [dispatch]
+   );
 
    const tableStyle = useMemo(() => getTableStyle(definition), [definition]);
 
@@ -90,26 +109,6 @@ export default function DatasetTable() {
          dispatch(selectFeature({ id: item.id, zoom: true }));
       }
    }
-
-   const [show, setShow] = useState(showObjectsInExtent);
-
-   const debouncedState = useDebounce(show, 500);
-
-   useEffect(
-      () => {
-         if (map !== null) {
-            dispatch(setShowObjectsInExtent(debouncedState));
-            map.dispatchEvent('moveend');
-         }
-      },
-      [debouncedState, dispatch, map]
-   )
-
-   function handleShowObjectsInExtent(event) {
-      setShow(event.target.checked);
-   }
-
-
 
    function renderFormControl(name, value, dataType, objectId) {
       if (dataType === 'bool') {
@@ -235,11 +234,11 @@ export default function DatasetTable() {
 
                   <div className={styles.checkbox}>
                      <gn-input>
-                        <input 
-                           id="features-in-extent" 
-                           type="checkbox" 
-                           checked={show} 
-                           onChange={handleShowObjectsInExtent}
+                        <input
+                           id="features-in-extent"
+                           type="checkbox"
+                           checked={showOnlyInExtent}
+                           onChange={event => setShowOnlyInExtent(event.target.checked)}
                         />
                      </gn-input>
                      <gn-label>
@@ -369,23 +368,3 @@ const tableTheme = {
       }
    `
 };
-
-
-function useDebounce(value, delay) {
-   const [debouncedValue, setDebouncedValue] = useState(value);
-
-   useEffect(
-      () => {
-         const handler = setTimeout(() => {
-            setDebouncedValue(value);
-         }, delay);
-
-         return () => {
-            clearTimeout(handler);
-         };
-      },
-      [value, delay]
-   );
-
-   return debouncedValue;
-}

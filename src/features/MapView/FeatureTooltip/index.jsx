@@ -29,7 +29,6 @@ export default function FeatureTooltip() {
 
          if (feature) {
             const { id, ...properties } = getProperties(feature);
-
             const values = Object.entries(properties).map(entry => [entry[1].name, renderProperty(entry[1])]);
             values.unshift(['ID', id.value]);
 
@@ -40,7 +39,7 @@ export default function FeatureTooltip() {
 
             if (feature !== currentFeatureRef.current) {
                tooltip.style.visibility = 'visible';
-               tooltip.innerText = valueStr;
+               tooltip.textContent = valueStr;
             }
          } else {
             tooltip.style.visibility = 'hidden';

@@ -11,4 +11,8 @@
    padding: 6px 12px;
    visibility: hidden;
    pointer-events: none;
+   max-width: 600px;
+   text-wrap: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
 }

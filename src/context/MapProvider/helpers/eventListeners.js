@@ -1,5 +1,5 @@
 import { createEmpty, extend } from 'ol/extent';
-import { getLayer, getVectorSource, transformCoordinates } from 'utils/helpers/map';
+import { getLayer, getVectorSource, roundCoordinates, transformCoordinates } from 'utils/helpers/map';
 import { selectFeature, setFeatureContextMenuData, setMapContextMenuData, setFeaturesInExtent } from 'store/slices/mapSlice';
 import { inPlaceSort } from 'fast-sort';
 import { reproject } from 'reproject';
@@ -38,6 +38,7 @@ export function handleContextMenu(event, map) {
 
    const coordinates = map.getCoordinateFromPixel(event.pixel);
    const lonLat = transformCoordinates(environment.MAP_EPSG, `EPSG:${environment.DATASET_SRID}`, coordinates);
+   const roundedLonLat = roundCoordinates(lonLat);
    const originalEvent = event.originalEvent;
 
    store.dispatch(setMapContextMenuData({ 
@@ -46,7 +47,7 @@ export function handleContextMenu(event, map) {
          y: originalEvent.clientY 
       },
       coordinates,
-      lonLat
+      lonLat: roundedLonLat
    }));
 }
 
@@ -85,9 +86,6 @@ export function setFeatureIdsInExtent(map) {
    if (!showObjectsInExtent()) {
       return;
    }
-
-   console.log('setFeatureIdsInExtent')
-
 
    const view = map.getView();
    const point = createPoint(view.getCenter());

@@ -56,55 +56,50 @@ export default function Dataset() {
       }
    }
 
-   function showMenuButton() {
+   function showAdminButtons() {
       return user?.organization === dataset.definition.Organization;
    }
 
    return (
       <>
-         <heading-text>
-            <h1 underline="true">{dataset.definition.Name}</h1>
-         </heading-text>
+         <div className={styles.header}>
+            <heading-text>
+               <h1 underline="true">{dataset.definition.Name}</h1>
+            </heading-text>
 
-         <div className={styles.buttonsTop}>
-            <div>
-               <gn-button>
-                  <button
-                     onClick={create}
-                     disabled={createdDataObject !== null}
-                     className={styles.createObject}
-                  >
-                     Nytt objekt
-                  </button>
-               </gn-button>
-            </div>
-
-            <div style={{ display: showMenuButton() ? 'block' : 'none' }}>
-               <Menu
-                  menuButton={<button className={styles.menu}></button>}
-                  align="end"
-                  arrow={true}
-                  className={styles.importMenu}
-               >
-                  <MenuItem onClick={() => navigate(`/datasett/${id}/definisjoner`)}>
-                     <span className={styles.definitions}>Definisjoner</span>
-                  </MenuItem>
-                  <MenuItem onClick={() => navigate(`/datasett/${id}/tilganger`)}>
-                     <span className={styles.accessControl}>Tilganger</span>
-                  </MenuItem>
-                  <SubMenu
-                     label={<span className={styles.importData}>Importér data</span>}
-                     className={styles.subMenu}
-                  >
-                     <MenuItem onClick={() => navigate(`/datasett/${id}/import/geojson`)}>GeoJSON</MenuItem>
-                     <MenuItem onClick={() => navigate(`/datasett/${id}/import/csv`)}>CSV</MenuItem>
-                  </SubMenu>
-                  <MenuDivider />
-                  <MenuItem onClick={deleteDataset}>
-                     <span className={styles.deleteDataset}>Slett datasett...</span>
-                  </MenuItem>
-               </Menu>
-            </div>
+            <Menu
+               menuButton={<button className={styles.menu}></button>}
+               align="end"
+               arrow={true}
+               className={styles.importMenu}
+            >
+               <MenuItem onClick={create} disabled={createdDataObject !== null}>
+                  <span className={styles.createObject}>Nytt objekt</span>
+               </MenuItem>
+               {
+                  showAdminButtons() ?
+                     <>
+                        <MenuItem onClick={() => navigate(`/datasett/${id}/definisjoner`)}>
+                           <span className={styles.definitions}>Definisjoner</span>
+                        </MenuItem>
+                        <MenuItem onClick={() => navigate(`/datasett/${id}/tilganger`)}>
+                           <span className={styles.accessControl}>Tilganger</span>
+                        </MenuItem>
+                        <SubMenu
+                           label={<span className={styles.importData}>Importér data</span>}
+                           className={styles.subMenu}
+                        >
+                           <MenuItem onClick={() => navigate(`/datasett/${id}/import/geojson`)}>GeoJSON</MenuItem>
+                           <MenuItem onClick={() => navigate(`/datasett/${id}/import/csv`)}>CSV</MenuItem>
+                        </SubMenu>
+                        <MenuDivider />
+                        <MenuItem onClick={deleteDataset}>
+                           <span className={styles.deleteDataset}>Slett datasett...</span>
+                        </MenuItem>
+                     </> :
+                     null
+               }
+            </Menu>
          </div>
 
          <DatasetProvider dataset={dataset}>

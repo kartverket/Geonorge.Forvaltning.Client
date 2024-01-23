@@ -47,7 +47,7 @@ export default function MapContextMenu() {
 
       const [lon, lat] = menuData.lonLat;
 
-      return `${lat.toFixed(6)}, ${lon.toFixed(6)}`;
+      return `${lat}, ${lon}`;
    }
 
    return (
