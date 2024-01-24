@@ -4,6 +4,7 @@ import { createFeatureCollectionGeoJson, getAllowedValuesForUser } from './helpe
 
 export default function DatasetProvider({ dataset, children }) {
    const metadata = dataset.definition.ForvaltningsObjektPropertiesMetadata;
+   const ownerOrganization = dataset.definition.Organization;
    const user = useSelector(state => state.app.user);
    const datasetRef = useRef(dataset);
    const featureCollection = useMemo(() => createFeatureCollectionGeoJson(datasetRef.current), []);
@@ -26,9 +27,9 @@ export default function DatasetProvider({ dataset, children }) {
    const allowedValues = useMemo(
       () => {
          const allowed = {};
-
+         
          metadata.forEach(data => {
-            allowed[data.ColumnName] = getAllowedValuesForUser(data.ColumnName, metadata, user);
+            allowed[data.ColumnName] = getAllowedValuesForUser(data.ColumnName, metadata, user, ownerOrganization);
          });
 
          return allowed;
