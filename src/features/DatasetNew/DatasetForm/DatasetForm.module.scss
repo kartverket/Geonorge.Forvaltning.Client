@@ -93,6 +93,10 @@
    }
 }
 
-.projection {
-   width: 150px;
+.attachedDatasets {
+   display: flex;
+
+   > div:nth-of-type(1) {
+      min-width: 450px
+   }
 }

@@ -3,7 +3,7 @@ import { Vector as VectorLayer } from 'ol/layer';
 import { GeoJSON } from 'ol/format';
 import { Style } from 'ol/style';
 import { getEpsgCode, getLayer, getVectorSource, readGeoJsonFeature } from 'utils/helpers/map';
-import { clusterStyle, getFeatureStyle, getSelectedFeatureStyle } from './style';
+import { clusterStyle, getFeatureStyle, getSecondaryFeatureStyle, getSelectedFeatureStyle } from './style';
 import environment from 'config/environment';
 
 export function createFeaturesLayer(featureCollection) {
@@ -18,7 +18,7 @@ export function createFeaturesLayer(featureCollection) {
          olFeature.setStyle(getFeatureStyle(7, 8));
          olFeature.set('_visible', true);
          olFeature.set('_coordinates', feature.geometry?.coordinates);
-         
+
          return olFeature;
       });
 
@@ -39,10 +39,36 @@ export function createFeaturesLayer(featureCollection) {
    const disabledSource = new VectorSource({
       features
    });
-   
+
    featuresLayer.set('id', 'features');
    featuresLayer.set('_isCluster', true);
    featuresLayer.set('_disabledSource', disabledSource);
+
+   return featuresLayer;
+}
+
+export function createSecondaryFeaturesLayer(featureCollection) {
+   const reader = new GeoJSON();
+   const epsgCode = getEpsgCode(featureCollection);
+
+   const features = featureCollection.features
+      .map(feature => {
+         const olFeature = reader.readFeature(feature, { dataProjection: epsgCode, featureProjection: environment.MAP_EPSG });
+
+         olFeature.setStyle(getSecondaryFeatureStyle(7, 8));
+         olFeature.set('_visible', true);
+         olFeature.set('_coordinates', feature.geometry?.coordinates);
+
+         return olFeature;
+      });
+
+   const featuresLayer = new VectorLayer({
+      source: new VectorSource({
+         features
+      })
+   });
+
+   featuresLayer.set('id', 'secondary-features');
 
    return featuresLayer;
 }

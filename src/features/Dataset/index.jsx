@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useLoaderData, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { createDataObject } from 'store/slices/objectSlice';
+import { toggleCriticalUsers } from 'store/slices/mapSlice';
 import { FeatureInfo, FeatureContextMenu, MapView, MapContextMenu } from 'features';
 import { useBreadcrumbs } from 'features/Breadcrumbs';
 import { Menu, MenuItem, SubMenu, MenuDivider } from '@szhsin/react-menu';
@@ -24,6 +25,7 @@ export default function Dataset() {
    const [tableExpanded, setTableExpanded] = useState(false);
    const createdDataObject = useSelector(state => state.object.createdDataObject);
    const user = useSelector(state => state.app.user);
+   const showCriticalUsers = useSelector(state => state.map.showCriticalUsers);
    const dispatch = useDispatch();
    const { showModal } = useModal();
 
@@ -56,6 +58,10 @@ export default function Dataset() {
       }
    }
 
+   function _showCriticalUsers() {
+      dispatch(toggleCriticalUsers(!showCriticalUsers));
+   }
+
    function showAdminButtons() {
       return user?.organization === dataset.definition.Organization;
    }
@@ -76,6 +82,11 @@ export default function Dataset() {
                <MenuItem onClick={create} disabled={createdDataObject !== null}>
                   <span className={styles.createObject}>Nytt objekt</span>
                </MenuItem>
+               <MenuDivider />
+               <MenuItem onClick={_showCriticalUsers}>
+                  <span className={styles.criticalUser}>{!showCriticalUsers ? 'Vis' : 'Skjul'} kritiske brukere</span>
+               </MenuItem>
+               <MenuDivider />
                {
                   showAdminButtons() ?
                      <>

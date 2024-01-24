@@ -2,7 +2,7 @@ import { hasError } from '../helpers';
 import styles from '../Controllers.module.scss';
 import { isFunction } from 'lodash';
 
-export default function TextField({ id, field, fieldState, onChange, errorMessage, label, className }) {
+export default function TextField({ id, field, fieldState, onChange, type = 'text', errorMessage, label, className }) {
    function getRandomId() {
       return Math.random().toString(36).replace(/[^a-z]+/g, '');
    }
@@ -29,7 +29,7 @@ export default function TextField({ id, field, fieldState, onChange, errorMessag
          <gn-input block="">
             <input
                id={id}
-               type="text"
+               type={type}
                {...field}
                name={getRandomId()}
                onChange={handleChange}

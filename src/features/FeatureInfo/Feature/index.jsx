@@ -24,7 +24,7 @@ export default function Feature({ feature }) {
                <div className={`${styles.row} ${styles.position}`}>
                   <div className={styles.label}>Posisjon:</div>
                   <div className={styles.value}>
-                     <div className={styles.noInput} title={coordinates.join(', ')}>{coordinates[1].toFixed(6)}, {coordinates[0].toFixed(6)}</div>
+                     <div className={styles.noInput}>{coordinates[1].toFixed(6)}, {coordinates[0].toFixed(6)}</div>
                   </div>
                </div> :
                null

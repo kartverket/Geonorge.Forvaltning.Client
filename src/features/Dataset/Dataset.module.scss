@@ -61,6 +61,20 @@
          }
       }
 
+      .criticalUser {
+         display: flex;
+         align-items: center;
+
+         &::before {
+            content: "";
+            background: url(../../assets/gfx/icon-critical-user.svg) no-repeat center;
+            width: 20px;
+            height: 22px;
+            background-size: 20px;
+            margin-right: 6px;
+         }
+      }
+
       .definitions {
          display: flex;
          align-items: center;

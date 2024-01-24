@@ -25,7 +25,7 @@ export function getSrId(geoJson) {
 
 export function getLayer(map, id) {
    return map.getLayers().getArray()
-      .find(layer => layer.get('id') === id);
+      .find(layer => layer.get('id') === id) || null;
 }
 
 export function getVectorSource(layer) {

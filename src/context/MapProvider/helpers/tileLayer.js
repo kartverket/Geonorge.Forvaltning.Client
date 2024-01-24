@@ -26,7 +26,7 @@ async function getWmtsOptions() {
    let response;
 
    try {
-      response = await axios.get(baseMap.wmtsUrl, { timeout: 2000 });
+      response = await axios.get(baseMap.wmtsUrl, { timeout: 10000 });
    } catch {
       return null;
    }

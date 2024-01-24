@@ -51,6 +51,23 @@ export function getFeatureStyle(radius, strokeWidth) {
    ];
 }
 
+export function getSecondaryFeatureStyle(radius, strokeWidth) {
+   return [
+      new Style({
+         image: new CircleStyle({
+            radius,
+            fill: new Fill({
+               color: '#249446'
+            }),
+            stroke: new Stroke({
+               color: '#2494465e',
+               width: strokeWidth
+            })
+         })
+      })
+   ];
+}
+
 export function getSelectedFeatureStyle(radius, strokeWidth) {
    return [
       new Style({
