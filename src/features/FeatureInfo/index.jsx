@@ -250,10 +250,10 @@ function FeatureInfo() {
       zoomToFeature(map, feature, 15);
    }
 
-   async function analyze() {
+   async function analyze() {      
       await showModal({
          type: modalType.ANALYSIS,
-         datasetId: definition.Id
+         datasetIds: definition.AttachedForvaltningObjektMetadataIds
       });
    }
 

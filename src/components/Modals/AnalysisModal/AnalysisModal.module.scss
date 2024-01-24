@@ -1,0 +1,41 @@
+.filter {
+   display: flex;
+   margin-bottom: 12px;
+
+   &:last-child {
+      margin-bottom: 0;
+   }
+}
+
+.filterButtons {
+   display: flex;
+   align-items: flex-end;
+   margin-bottom: 2px;
+
+   button {
+      margin-right: 12px;
+      width: 30px;
+      height: 30px;
+      border: 1px solid #d8d8d8;
+      border-radius: 50%;
+      transition: border-color 250ms linear;
+      cursor: pointer;
+
+      &:last-child {
+         margin-right: 0;
+      }
+
+      &:hover {
+         border-color: #000000;
+      }
+   }
+
+   .addButton {
+      background: url(../../../assets/gfx/icon-add.svg) center no-repeat;
+   }
+
+   .removeButton {
+      background: url(../../../assets/gfx/icon-remove.svg) center no-repeat;
+      background-size: 18px;
+   }
+}
