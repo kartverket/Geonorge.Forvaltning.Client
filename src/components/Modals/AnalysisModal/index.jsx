@@ -10,7 +10,7 @@ import { useSelector } from 'react-redux';
 export default function AnalysisModal({ datasetIds }) {
    const user = useSelector(state => state.app.user);
    const methods = useForm({ defaultValues: getDefaultValues() });
-   const { control, getValues } = methods;
+   const { control, getValues, setValue } = methods;
    const { fields, insert, remove } = useFieldArray({ control, name: 'filters' });
    const { data: definitions = null } = useGetDatasetDefinitionsQuery();
    const [propertyOptions, setPropertyOptions] = useState([]);
@@ -25,11 +25,22 @@ export default function AnalysisModal({ datasetIds }) {
             return [];
          }
 
-         return definitions
+         const options = definitions
             .filter(definition => datasetIds.includes(definition.Id))
             .map(definition => ({ value: definition.Id, label: definition.Name }));
+
+         return options;
       },
       [definitions, datasetIds]
+   );
+
+   useEffect(
+      () => {
+         if (datasetOptions.length) {
+            setValue('dataset', datasetOptions[0].value);
+         }
+      },
+      [datasetOptions, setValue]
    );
 
    const allowedValues = useMemo(
@@ -118,6 +129,7 @@ export default function AnalysisModal({ datasetIds }) {
                               options={datasetOptions}
                               label="Datasett"
                               errorMessage="Datasett må velges"
+                              allowEmpty={false}
                               {...props}
                               onChange={event => handleDatasetChange(event, props.field)}
                            />

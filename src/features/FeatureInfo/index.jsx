@@ -250,12 +250,12 @@ function FeatureInfo() {
       zoomToFeature(map, feature, 15);
    }
 
-   async function analyze() {      
-      await showModal({
-         type: modalType.ANALYSIS,
-         datasetIds: definition.AttachedForvaltningObjektMetadataIds
-      });
-   }
+//    async function analyze() {      
+//       await showModal({
+//          type: modalType.ANALYSIS,
+//          datasetIds: definition.AttachedForvaltningObjektMetadataIds
+//       });
+//    }
 
    function goToNextFeature() {
       const id = feature.get('_nextFeature');
@@ -293,9 +293,9 @@ function FeatureInfo() {
                               {
                                  featureToEdit === null ?
                                     <div className={styles.right}>
-                                       <gn-button>
+                                       {/*<gn-button>
                                           <button onClick={analyze}>Analyse</button>
-                                       </gn-button>
+                                        </gn-button>*/}
                                        <gn-button>
                                           <button onClick={edit} className={styles.edit}>Rediger</button>
                                        </gn-button>

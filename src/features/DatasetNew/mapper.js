@@ -23,7 +23,7 @@ export function toDbModel(model) {
       name: model.name,
       description: model.description.trim() !== '' ? model.description : null,
       isopendata: model.isopendata,
-      attachedForvaltningObjektMetadataIds: model.attachedForvaltningObjektMetadataIds.length > 0 ?
+      attachedForvaltningObjektMetadataIds: model.attachedForvaltningObjektMetadataIds?.length > 0 ?
          model.attachedForvaltningObjektMetadataIds.map(metadata => metadata.value) :
          null,
       properties: model.properties.map(property => ({
