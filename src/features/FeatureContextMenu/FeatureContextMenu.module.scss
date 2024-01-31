@@ -17,6 +17,8 @@
          white-space: nowrap;
          overflow-x: hidden;
          text-overflow: ellipsis;
+         min-width: 60px;
+         max-width: 150px;
 
          &:first-child {
             padding-left: 12px !important;

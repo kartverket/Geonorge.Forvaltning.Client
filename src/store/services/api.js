@@ -60,6 +60,9 @@ export const api = createApi({
             responseHandler: 'text'
          })
       }),
+      getAnalysableDatasetIds: builder.query({
+         query: datasetId => `analysis/${datasetId}`
+      }),
       addDataset: builder.mutation({
          query: dataset => ({
             method: 'POST',
@@ -198,12 +201,20 @@ export const api = createApi({
             url: 'admin/authorize-request'
          })
       }),
+      analayze: builder.mutation({
+         query: ({ payload }) => ({
+            method: 'POST',
+            body: payload,
+            url: 'analysis'
+         }),
+      }),
    })
 });
 
 export const {
    useGetDatasetDefinitionsQuery,
    useGetDatasetQuery,
+   useGetAnalysableDatasetIdsQuery,
    useAddDatasetMutation,
    useUpdateDatasetMutation,
    useDeleteDatasetMutation,
@@ -213,5 +224,6 @@ export const {
    useDeleteDatasetObjectsMutation,
    useDeleteAllDatasetObjectsMutation,
    useSetDatasetAccessMutation,
-   useRequestAuthorizationMutation
+   useRequestAuthorizationMutation,
+   useAnalayzeMutation
 } = api;

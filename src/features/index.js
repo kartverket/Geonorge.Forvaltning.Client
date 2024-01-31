@@ -1,3 +1,4 @@
+export { default as AnalysisResult } from './AnalysisResult';
 export { default as Dataset } from './Dataset';
 export { default as DatasetAccessControl } from './DatasetAccessControl';
 export { default as DatasetDefinitions } from './DatasetDefinitions';

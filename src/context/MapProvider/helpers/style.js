@@ -34,53 +34,20 @@ export function clusterStyle(feature) {
    return feature.get('features')[0].getStyle();
 }
 
-export function getFeatureStyle(radius, strokeWidth) {
+export function createFeatureStyle(fillColor, strokeColor, zIndex = 1) {
    return [
       new Style({
          image: new CircleStyle({
-            radius,
+            radius: 7,
             fill: new Fill({
-               color: '#3767c7'
+               color: fillColor
             }),
             stroke: new Stroke({
-               color: '#3767c75e',
-               width: strokeWidth
+               color: strokeColor,
+               width: 8
             })
-         })
-      })
-   ];
-}
-
-export function getSecondaryFeatureStyle(radius, strokeWidth) {
-   return [
-      new Style({
-         image: new CircleStyle({
-            radius,
-            fill: new Fill({
-               color: '#249446'
-            }),
-            stroke: new Stroke({
-               color: '#2494465e',
-               width: strokeWidth
-            })
-         })
-      })
-   ];
-}
-
-export function getSelectedFeatureStyle(radius, strokeWidth) {
-   return [
-      new Style({
-         image: new CircleStyle({
-            radius,
-            fill: new Fill({
-               color: '#fe5000'
-            }),
-            stroke: new Stroke({
-               color: '#fe50005e',
-               width: strokeWidth
-            })
-         })
+         }),
+         zIndex
       })
    ];
 }

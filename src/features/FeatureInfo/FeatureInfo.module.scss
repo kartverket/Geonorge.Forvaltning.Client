@@ -95,6 +95,23 @@
             }
          }
 
+         .analysis {
+            display: flex;
+            align-items: center;
+            font-size: 15px;
+
+            &::before {
+               content: "";
+               background: url(../../assets/gfx/icon-analysis.svg) no-repeat center center;
+               width: 20px;
+               height: 33px;
+               background-size: 19px;
+               border: 0;
+               padding: 0;
+               margin-right: 5px;
+            }
+         }
+
          .add {
             display: flex;
             align-items: center;
@@ -114,7 +131,7 @@
       }
 
       .properties {
-         max-height: 343px;
+         max-height: 402px;
          overflow-y: auto;
       }
 

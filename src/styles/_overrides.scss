@@ -22,6 +22,10 @@ gn-label[block] {
    margin-bottom: 3px;
 }
 
+a:hover {
+   text-decoration: underline !important;
+}
+
 .szh-menu__item {
    cursor: pointer;   
    display: flex;

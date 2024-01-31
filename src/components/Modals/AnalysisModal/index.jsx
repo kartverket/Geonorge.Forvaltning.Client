@@ -1,23 +1,25 @@
+import { useEffect, useMemo, useState } from 'react';
 import { Controller, FormProvider, useFieldArray, useForm, useWatch } from 'react-hook-form';
-import styles from './AnalysisModal.module.scss';
-import { useGetDatasetDefinitionsQuery } from 'store/services/api';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useAnalayzeMutation, useGetDatasetDefinitionsQuery } from 'store/services/api';
 import { Select, TextField } from 'components/Form/Controllers';
+import { point as createPoint } from '@turf/helpers';
+import { useModal } from 'context/ModalProvider';
+import { modalType } from '..';
 import Filter from './Filter';
-import { getAllowedValuesForUser } from 'context/DatasetProvider/helpers';
-import { useSelector } from 'react-redux';
+import Spinner from 'components/Spinner';
+import styles from './AnalysisModal.module.scss';
 
-export default function AnalysisModal({ datasetIds }) {
-   const user = useSelector(state => state.app.user);
-   const methods = useForm({ defaultValues: getDefaultValues() });
-   const { control, getValues, setValue } = methods;
-   const { fields, insert, remove } = useFieldArray({ control, name: 'filters' });
-   const { data: definitions = null } = useGetDatasetDefinitionsQuery();
+export default function AnalysisModal({ datasetId, coordinates, datasetIds, onClose, callback }) {
    const [propertyOptions, setPropertyOptions] = useState([]);
    const [metadata, setMetadata] = useState([]);
-
-   const a = useWatch({ control });
-   console.log(a)
+   const [loading, setLoading] = useState(false);
+   const methods = useForm({ defaultValues: getDefaultValues() });
+   const { control, setValue, handleSubmit } = methods;
+   const { fields, insert, remove } = useFieldArray({ control, name: 'filters' });
+   const { data: definitions = null } = useGetDatasetDefinitionsQuery();
+   const [analyze] = useAnalayzeMutation();
+   const selectedTargetDatasetId = useWatch({ control, name: 'targetDatasetId' });
+   const { showModal } = useModal();
 
    const datasetOptions = useMemo(
       () => {
@@ -37,28 +39,60 @@ export default function AnalysisModal({ datasetIds }) {
    useEffect(
       () => {
          if (datasetOptions.length) {
-            setValue('dataset', datasetOptions[0].value);
+            setValue('targetDatasetId', datasetOptions[0].value);
          }
       },
       [datasetOptions, setValue]
    );
 
-   const allowedValues = useMemo(
+   useEffect(
       () => {
-         const allowed = {};
+         if (selectedTargetDatasetId !== '') {
+            const targetDatasetId = parseInt(selectedTargetDatasetId);
+            const definition = definitions.find(definition => definition.Id === targetDatasetId);
+            const metadata = definition.ForvaltningsObjektPropertiesMetadata;
+            const options = metadata.map(data => ({ value: data.ColumnName, label: data.Name }));
 
-         metadata.forEach(data => {
-            allowed[data.ColumnName] = getAllowedValuesForUser(data.ColumnName, metadata, user);
-         });
-
-         return allowed;
+            setMetadata(metadata);
+            setPropertyOptions(options);
+            setValue('filters', []);
+         }
       },
-      [metadata, user]
+      [selectedTargetDatasetId, definitions, setValue]
    );
 
    function handleOk() {
-      onClose();
-      callback({ result: true, data: null });
+      handleSubmit(async model => {
+         const payload = toPayload(model);
+         setLoading(true);
+
+         try {
+            const response = await analyze({ payload });
+            setLoading(false);
+
+            if (response.data.features.length === 0) {
+               await showModal({
+                  type: modalType.INFO,
+                  variant: 'success',
+                  title: 'Analyseresultat',
+                  body: 'Fant ingen objekter i henhold til kriteriene.'
+               });
+            } else {
+               onClose();
+               callback({ result: true, data: response.data });
+            }
+         } catch (error) {
+            console.error(error);
+            setLoading(false);
+
+            await showModal({
+               type: modalType.INFO,
+               variant: 'error',
+               title: 'Feil',
+               body: 'Analysen kunne ikke gjennomføres.'
+            });
+         }
+      })();
    }
 
    function handleClose() {
@@ -74,71 +108,63 @@ export default function AnalysisModal({ datasetIds }) {
       remove(index);
    }
 
-
-   function handleDatasetChange(event, field) {
-      field.onChange(event);
-
-      const value = event.target.value;
-
-      if (value === '') {
-         setPropertyOptions([]);
-         setMetadata([]);
-         return;
-      }
-
-      const datasetId = parseInt(value);
-      const definition = definitions.find(definition => definition.Id === datasetId);
-      const metadata = definition.ForvaltningsObjektPropertiesMetadata;
-      const options = metadata.map(data => ({ value: data.ColumnName, label: data.Name }));
-
-      setMetadata(metadata)
-      setPropertyOptions(options);
-   }
-
    function getDefaultValues() {
       return {
-         dataset: '',
+         datasetId,
+         targetDatasetId: '',
          count: 1,
-         filters: [
-            {
-               property: '',
-               value: ''
-            }
-         ],
-         distance: 1000
-      }
+         filters: [],
+         distance: 5,
+         coordinates
+      };
+   }
+
+   function toPayload(model) {
+      const { coordinates, filters, ...payload } = model;
+      const feature = createPoint(coordinates);
+   
+      payload.filters = filters.map(filter => ({
+         property: filter.property,
+         value: filter.value !== '' ? filter.value : null
+      }));
+   
+      payload.point = feature.geometry;
+   
+      return payload;
    }
 
    return (
       <div className={styles.modal}>
-         <h1>Finn nærmeste objekt</h1>
+         <h1>Analyse</h1>
 
          <div className={styles.body}>
+            <div className={styles.description}>
+               Finn ruter til nærmeste objekter for et gitt datasett, innenfor en gitt avstand.
+            </div>
+
             <FormProvider {...methods}>
                <div className={styles.form}>
                   <div className={styles.row}>
                      <Controller
                         control={control}
-                        name="dataset"
+                        name="targetDatasetId"
                         rules={{
                            required: true
                         }}
                         render={props => (
                            <Select
-                              id="dataset"
+                              id="targetDatasetId"
                               options={datasetOptions}
                               label="Datasett"
-                              errorMessage="Datasett må velges"
                               allowEmpty={false}
+                              className={styles.select}
                               {...props}
-                              onChange={event => handleDatasetChange(event, props.field)}
                            />
                         )}
                      />
                   </div>
 
-                  <h4>Filter</h4>
-
+                  <div className={styles.label}>Filter</div>
                   {
                      fields.length > 0 ?
                         fields.map((field, index) => (
@@ -147,25 +173,19 @@ export default function AnalysisModal({ datasetIds }) {
                                  index={index}
                                  metadata={metadata}
                                  propertyOptions={propertyOptions}
-                                 allowedValues={allowedValues}
                               />
 
                               <div className={styles.filterButtons}>
                                  <button onClick={() => addFilter(index)} className={styles.addButton}></button>
-                                 {
-                                    fields.length > 1 ?
-                                       <button onClick={() => removeFilter(index)} className={styles.removeButton}></button> :
-                                       null
-                                 }
+                                 <button onClick={() => removeFilter(index)} className={styles.removeButton}></button>
                               </div>
                            </div>
                         )) :
-                        null
-                     // <div className={`panel ${styles.noProperties} ${styles.buttons}`}>
-                     //    <gn-button>
-                     //       <button onClick={addProperty} className={styles.addButton}>Legg til egenskap</button>
-                     //    </gn-button>
-                     // </div>
+                        <div className={styles.noFilters}>
+                           <gn-button>
+                              <button onClick={addFilter} className={styles.addButton}>Legg til filter</button>
+                           </gn-button>
+                        </div>
                   }
 
                   <div className={styles.row}>
@@ -173,14 +193,18 @@ export default function AnalysisModal({ datasetIds }) {
                         control={control}
                         name="count"
                         rules={{
-                           required: true
+                           validate: value => {
+                              const count = parseInt(value);
+                              return !isNaN(count) && count >= 1 && count <= 10;
+                           }
                         }}
                         render={props => (
                            <TextField
                               id="count"
                               type="number"
-                              label="Antall"
-                              errorMessage="Antall må velges"
+                              label="Antall objekter"
+                              errorMessage="Antallet må være fra 1 til 10"
+                              className={styles.textField}
                               {...props}
                            />
                         )}
@@ -192,14 +216,18 @@ export default function AnalysisModal({ datasetIds }) {
                         control={control}
                         name="distance"
                         rules={{
-                           required: true
+                           validate: value => {
+                              const distance = parseInt(value);
+                              return !isNaN(distance) && distance >= 1 && distance <= 100;
+                           }
                         }}
                         render={props => (
                            <TextField
                               id="distance"
                               type="number"
-                              label="Avstand (m)"
-                              errorMessage="Avstand må velges"
+                              label="Avstand (km)"
+                              errorMessage="Avstanden må være fra 1 til 100 (km)"
+                              className={styles.textField}
                               {...props}
                            />
                         )}
@@ -217,6 +245,9 @@ export default function AnalysisModal({ datasetIds }) {
             <gn-button>
                <button onClick={handleOk}>OK</button>
             </gn-button>
+            {
+               loading && <Spinner style={{ margin: '2px 0 0 12px' }} />
+            }
          </div>
       </div>
    );

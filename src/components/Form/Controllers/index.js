@@ -1,5 +1,6 @@
 export { default as BooleanSelect } from './BooleanSelect';
 export { default as Checkbox } from './Checkbox';
+export { default as DatePicker } from './DatePicker';
 export { default as ReactSelect } from './ReactSelect';
 export { default as Select } from './Select';
 export { default as Tags } from './Tags';

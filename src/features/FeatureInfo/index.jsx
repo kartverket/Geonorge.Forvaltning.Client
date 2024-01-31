@@ -18,8 +18,8 @@ import Feature from './Feature';
 import styles from './FeatureInfo.module.scss';
 
 function FeatureInfo() {
-   const { definition, metadata } = useDataset();
-   const { map } = useMap();
+   const { definition, metadata, analysableDatasetIds } = useDataset();
+   const { map, setAnalysisResult } = useMap();
    const { showModal } = useModal();
    const [expanded, setExpanded] = useState(false);
    const [feature, setFeature] = useState(null);
@@ -220,7 +220,7 @@ function FeatureInfo() {
          removeFeatureFromMap(map, featureToEdit, 'selected-features');
          setFeatureToEdit(null);
          toggleFeature(feature);
-         dispatch(toggleEditMode(false));         
+         dispatch(toggleEditMode(false));
       } else if (featureId === null) {
          await addObject(payload);
       } else {
@@ -250,12 +250,21 @@ function FeatureInfo() {
       zoomToFeature(map, feature, 15);
    }
 
-//    async function analyze() {      
-//       await showModal({
-//          type: modalType.ANALYSIS,
-//          datasetIds: definition.AttachedForvaltningObjektMetadataIds
-//       });
-//    }
+   async function analyze() {
+      const { data } = await showModal({
+         type: modalType.ANALYSIS,
+         datasetId: definition.Id,
+         coordinates: feature.get('_coordinates'),
+         datasetIds: analysableDatasetIds
+      });
+
+      if (data !== null) {
+         setAnalysisResult({ 
+            featureId: feature.get('id').value, 
+            featureCollection: data 
+         });
+      }
+   }
 
    function goToNextFeature() {
       const id = feature.get('_nextFeature');
@@ -291,11 +300,15 @@ function FeatureInfo() {
                                  </button>
                               </gn-button>
                               {
-                                 featureToEdit === null ?
+                                 featureToEdit === null && feature.get('_featureType') === 'default' ?
                                     <div className={styles.right}>
-                                       {/*<gn-button>
-                                          <button onClick={analyze}>Analyse</button>
-                                        </gn-button>*/}
+                                       {
+                                          analysableDatasetIds.length > 0 ?
+                                             <gn-button>
+                                                <button onClick={analyze} className={styles.analysis}>Analyse</button>
+                                             </gn-button> :
+                                             null
+                                       }
                                        <gn-button>
                                           <button onClick={edit} className={styles.edit}>Rediger</button>
                                        </gn-button>

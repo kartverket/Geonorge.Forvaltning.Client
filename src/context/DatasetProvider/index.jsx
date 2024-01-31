@@ -1,5 +1,6 @@
 import { createContext, useContext, useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
+import { useGetAnalysableDatasetIdsQuery } from 'store/services/api';
 import { createFeatureCollectionGeoJson, getAllowedValuesForUser } from './helpers';
 
 export default function DatasetProvider({ dataset, children }) {
@@ -10,6 +11,7 @@ export default function DatasetProvider({ dataset, children }) {
    const featureCollection = useMemo(() => createFeatureCollectionGeoJson(datasetRef.current), []);
    const featuresInExtent = useSelector(state => state.map.featuresInExtent);
    const showObjectsInExtent = useSelector(state => state.object.showObjectsInExtent);
+   const { data: analysableDatasetIds = [] } = useGetAnalysableDatasetIdsQuery(dataset.definition.Id);
 
    const objects = useMemo(
       () => {
@@ -34,11 +36,11 @@ export default function DatasetProvider({ dataset, children }) {
 
          return allowed;
       },
-      [metadata, user]
+      [metadata, user, ownerOrganization]
    );
 
    return (
-      <DatasetContext.Provider value={{ objects, definition: dataset.definition, metadata, featureCollection, allowedValues }}>
+      <DatasetContext.Provider value={{ objects, definition: dataset.definition, metadata, featureCollection, allowedValues, analysableDatasetIds }}>
          {children}
       </DatasetContext.Provider>
    );

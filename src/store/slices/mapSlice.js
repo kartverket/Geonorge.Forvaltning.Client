@@ -5,7 +5,6 @@ const initialState = {
    featureContextMenuData: null,
    mapContextMenuData: null,
    featuresInExtent: [],
-   showCriticalUsers: false,
    editMode: false
 };
 
@@ -37,12 +36,6 @@ export const mapSlice = createSlice({
             featuresInExtent: action.payload
          };
       },
-      toggleCriticalUsers: (state, action) => {
-         return {
-            ...state,
-            showCriticalUsers: action.payload
-         };
-      },
       toggleEditMode: (state, action) => {
          return {
             ...state,
@@ -57,7 +50,6 @@ export const {
    setFeatureContextMenuData, 
    setMapContextMenuData, 
    setFeaturesInExtent, 
-   toggleCriticalUsers, 
    toggleEditMode 
 } = mapSlice.actions;
 

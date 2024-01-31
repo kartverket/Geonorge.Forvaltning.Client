@@ -34,16 +34,14 @@ export default function FeatureContextMenu() {
 
    function renderMenuItem(feature) {
       const properties = getProperties(feature);
+      const entries = Object.entries(properties).slice(0, 5);
 
       return (
          <li
             key={feature.get('id').value}
             onClick={() => handleFeatureSelect(feature)}
          >
-            {
-               Object.entries(properties)
-                  .map(entry => <span key={entry[0]}>{renderProperty(entry[1])}</span>)
-            }
+            {entries.map(entry => <span key={entry[0]}>{renderProperty(entry[1])}</span>)}
          </li>
       );
    }
@@ -56,11 +54,12 @@ export default function FeatureContextMenu() {
       const features = getFeaturesById(map, menuData.featureIds);
       const feature = features[0];
       const properties = getProperties(feature);
+      const entries = Object.entries(properties).slice(0, 5);
 
       return (
          <>
             <li className={styles.header}>
-               {Object.entries(properties).map(entry => <span key={entry[0]}>{entry[1].name}</span>)}
+               {entries.map(entry => <span key={entry[0]}>{entry[1].name}</span>)}
             </li>
             {features.map(feature => renderMenuItem(feature))}
          </>

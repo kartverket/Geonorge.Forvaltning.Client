@@ -1,6 +1,6 @@
 import { Map, View } from 'ol';
 import { defaults as defaultInteractions, DragRotateAndZoom } from 'ol/interaction';
-import { createFeaturesLayer, createSelectedFeaturesLayer } from './feature';
+import { createRoutesFeaturesLayer, createFeaturesLayer, createSelectedFeaturesLayer } from './feature';
 import { createTileLayer } from './tileLayer';
 import { toggleClusteredFeatures, handleMapClick, setFeatureIdsInExtent, handleContextMenu } from './eventListeners';
 import environment from 'config/environment';
@@ -14,6 +14,7 @@ export default async function createMap(featureCollection) {
       interactions: defaultInteractions().extend([new DragRotateAndZoom()]),
       layers: [
          await createTileLayer(),
+         createRoutesFeaturesLayer(),
          featuresLayer,
          createSelectedFeaturesLayer()
       ]

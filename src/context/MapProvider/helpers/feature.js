@@ -3,7 +3,7 @@ import { Vector as VectorLayer } from 'ol/layer';
 import { GeoJSON } from 'ol/format';
 import { Style } from 'ol/style';
 import { getEpsgCode, getLayer, getVectorSource, readGeoJsonFeature } from 'utils/helpers/map';
-import { clusterStyle, getFeatureStyle, getSecondaryFeatureStyle, getSelectedFeatureStyle } from './style';
+import { clusterStyle, createFeatureStyle } from './style';
 import environment from 'config/environment';
 
 export function createFeaturesLayer(featureCollection) {
@@ -15,9 +15,10 @@ export function createFeaturesLayer(featureCollection) {
       .map(feature => {
          const olFeature = reader.readFeature(feature, { dataProjection: epsgCode, featureProjection: environment.MAP_EPSG });
 
-         olFeature.setStyle(getFeatureStyle(7, 8));
+         olFeature.setStyle(createFeatureStyle('#3767c7', '#3767c75e'));
          olFeature.set('_visible', true);
          olFeature.set('_coordinates', feature.geometry?.coordinates);
+         olFeature.set('_featureType', 'default');
 
          return olFeature;
       });
@@ -31,7 +32,7 @@ export function createFeaturesLayer(featureCollection) {
 
    clusterSource.set('id', 'cluster-source');
 
-   const featuresLayer = new VectorLayer({
+   const vectorLayer = new VectorLayer({
       source: clusterSource,
       style: clusterStyle
    });
@@ -40,71 +41,85 @@ export function createFeaturesLayer(featureCollection) {
       features
    });
 
-   featuresLayer.set('id', 'features');
-   featuresLayer.set('_isCluster', true);
-   featuresLayer.set('_disabledSource', disabledSource);
+   vectorLayer.set('id', 'features');
+   vectorLayer.set('_isCluster', true);
+   vectorLayer.set('_disabledSource', disabledSource);
 
-   return featuresLayer;
-}
-
-export function createSecondaryFeaturesLayer(featureCollection) {
-   const reader = new GeoJSON();
-   const epsgCode = getEpsgCode(featureCollection);
-
-   const features = featureCollection.features
-      .map(feature => {
-         const olFeature = reader.readFeature(feature, { dataProjection: epsgCode, featureProjection: environment.MAP_EPSG });
-
-         olFeature.setStyle(getSecondaryFeatureStyle(7, 8));
-         olFeature.set('_visible', true);
-         olFeature.set('_coordinates', feature.geometry?.coordinates);
-
-         return olFeature;
-      });
-
-   const featuresLayer = new VectorLayer({
-      source: new VectorSource({
-         features
-      })
-   });
-
-   featuresLayer.set('id', 'secondary-features');
-
-   return featuresLayer;
+   return vectorLayer;
 }
 
 export function createSelectedFeaturesLayer() {
-   const selectedFeaturesLayer = new VectorLayer({
+   const vectorLayer = new VectorLayer({
       source: new VectorSource(),
       declutter: true,
-      zIndex: 999
+      zIndex: 2
    });
 
-   selectedFeaturesLayer.set('id', 'selected-features');
+   vectorLayer.set('id', 'selected-features');
 
-   return selectedFeaturesLayer;
+   return vectorLayer;
+}
+
+export function createRoutesFeaturesLayer() {
+   const vectorLayer = new VectorLayer({
+      source: new VectorSource(),
+   });
+
+   vectorLayer.set('id', 'routes');
+
+   return vectorLayer;
 }
 
 export function createFeature(geoJson) {
    const feature = readGeoJsonFeature(geoJson);
-   feature.setStyle(getFeatureStyle(7, 8));
+
+   feature.setStyle(createFeatureStyle('#3767c7', '#3767c75e'));
    feature.set('_visible', true);
+   feature.set('_featureType', 'default');
 
    return feature;
 }
 
 export function addFeatureToMap(map, feature, layerName = 'features') {
-   const layer = getLayer(map, layerName);
-   const source = getVectorSource(layer);
+   const vectorLayer = getLayer(map, layerName);
 
-   source.addFeature(feature);
+   if (layerName === 'features') {
+      let vectorSource = vectorLayer.getSource();
+      let disabledSource = vectorLayer.get('_disabledSource');
+
+      if (vectorSource.get('id') === 'cluster-source') {
+         vectorSource = vectorSource.getSource();
+      } else {
+         disabledSource = disabledSource.getSource();
+      }
+
+      vectorSource.addFeature(feature);
+      disabledSource.addFeature(feature);
+   } else {
+      const vectorSource = vectorLayer.getSource();
+      vectorSource.addFeature(feature);
+   }
 }
 
 export function removeFeatureFromMap(map, feature, layerName = 'features') {
-   const layer = getLayer(map, layerName);
-   const source = getVectorSource(layer);
+   const vectorLayer = getLayer(map, layerName);
 
-   source.removeFeature(feature);
+   if (layerName === 'features') {
+      let vectorSource = vectorLayer.getSource();
+      let disabledSource = vectorLayer.get('_disabledSource');
+
+      if (vectorSource.get('id') === 'cluster-source') {
+         vectorSource = vectorSource.getSource();
+      } else {
+         disabledSource = disabledSource.getSource();
+      }
+
+      vectorSource.removeFeature(feature);
+      disabledSource.removeFeature(feature);
+   } else {
+      const vectorSource = vectorLayer.getSource();
+      vectorSource.removeFeature(feature);
+   }
 }
 
 export function toggleFeature(feature) {
@@ -136,9 +151,8 @@ export function highlightFeature(map, feature) {
    }
 
    const style = feature.getStyle();
-
    feature.set('_savedStyle', style);
-   feature.setStyle(getSelectedFeatureStyle(7, 8));
+   feature.setStyle(createFeatureStyle('#fe5000', '#fe50005e', 2));
 
    layer.set('_highlightedFeatureId', feature.get('id').value);
 }

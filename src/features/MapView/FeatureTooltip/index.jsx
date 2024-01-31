@@ -11,9 +11,13 @@ export default function FeatureTooltip() {
 
    const displayFeatureInfo = useCallback(
       (pixel, target) => {
-         const clusterFeature = !target.closest('.ol-control') ?
-            map.forEachFeatureAtPixel(pixel, feature => feature) :
-            null;
+         let clusterFeature = null;
+
+         if (!target.closest('.ol-control')) {
+            clusterFeature = map.forEachFeatureAtPixel(pixel, feature => feature, { 
+               layerFilter: layer => layer.get('id') === 'features' 
+            });
+         }
 
          const layer = getLayer(map, 'features');
          let feature;

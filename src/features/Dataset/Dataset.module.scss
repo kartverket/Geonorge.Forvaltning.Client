@@ -38,7 +38,7 @@
       }   
    }
 
-   .importMenu {
+   .adminMenu {
       ul {
          min-width: 132px;
          border-radius: 4px;
@@ -164,9 +164,12 @@
    margin-bottom: 18px;
 
    >div {
-      width: 100%;
       position: relative;
       display: flex;
+   }
+
+   .mapView {
+      flex: 1;
    }
 }
 
