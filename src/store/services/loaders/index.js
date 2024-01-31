@@ -4,8 +4,15 @@ import { redirect } from 'react-router-dom';
 import { signedIn } from '../supabase/client';
 
 export async function getDatasetDefinitions() {
+
+   const queryParameters = new URLSearchParams(window.location.search)
+   const error_description = queryParameters.get("error_description")
+
    if (!await signedIn()) {
-      return redirect('/logg-inn');
+      if(error_description !== null)
+         return redirect('/logg-inn?error_description=' + error_description);
+      else
+         return redirect('/logg-inn');
    }
 
    const promise = store.dispatch(api.endpoints.getDatasetDefinitions.initiate());
