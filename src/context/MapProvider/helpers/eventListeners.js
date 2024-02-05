@@ -72,7 +72,7 @@ export async function handleMapClick(event, map) {
    const features = clusterFeature.get('features');
 
    if (features.length === 1) {
-      store.dispatch(selectFeature({ id: features[0].get('id').value, zoom: true }));
+      store.dispatch(selectFeature({ id: features[0].get('id').value, zoom: true, featureType: features[0].get('_featureType') }));
    } else if (features.length > 1) {
       const extent = createEmpty();
       features.forEach(feature => extend(extent, feature.getGeometry().getExtent()));
@@ -116,7 +116,7 @@ function handleNonClusteredFeatures(map, event) {
       .filter(feature => feature.getGeometry().getType() === 'Point');
 
    if (features.length === 1) {
-      store.dispatch(selectFeature({ id: features[0].get('id').value, zoom: true }));
+      store.dispatch(selectFeature({ id: features[0].get('id').value, zoom: true, featureType: features[0].get('_featureType') }));
    } else if (features.length > 1) {
       const originalEvent = event.originalEvent;
       const featureIds = features.map(feature => feature.get('id').value);

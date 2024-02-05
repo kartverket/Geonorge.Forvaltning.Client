@@ -47,12 +47,12 @@ export function hasFeatures(map, layerName = 'features', withGeom = true) {
    return source.getFeatures().length > 0;
 }
 
-export function getFeatureById(map, id, layerName = 'features') {
+export function getFeatureById(map, id, featureType = 'default', layerName = 'features') {
    const layer = getLayer(map, layerName);
    const source = getVectorSource(layer);
-
+   
    return source.getFeatures()
-      .find(feature => feature.get('id')?.value === id);
+      .find(feature => feature.get('id')?.value === id && feature.get('_featureType') === featureType);
 }
 
 export function getFeaturesById(map, ids, layerName = 'features') {

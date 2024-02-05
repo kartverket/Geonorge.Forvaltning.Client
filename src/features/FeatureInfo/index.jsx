@@ -37,7 +37,7 @@ function FeatureInfo() {
    useEffect(
       () => {
          if (map !== null && selectedFeature !== null) {
-            const _feature = getFeatureById(map, selectedFeature.id);
+            const _feature = getFeatureById(map, selectedFeature.id, selectedFeature.featureType);
 
             setFeature(_feature);
             setExpanded(true);

@@ -29,7 +29,7 @@ export default function MapView() {
             return;
          }
 
-         const feature = getFeatureById(map, selectedFeature.id);
+         const feature = getFeatureById(map, selectedFeature.id, selectedFeature.featureType);
 
          setNextAndPreviousFeatureId(map, feature);
          highlightFeature(map, feature);

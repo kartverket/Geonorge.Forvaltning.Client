@@ -6,6 +6,11 @@ content-container {
    padding: 0 96px !important;
 }
 
+gn-table[hoverable] table tbody tr {
+   transition: none !important;
+   -webkit-transition: none !important;
+}
+
 gn-button button,
 gn-button a,
 gn-input input,
@@ -24,6 +29,10 @@ gn-label[block] {
 
 a:hover {
    text-decoration: underline !important;
+}
+
+gn-button a:hover {
+   text-decoration: none !important;
 }
 
 .szh-menu__item {

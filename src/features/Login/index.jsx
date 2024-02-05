@@ -1,11 +1,21 @@
+import { useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from 'context/AuthProvider';
 import styles from './Login.module.scss';
 
 export default function Login() {
    const { signIn } = useAuth()
+   const [searchParams] = useSearchParams();
 
-   // const queryParameters = new URLSearchParams(window.location.search)
-   // const error_description = queryParameters.get("error_description")
+   const error = useMemo(
+      () => {
+         const errorMessage = searchParams.get('error');
+         history.replaceState('', document.title, window.location.pathname);
+
+         return errorMessage;
+      },
+      [searchParams]
+   );
 
    return (
       <div className={styles.container}>
@@ -19,10 +29,15 @@ export default function Login() {
                   <button onClick={signIn}>Logg inn</button>
                </gn-button>
             </div>
-            <div className={styles.error}>
-               {/* {error_description} */}
-            </div>
          </div>
+
+         {
+            error && (
+               <div className={`panel ${styles.error}`}>
+                  Feil: {error}
+               </div>
+            )
+         }
       </div>
    );
 }

@@ -27,7 +27,10 @@ export const mapSlice = createSlice({
                ...action.payload,
                updateUrl: !isNil(action.payload.updateUrl) ? 
                   action.payload.updateUrl : 
-                  true
+                  true,
+               featureType: !isNil(action.payload.featureType) ?
+                  action.payload.featureType :
+                  'default'
             }
          };
       },

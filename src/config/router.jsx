@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, redirect } from 'react-router-dom';
 import { getDataset, getDatasetDefinition, getDatasetDefinitions } from 'store/services/loaders';
 import { ErrorBoundary, Home, Login, NotFound, Dataset, DatasetAccessControl, DatasetDefinitions, DatasetImportCsv, DatasetImportGeoJson, DatasetNew } from 'features';
 import App from 'App';
@@ -20,7 +20,13 @@ const router = createBrowserRouter([
                   <Home />
                </DefaultLayout>
             ),
-            loader: getDatasetDefinitions,
+            loader: () => {
+               const error = catchLoginError();
+
+               return error === null ?
+                  getDatasetDefinitions() :
+                  redirect(`/logg-inn?error=${error}`);
+            },
             errorElement: <ErrorBoundary />,
          },
          {
@@ -132,5 +138,9 @@ const router = createBrowserRouter([
       ]
    }
 ]);
+
+function catchLoginError() {
+   return new URLSearchParams(location.search).get('error_description');
+}
 
 export default router;

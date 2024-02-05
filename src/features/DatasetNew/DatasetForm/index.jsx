@@ -1,4 +1,4 @@
-import { Controller, useFieldArray, useFormContext, useWatch } from 'react-hook-form';
+import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
 import { Checkbox, TextArea, TextField } from 'components/Form';
 import DatasetProperty from '../DatasetProperty';
 import styles from './DatasetForm.module.scss';

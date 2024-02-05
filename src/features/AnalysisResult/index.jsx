@@ -60,8 +60,8 @@ export default function AnalysisResult() {
       view.fit(route.getGeometry(), { padding: [50, 50, 50, 50] });
    }
 
-   function selectObject(feature, updateUrl) {
-      dispatch(selectFeature({ id: feature.id, zoom: true, updateUrl }));
+   function selectObject(feature, featureType, updateUrl) {
+      dispatch(selectFeature({ id: feature.id, zoom: true, featureType, updateUrl }));
    }
 
    function handleClose() {
@@ -123,7 +123,7 @@ export default function AnalysisResult() {
                </button>
 
                <button
-                  onClick={() => selectObject(result, false)}
+                  onClick={() => selectObject(result, 'analysis', false)}
                   className={`buttonLink ${styles.goToObject}`}
                >
                   Gå til objekt
@@ -173,7 +173,7 @@ export default function AnalysisResult() {
                   }
                   <div className={styles.buttons}>
                      <button
-                        onClick={() => selectObject(start, true)}
+                        onClick={() => selectObject(start, 'default', true)}
                         className={`buttonLink ${styles.goToObject}`}
                      >
                         Gå til objekt

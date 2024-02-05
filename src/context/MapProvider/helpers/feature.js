@@ -139,14 +139,15 @@ export function toggleFeature(feature) {
 export function highlightFeature(map, feature) {
    const layer = getLayer(map, 'features');
    const source = getVectorSource(layer);
-   const featureId = layer.get('_highlightedFeatureId');
+   const highlighted = layer.get('_highlightedFeature');
 
-   if (featureId) {
-      const highlighted = source.getFeatures().find(feature => feature.get('id').value === featureId);
+   if (highlighted) {
+      const highlightedFeature = source.getFeatures()
+         .find(feature => feature.get('id').value === highlighted.featureId && feature.get('_featureType') === highlighted.featureType);
 
-      if (highlighted) {
-         const savedStyle = highlighted.get('_savedStyle');
-         highlighted.setStyle(savedStyle);
+      if (highlightedFeature) {
+         const savedStyle = highlightedFeature.get('_savedStyle');
+         highlightedFeature.setStyle(savedStyle);
       }
    }
 
@@ -154,7 +155,10 @@ export function highlightFeature(map, feature) {
    feature.set('_savedStyle', style);
    feature.setStyle(createFeatureStyle('#fe5000', '#fe50005e', 2));
 
-   layer.set('_highlightedFeatureId', feature.get('id').value);
+   layer.set('_highlightedFeature', {
+      featureId: feature.get('id').value,
+      featureType: feature.get('_featureType')
+   });
 }
 
 export function setNextAndPreviousFeatureId(map, feature) {
