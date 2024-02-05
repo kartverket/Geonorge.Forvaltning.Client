@@ -11,6 +11,7 @@ import MapProvider from 'context/MapProvider';
 import DatasetProvider from 'context/DatasetProvider';
 import DatasetTable from './DatasetTable';
 import styles from './Dataset.module.scss';
+import { toGeoJson } from './export';
 
 export default function Dataset() {
    const dataset = useLoaderData();
@@ -46,6 +47,10 @@ export default function Dataset() {
       }
    }
 
+   function exportToGeoJson() {
+      toGeoJson(dataset);
+   }
+
    function showAdminMenu() {
       return user?.organization === dataset.definition.Organization;
    }
@@ -71,12 +76,18 @@ export default function Dataset() {
                         <span className={styles.accessControl}>Tilganger</span>
                      </MenuItem>
                      <SubMenu
-                        label={<span className={styles.importData}>Importér data</span>}
+                        label={<span className={styles.importData}>Importér</span>}
                         className={styles.subMenu}
                      >
                         <MenuItem onClick={() => navigate(`/datasett/${id}/import/geojson`)}>GeoJSON</MenuItem>
                         <MenuItem onClick={() => navigate(`/datasett/${id}/import/csv`)}>CSV</MenuItem>
                      </SubMenu>
+                     <SubMenu
+                        label={<span className={styles.exportData}>Eksportér</span>}
+                        className={styles.subMenu}
+                     >
+                        <MenuItem onClick={exportToGeoJson}>GeoJSON</MenuItem>
+                     </SubMenu>                     
                      <MenuDivider />
                      <MenuItem onClick={deleteDataset}>
                         <span className={styles.deleteDataset}>Slett datasett...</span>

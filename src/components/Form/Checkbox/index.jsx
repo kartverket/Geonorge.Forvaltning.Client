@@ -1,13 +1,17 @@
-import styles from '../Controllers.module.scss';
+import { forwardRef } from 'react';
+import styles from '../Form.module.scss';
 
-export default function Checkbox({ id, field, label, className }) {
+const Checkbox = forwardRef(({ id, name, value, onChange, label, className }, ref) =>  {
    return (
       <div className={`${styles.checkbox} ${className}`}>
          <gn-input>
             <input
                id={id}
+               ref={ref}
                type="checkbox"
-               {...field}
+               name={name}
+               checked={value}
+               onChange={onChange}
             />
          </gn-input>
          {
@@ -19,4 +23,8 @@ export default function Checkbox({ id, field, label, className }) {
          }
       </div>
    );
-}
+});
+
+Checkbox.displayName = 'Checkbox';
+
+export default Checkbox;

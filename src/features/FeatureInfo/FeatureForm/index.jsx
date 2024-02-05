@@ -4,7 +4,6 @@ import { useDataset } from 'context/DatasetProvider';
 import { getProperties, roundCoordinates, transformCoordinates, zoomToFeature } from 'utils/helpers/map';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { BooleanSelect, DatePicker, Select, TextField } from 'components/Form';
-import { TextField as ControllerTextField } from 'components/Form/Controllers';
 import { Point } from 'ol/geom';
 import environment from 'config/environment';
 import styles from '../FeatureInfo.module.scss';
@@ -50,9 +49,11 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
       [map, getCoordinate]
    );
 
-   function handleChange({ name, value }) {
+   function handleChange({ target: { name, value } }) {
       const prop = feature.get(name);
-      feature.set(name, { ...prop, value });
+      const newValue = value !== '' ? value : null;
+
+      feature.set(name, { ...prop, value: newValue });
    }
 
    function handleCoordinatesChange(event) {
@@ -71,10 +72,10 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
 
    function getDefaultValues() {
       const coordinates = feature.get('_coordinates') || null;
-   
+
       return {
          coordinates: coordinates !== null ? `${coordinates[1]}, ${coordinates[0]}` : ''
-      };   
+      };
    }
 
    function handleSave() {
@@ -104,19 +105,21 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
          );
       }
 
-      const selectOptions = allowedValues[name];
+      const allowedValuesForProp = allowedValues[name];
 
-      if (dataType === 'text' && selectOptions !== null) {
-         if (!selectOptions.includes(value)) {
-            handleChange({ name, value: selectOptions[0] });
+      if (dataType === 'text' && allowedValuesForProp !== null) {
+         if (!allowedValuesForProp.includes(value)) {
+            handleChange({ name, value: allowedValuesForProp[0] });
          }
+
+         const options = allowedValuesForProp.map(option => ({ value: option, label: option }));
 
          return (
             <div className={styles.formControl}>
                <Select
                   name={name}
                   value={value}
-                  options={selectOptions}
+                  options={options}
                   onChange={handleChange}
                   allowEmpty={false}
                />
@@ -194,12 +197,13 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
                                  rules={{
                                     validate: value => LAT_LON_REGEX.test(value.trim())
                                  }}
-                                 render={props => (
-                                    <ControllerTextField
-                                       errorMessage="Et gyldig koordinatpar må fylles ut"
-                                       {...props}
+                                 render={({ field, fieldState: { error } }) => (
+                                    <TextField
+                                       {...field}   
+                                       error={error}
+                                       errorMessage="Et gyldig koordinatpar må fylles ut"                                       
                                        onChange={event => {
-                                          props.field.onChange(event);
+                                          field.onChange(event);
                                           handleCoordinatesChange(event);
                                        }}
                                     />

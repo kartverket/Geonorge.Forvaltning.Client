@@ -1,11 +1,14 @@
 import { forwardRef, useRef, useState } from 'react';
 import { getTimeZone } from 'config/date';
+import { isNil } from 'lodash';
+import { hasError } from '../helpers';
 import ReactDatePicker from 'react-datepicker';
 import dayjs from 'dayjs';
 import styles from './DatePicker.module.scss';
+import commonStyles from '../Form.module.scss';
 
-export default function DatePicker({ name, value, onChange }) {
-   const initDate = value !== null ? new Date(value) : null;
+export default function DatePicker({ id, name, label, value, onChange, error, errorMessage, className = '' }) {
+   const initDate = !isNil(value) && value !== '' ? new Date(value) : null;
    const [_value, setValue] = useState(initDate);
    const originalDateRef = useRef(initDate);
    const datePickerRef = useRef(null);
@@ -38,12 +41,12 @@ export default function DatePicker({ name, value, onChange }) {
 
    function handleClear() {
       setValue(null);
-      onChange({ name, value: null });
+      onChange({ target: { name, value: null } });
    }
 
    function save() {
       originalDateRef.current = _value;
-      onChange({ name, value: dayjs(_value).format() });
+      onChange({ target: { name, value: dayjs(_value).format() } });
       datePickerRef.current.setOpen(false);
    }
 
@@ -73,7 +76,16 @@ export default function DatePicker({ name, value, onChange }) {
          shouldCloseOnSelect={false}
          onClickOutside={cancel}
          portalId="datepicker-portal"
-         customInput={<DatePickerInput onClear={handleClear} />}
+         className={className}
+         customInput={
+            <DatePickerInput
+               inputId={id}
+               label={label}
+               error={error}
+               errorMessage={errorMessage}
+               onClear={handleClear}
+            />
+         }
       >
          <div className={styles.buttonRow}>
             <gn-button>
@@ -85,23 +97,38 @@ export default function DatePicker({ name, value, onChange }) {
             </gn-button>
          </div>
       </ReactDatePicker>
-   )
+   );
 }
 
-const DatePickerInput = forwardRef(({ value, onChange, onClick, onClear }, ref) => (
+const DatePickerInput = forwardRef(({ inputId, value, label, onChange, onClick, onClear, error, errorMessage }, ref) => (
    <div className={styles.inputContainer}>
-      <gn-input block="">
-         <input
-            type="text"
-            value={value}
-            onChange={onChange}
-            onClick={onClick}
-            ref={ref}
-            readOnly
-         />
-      </gn-input>
+      {
+         label ?
+            <gn-label block="">
+               <label htmlFor={inputId}>{label}</label>
+            </gn-label> :
+            null
+      }
+      <div className={styles.input}>
+         <gn-input block="" width="">
+            <input
+               id={inputId}
+               ref={ref}
+               type="text"
+               value={value}
+               onChange={onChange}
+               onClick={onClick}
+               readOnly
+            />
+         </gn-input>
 
-      <button onClick={onClear}></button>
+         <button onClick={onClear}></button>
+      </div>
+      {
+         hasError(error) ?
+            <div className={commonStyles.error}>{errorMessage}</div> :
+            null
+      }
    </div>
 ));
 

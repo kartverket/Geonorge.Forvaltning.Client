@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
-import { Select, Tags, TextField } from 'components/Form/Controllers';
+import { Select, Tags, TextField } from 'components/Form';
 import { isValidOrgNo } from '../helpers';
 import { formatOrgNo } from 'utils/helpers/general';
 import { getOrganizationName } from 'store/services/loaders';
@@ -13,7 +13,7 @@ export default function DatasetAccessPropertyValue({ valueIndex, propertyIndex, 
       async tag => {
          const formatted = formatOrgNo(tag);
          const orgName = await getOrganizationName(tag);
-   
+
          return orgName !== null ?
             <>
                <span className={styles.orgNo}>{formatted}</span>{orgName}
@@ -32,22 +32,24 @@ export default function DatasetAccessPropertyValue({ valueIndex, propertyIndex, 
                rules={{
                   validate: value => value.trim().length > 0
                }}
-               render={props => (
+               render={({ field, fieldState: { error } }) => (
                   property.AllowedValues === null ?
                      <TextField
                         id={`accessByProperties.${propertyIndex}.values.${valueIndex}.value`}
                         label="Verdi"
+                        {...field}
+                        error={error}
                         errorMessage="Verdi må fylles ut"
                         className={styles.textField}
-                        {...props}
                      /> :
                      <Select
                         id={`accessByProperties.${propertyIndex}.values.${valueIndex}.value`}
                         label="Verdi"
                         options={property.AllowedValues.map(value => ({ value, label: value }))}
+                        {...field}
+                        error={error}
                         errorMessage="Verdi må fylles ut"
                         className={styles.select}
-                        {...props}
                      />
                )}
             />
@@ -63,15 +65,16 @@ export default function DatasetAccessPropertyValue({ valueIndex, propertyIndex, 
                rules={{
                   required: true
                }}
-               render={props => (
+               render={({ field, fieldState: { error } }) => (
                   <Tags
                      id={`accessByProperties.${propertyIndex}.values.${valueIndex}.contributors`}
                      placeholder="Legg til organisasjon..."
+                     {...field}
+                     error={error}
                      errorMessage="Minst én organisasjon må legges til"
                      className={styles.organizations}
                      validator={isValidOrgNo}
                      formatTag={formatTag}
-                     {...props}                     
                   />
                )}
             />

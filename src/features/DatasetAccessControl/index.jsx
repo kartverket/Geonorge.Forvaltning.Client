@@ -3,7 +3,7 @@ import { useLoaderData } from 'react-router-dom';
 import { useBreadcrumbs } from 'features/Breadcrumbs';
 import { isValidOrgNo } from './helpers';
 import { useForm, FormProvider, Controller, useFieldArray, useWatch } from 'react-hook-form';
-import { Tags } from 'components/Form/Controllers';
+import { Tags } from 'components/Form';
 import { fromDbModel, toDbModel } from './mapper';
 import { useSetDatasetAccessMutation } from 'store/services/api';
 import { useModal } from 'context/ModalProvider';
@@ -106,14 +106,14 @@ export default function DatasetAccessControl() {
                   <Controller
                      control={control}
                      name="contributors"
-                     render={props => (
+                     render={({ field }) => (
                         <Tags
                            id="contributors"
                            placeholder="Legg til organisasjon..."
                            validator={isValidOrgNo}
                            formatTag={formatTag}
                            className={styles.organizations}
-                           {...props}
+                           {...field}
                         />
                      )}
                   />

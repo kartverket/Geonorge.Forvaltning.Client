@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
-import { DatePicker, Select, TextField, BooleanSelect } from 'components/Form/Controllers';
+import { DatePicker, Select, TextField, BooleanSelect } from 'components/Form';
 import styles from './Filter.module.scss';
 
 export default function Filter({ index, metadata, propertyOptions }) {

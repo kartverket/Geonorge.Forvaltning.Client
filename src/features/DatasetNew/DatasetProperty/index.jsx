@@ -1,5 +1,5 @@
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
-import { Select, TextField } from 'components/Form/Controllers';
+import { Select, TextField } from 'components/Form';
 import { useModal } from 'context/ModalProvider';
 import { modalType } from 'components/Modals';
 import styles from './DatasetProperty.module.scss';
@@ -39,13 +39,14 @@ export default function DatasetProperty({ index }) {
                rules={{
                   validate: value => value.trim().length > 0
                }}
-               render={props => (
+               render={({ field, fieldState: { error } }) => (
                   <TextField
                      id={`properties.${index}.name`}
                      label="Navn"
+                     {...field}
+                     error={error}
                      errorMessage="Navn må fylles ut"
                      className={styles.textField}
-                     {...props}
                   />
                )}
             />
@@ -57,14 +58,15 @@ export default function DatasetProperty({ index }) {
                rules={{
                   required: true
                }}
-               render={props => (
+               render={({ field, fieldState: { error } }) => (
                   <Select
                      id={`properties.${index}.dataType`}
+                     {...field}
                      options={DATA_TYPES}
+                     error={error}
                      label="Datatype"
                      errorMessage="Datatype må velges"
                      className={styles.dataType}
-                     {...props}
                   />
                )}
             />

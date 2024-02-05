@@ -5,6 +5,8 @@ import axios from 'axios';
 import baseMap from 'config/map/baseMap';
 import environment from 'config/environment';
 
+let wmtsOptions = null;
+
 export async function createTileLayer() {
    const options = await getWmtsOptions();
 
@@ -23,6 +25,10 @@ export async function createTileLayer() {
 }
 
 async function getWmtsOptions() {
+   if (wmtsOptions !== null) {
+      return wmtsOptions;
+   }
+
    let response;
 
    try {
@@ -33,8 +39,10 @@ async function getWmtsOptions() {
 
    const capabilities = new WMTSCapabilities().read(response.data);
 
-   return optionsFromCapabilities(capabilities, {
+   wmtsOptions = optionsFromCapabilities(capabilities, {
       layer: baseMap.layer,
       matrixSet: environment.MAP_EPSG
    });
+
+   return wmtsOptions;
 }

@@ -76,7 +76,7 @@ function addObjectsToMap(map, featureCollection) {
    const vectorLayer = getLayer(map, 'features');
    let vectorSource = vectorLayer.getSource();
    let disabledSource = vectorLayer.get('_disabledSource');
-   
+
    if (vectorSource.get('id') === 'cluster-source') {
       vectorSource = vectorSource.getSource();
    } else {

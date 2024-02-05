@@ -34,8 +34,10 @@ export default function MapView() {
          setNextAndPreviousFeatureId(map, feature);
          highlightFeature(map, feature);
 
-         const route = `/datasett/${id}/objekt/${selectedFeature.id}`;
-         history.replaceState(null, document.title, route);
+         if (selectedFeature.updateUrl) {
+            const route = `/datasett/${id}/objekt/${selectedFeature.id}`;
+            history.replaceState(null, document.title, route);
+         }
 
          if (selectedFeature.zoom && feature.getGeometry() !== null) {
             zoomToFeature(map, feature);

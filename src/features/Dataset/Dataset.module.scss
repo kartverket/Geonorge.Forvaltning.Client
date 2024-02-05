@@ -106,7 +106,8 @@
       .importData {
          display: flex;
          align-items: center;
-
+         width: 100%;
+         
          &::before {
             content: "";
             background: url(../../assets/gfx/icon-import.svg) no-repeat center;
@@ -116,6 +117,21 @@
             margin-right: 6px;
          }
       }
+
+      .exportData {
+         display: flex;
+         align-items: center;
+         width: 100%;
+
+         &::before {
+            content: "";
+            background: url(../../assets/gfx/icon-export.svg) no-repeat center;
+            width: 23px;
+            height: 24px;
+            background-size: 23px;
+            margin-right: 6px;
+         }
+      }      
 
       .deleteDataset {
          display: flex;

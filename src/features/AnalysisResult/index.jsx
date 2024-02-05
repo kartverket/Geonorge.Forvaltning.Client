@@ -1,11 +1,11 @@
+import { useEffect, useMemo, useState } from 'react';
 import { useMap } from 'context/MapProvider';
 import { useDispatch, useSelector } from 'react-redux';
-import { useEffect, useMemo, useState } from 'react';
-import { addAnalysisFeaturesToMap, convertDistance, convertDuration, highlightRoute, removeAnalysisFeaturesFromMap } from './helpers';
 import { selectFeature } from 'store/slices/mapSlice';
-import { renderProperty } from 'utils/helpers/general';
-import { getFeatureById, getLayer, getProperties, getVectorSource } from 'utils/helpers/map';
-import { inPlaceSort } from 'fast-sort';
+import { getFeatureById, getLayer, getVectorSource } from 'utils/helpers/map';
+import { mapAnalysisResult } from './mapper';
+import { addAnalysisFeaturesToMap, convertDistance, convertDuration, highlightRoute, removeAnalysisFeaturesFromMap } from './helpers';
+import { toGeoJson } from './export';
 import styles from './AnalysisResult.module.scss';
 
 export default function AnalysisResult() {
@@ -35,51 +35,14 @@ export default function AnalysisResult() {
             };
          }
 
-         const objects = analysisResult.featureCollection.features
-            .filter(feature => feature.geometry?.type === 'Point');
-
-         const routes = analysisResult.featureCollection.features
-            .filter(feature => feature.geometry?.type !== 'Point');
-
-         const resultList = objects.map(object => {
-            const properties = Object.values(object.properties).slice(0, 3)
-               .map(value => [value.name, renderProperty(value)]);
-
-            const route = routes
-               .find(route => route.properties.destinationId === object.properties.id.value);
-
-            return {
-               id: object.properties.id.value,
-               properties,
-               route: {
-                  distance: route.properties.distance || null,
-                  duration: route.properties.duration || null,
-                  statusCode: route.properties.statusCode || null
-               },
-               hasRoute: route.properties.distance !== undefined
-            };
-         });
-
-         inPlaceSort(resultList).by({
-            asc: result => result.route.distance || Number.MAX_VALUE
-         });
-
-         const feature = getFeatureById(map, analysisResult.featureId);
-         const props = getProperties(feature);
-
-         const properties = Object.values(props).slice(0, 3)
-            .map(value => [value.name, renderProperty(value)]);
-
-         return {
-            start: {
-               id: analysisResult.featureId,
-               properties
-            },
-            resultList
-         };
+         return mapAnalysisResult(map, analysisResult);
       },
       [analysisResult, map]
    );
+
+   function exportToGeoJson() {
+      toGeoJson(map, analysisResult);
+   }
 
    function toggleExpanded() {
       setExpanded(!expanded);
@@ -97,8 +60,8 @@ export default function AnalysisResult() {
       view.fit(route.getGeometry(), { padding: [50, 50, 50, 50] });
    }
 
-   function selectObject(feature) {
-      dispatch(selectFeature({ id: feature.id, zoom: true }));
+   function selectObject(feature, updateUrl) {
+      dispatch(selectFeature({ id: feature.id, zoom: true, updateUrl }));
    }
 
    function handleClose() {
@@ -115,11 +78,11 @@ export default function AnalysisResult() {
       setAnalysisResult(null);
    }
 
-   function renderResult() {
+   function renderDestinations() {
       return resultList.map(result => (
          <div
             key={result.id}
-            className={`${styles.result} ${selectedResultId === result.id ? styles.selected : ''}`}
+            className={`${styles.destination} ${selectedResultId === result.id ? styles.selected : ''}`}
             role="button"
          >
             <div className={styles.object}>
@@ -160,7 +123,7 @@ export default function AnalysisResult() {
                </button>
 
                <button
-                  onClick={() => selectObject(result)}
+                  onClick={() => selectObject(result, false)}
                   className={`buttonLink ${styles.goToObject}`}
                >
                   Gå til objekt
@@ -175,17 +138,28 @@ export default function AnalysisResult() {
    }
 
    return (
-      <div className={`${styles.analysisResult} ${expanded ? styles.expanded : ''}`}>
+      <div className={`${styles.container} ${expanded ? styles.expanded : ''}`}>
          <gn-button>
             <button onClick={toggleExpanded} className={styles.expandButton}>
                <span></span>
             </button>
          </gn-button>
 
-         <div className={styles.resultList}>
-            <h4>Analyseresultat</h4>
+         <div className={styles.analysisResult}>
+            <div className={styles.header}>
+               <span>Analyseresultat</span>
 
-            <button onClick={handleClose} className={styles.closeButton}></button>
+               <div className={styles.headerButtons}>
+                  <button
+                     onClick={exportToGeoJson}
+                     className={`buttonLink ${styles.exportButton}`}
+                  >
+                     Eksportér
+                  </button>
+
+                  <button onClick={handleClose} className={styles.closeButton}></button>
+               </div>
+            </div>
 
             <div className={styles.start}>
                <div className={styles.properties}>
@@ -199,7 +173,7 @@ export default function AnalysisResult() {
                   }
                   <div className={styles.buttons}>
                      <button
-                        onClick={() => selectObject(start)}
+                        onClick={() => selectObject(start, true)}
                         className={`buttonLink ${styles.goToObject}`}
                      >
                         Gå til objekt
@@ -208,10 +182,10 @@ export default function AnalysisResult() {
                </div>
             </div>
 
-            <h4>Destinasjoner ({resultList.length}):</h4>
+            <div className={styles.subHeader}>Destinasjoner ({resultList.length}):</div>
 
-            <div className={styles.results}>
-               {renderResult()}
+            <div className={styles.destinations}>
+               {renderDestinations()}
             </div>
          </div>
       </div>

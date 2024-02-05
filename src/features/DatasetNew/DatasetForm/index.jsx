@@ -1,28 +1,11 @@
-import { useMemo } from 'react';
-import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
-import { Checkbox, ReactSelect, TextArea, TextField } from 'components/Form/Controllers';
-import { useGetDatasetDefinitionsQuery } from 'store/services/api';
+import { Controller, useFieldArray, useFormContext, useWatch } from 'react-hook-form';
+import { Checkbox, TextArea, TextField } from 'components/Form';
 import DatasetProperty from '../DatasetProperty';
 import styles from './DatasetForm.module.scss';
 
 export default function DatasetForm() {
-   const { control, getValues } = useFormContext();
+   const { control } = useFormContext();
    const { fields, insert, remove } = useFieldArray({ control, name: 'properties' });
-   const { data: definitions = null } = useGetDatasetDefinitionsQuery();
-   const datasetId = getValues('id');
-
-   const datasetOptions = useMemo(
-      () => {
-         if (definitions === null) {
-            return [];
-         }
-
-         return definitions
-            .filter(definition => definition.Id !== datasetId)
-            .map(definition => ({ value: definition.Id, label: definition.Name }));
-      },
-      [definitions, datasetId]
-   );
 
    function addProperty(index) {
       insert(index + 1, { name: '', dataType: '' });
@@ -42,13 +25,14 @@ export default function DatasetForm() {
                   rules={{
                      validate: value => value.trim().length > 0
                   }}
-                  render={props => (
+                  render={({ field, fieldState: { error } }) => (
                      <TextField
                         id="name"
                         label="Navn"
+                        {...field}
+                        error={error}
                         errorMessage="Navn må fylles ut"
                         className={styles.textField}
-                        {...props}
                      />
                   )}
                />
@@ -58,13 +42,13 @@ export default function DatasetForm() {
                <Controller
                   control={control}
                   name="description"
-                  render={props => (
+                  render={({ field }) => (
                      <TextArea
                         id="description"
                         label="Beskrivelse"
+                        {...field}
                         optional={true}
                         className={styles.textArea}
-                        {...props}
                      />
                   )}
                />
@@ -74,11 +58,11 @@ export default function DatasetForm() {
                <Controller
                   control={control}
                   name="isopendata"
-                  render={props => (
+                  render={({ field }) => (
                      <Checkbox
                         id="isopendata"
                         label="Åpne data"
-                        {...props}
+                        {...field}
                      />
                   )}
                />
@@ -106,28 +90,6 @@ export default function DatasetForm() {
                   </div>
                ))
             }
-         </div>
-
-         <heading-text>
-            <h3 className={styles.h3}>Analyse</h3>
-         </heading-text>
-
-         <div className="panel">
-            <Controller
-               control={control}
-               name="attachedForvaltningObjektMetadataIds"
-               render={props => (
-                  <ReactSelect
-                     id="attached-datasets"
-                     label="Tilknyttede datasett"
-                     options={datasetOptions}
-                     isMulti={true}
-                     noOptionsMessage="Ingen datasett funnet"
-                     className={styles.attachedDatasets}
-                     {...props}
-                  />
-               )}
-            />
          </div>
       </>
    );

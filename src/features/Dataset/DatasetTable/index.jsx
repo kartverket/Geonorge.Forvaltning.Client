@@ -37,8 +37,8 @@ export default function DatasetTable() {
    const debouncedShowOnlyInExtent = useDebounceValue(showOnlyInExtent, 500);
    const visibleTableRowsRef = useRef([]);
    const theme = useTheme(tableTheme);
-   const { data, setFilters } = useFilters(objects, metadata);  
-   
+   const { data, setFilters } = useFilters(objects, metadata);
+
    useEffect(
       () => {
          if (map !== null) {
@@ -129,7 +129,7 @@ export default function DatasetTable() {
                name={name}
                value={value}
                options={selectOptions}
-               onChange={({ name, value }) => handleUpdate(name, value, objectId)}
+               onChange={event => handleUpdate(event, objectId)}
                allowEmpty={false}
             />
          );
@@ -140,7 +140,7 @@ export default function DatasetTable() {
             <DatePicker
                name={name}
                value={value}
-               onChange={({ name, value }) => handleUpdate(name, value, objectId)}
+               onChange={event => handleUpdate(event, objectId)}
             />
          );
       }
@@ -149,16 +149,15 @@ export default function DatasetTable() {
          <TextField
             name={name}
             value={value}
-            onChange={({ name, value }) => handleUpdate(name, value, objectId)}
+            onChange={event => handleUpdate(event, objectId)}
             mode='blur'
          />
       );
    }
 
-   async function handleUpdate(name, value, objectId) {
-      const payload = {
-         [name]: value
-      };
+   async function handleUpdate(event, objectId) {
+      const { name, value } = event.target;
+      const payload = { [name]: value };
 
       try {
          await update({

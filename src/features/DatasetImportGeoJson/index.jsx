@@ -6,7 +6,7 @@ import { useBreadcrumbs } from 'features/Breadcrumbs';
 import { filesize } from 'filesize';
 import { getSrId } from 'utils/helpers/map';
 import { mapGeoJsonToObjects } from './helpers';
-import { Checkbox } from 'components/Form/Controllers';
+import { Checkbox } from 'components/Form';
 import { useModal } from 'context/ModalProvider';
 import { modalType } from 'components/Modals';
 import { isNil } from 'lodash';
@@ -251,10 +251,8 @@ export default function DatasetImportGeoJson() {
                         <Checkbox
                            id="empty-first"
                            label="Tøm database før import"
-                           field={{
-                              value: emptyFirst,
-                              onChange: event => setEmptyFirst(event.target.checked)
-                           }}
+                           value={emptyFirst}
+                           onChange={event => setEmptyFirst(event.target.checked)}
                         />
                      </div>
 

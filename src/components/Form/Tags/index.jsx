@@ -1,14 +1,14 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
 import { inPlaceSort } from 'fast-sort';
 import { isFunction } from 'lodash';
 import { hasError } from '../helpers';
-import styles from '../Controllers.module.scss';
+import styles from '../Form.module.scss';
 import './Tags.scss';
 
-export default function Tags({ id, field, fieldState, validator, formatTag, placeholder, unique = true, sort = true, errorMessage, className = '' }) {
+const Tags = forwardRef(({ id, name, value, onChange, error, validator, formatTag, placeholder, unique = true, sort = true, errorMessage, className = '' }, ref) => {
    const [tagInput, setTagInput] = useState('');
    const [formattedTags, setFormattedTags] = useState([]);
-   const tagsRef = useRef(field.value);
+   const tagsRef = useRef(value);
 
    function getRandomId() {
       return Math.random().toString(36).replace(/[^a-z]+/g, '');
@@ -36,10 +36,10 @@ export default function Tags({ id, field, fieldState, validator, formatTag, plac
    useEffect(
       () => {
          (async () => {
-            await formatTags(field.value);
+            await formatTags(value);
          })();
       },
-      [field.value, formatTags]
+      [value, formatTags]
    );
 
    function handlePaste(event) {
@@ -81,7 +81,7 @@ export default function Tags({ id, field, fieldState, validator, formatTag, plac
       await formatTags(updatedTags);
       setTagInput('');
 
-      field.onChange({ target: { name: field.name, value: updatedTags } });
+      onChange({ target: { name, value: updatedTags } });
    }
 
    async function validateTags(tags) {
@@ -105,7 +105,7 @@ export default function Tags({ id, field, fieldState, validator, formatTag, plac
       setFormattedTags(formatted);
       tagsRef.current.splice(index, 1);
 
-      field.onChange({ target: { name: field.name, value: tagsRef.current } });
+      onChange({ target: { name, value: tagsRef.current } });
    }
 
    return (
@@ -114,6 +114,7 @@ export default function Tags({ id, field, fieldState, validator, formatTag, plac
             <gn-input block="">
                <input
                   id={id}
+                  ref={ref}
                   type="text"
                   name={getRandomId()}
                   value={tagInput}
@@ -124,7 +125,7 @@ export default function Tags({ id, field, fieldState, validator, formatTag, plac
                />
             </gn-input>
             {
-               hasError(fieldState.error) ?
+               hasError(error) ?
                   <div className={styles.error}>{errorMessage}</div> :
                   null
             }
@@ -145,4 +146,8 @@ export default function Tags({ id, field, fieldState, validator, formatTag, plac
          }
       </div>
    );
-}
+});
+
+Tags.displayName = 'Tags';
+
+export default Tags;

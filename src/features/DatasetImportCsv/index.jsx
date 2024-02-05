@@ -5,7 +5,7 @@ import { useAddDatasetObjectsMutation, useDeleteAllDatasetObjectsMutation } from
 import { useBreadcrumbs } from 'features/Breadcrumbs';
 import { filesize } from 'filesize';
 import { detectGeometryColumns, mapCsvToObjects } from './helpers';
-import { Checkbox } from 'components/Form/Controllers';
+import { Checkbox } from 'components/Form';
 import { useModal } from 'context/ModalProvider';
 import { modalType } from 'components/Modals';
 import { isNil } from 'lodash';
@@ -82,7 +82,7 @@ export default function DatasetImportCsv() {
                if (value.toLowerCase() === 'null') {
                   return null;
                }
-                
+
                return value.length > 0 ? value : null;
             },
             error: error => {
@@ -185,7 +185,7 @@ export default function DatasetImportCsv() {
    }
 
    function renderProperty(propName) {
-      const property = properties[propName];     
+      const property = properties[propName];
       return !isNil(property) ? property.toString() : '-';
    }
 
@@ -287,10 +287,8 @@ export default function DatasetImportCsv() {
                         <Checkbox
                            id="empty-first"
                            label="Tøm database før import"
-                           field={{
-                              value: emptyFirst,
-                              onChange: event => setEmptyFirst(event.target.checked)
-                           }}
+                           value={emptyFirst}
+                           onChange={event => setEmptyFirst(event.target.checked)}
                         />
                      </div>
 

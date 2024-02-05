@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { isNil } from 'lodash';
 
 const initialState = {
    selectedFeature: null,
@@ -13,9 +14,21 @@ export const mapSlice = createSlice({
    initialState,
    reducers: {
       selectFeature: (state, action) => {
+         if (action.payload === null) {
+            return {
+               ...state,
+               selectedFeature: null
+            };
+         }
+
          return {
             ...state,
-            selectedFeature: action.payload
+            selectedFeature: {
+               ...action.payload,
+               updateUrl: !isNil(action.payload.updateUrl) ? 
+                  action.payload.updateUrl : 
+                  true
+            }
          };
       },
       setFeatureContextMenuData: (state, action) => {

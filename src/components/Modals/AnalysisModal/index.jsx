@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Controller, FormProvider, useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { useAnalayzeMutation, useGetDatasetDefinitionsQuery } from 'store/services/api';
-import { Select, TextField } from 'components/Form/Controllers';
+import { Select, TextField } from 'components/Form';
 import { point as createPoint } from '@turf/helpers';
 import { useModal } from 'context/ModalProvider';
 import { modalType } from '..';
@@ -122,14 +122,14 @@ export default function AnalysisModal({ datasetId, coordinates, datasetIds, onCl
    function toPayload(model) {
       const { coordinates, filters, ...payload } = model;
       const feature = createPoint(coordinates);
-   
+
       payload.filters = filters.map(filter => ({
          property: filter.property,
          value: filter.value !== '' ? filter.value : null
       }));
-   
+
       payload.point = feature.geometry;
-   
+
       return payload;
    }
 
@@ -151,14 +151,14 @@ export default function AnalysisModal({ datasetId, coordinates, datasetIds, onCl
                         rules={{
                            required: true
                         }}
-                        render={props => (
+                        render={({ field }) => (
                            <Select
                               id="targetDatasetId"
                               options={datasetOptions}
                               label="Datasett"
+                              {...field}
                               allowEmpty={false}
                               className={styles.select}
-                              {...props}
                            />
                         )}
                      />
@@ -194,18 +194,19 @@ export default function AnalysisModal({ datasetId, coordinates, datasetIds, onCl
                         name="count"
                         rules={{
                            validate: value => {
-                              const count = parseInt(value);
-                              return !isNaN(count) && count >= 1 && count <= 10;
+                              const count = parseFloat(value);
+                              return Number.isInteger(count) && count >= 1 && count <= 10;
                            }
                         }}
-                        render={props => (
+                        render={({ field, fieldState: { error } }) => (
                            <TextField
                               id="count"
                               type="number"
                               label="Antall objekter"
-                              errorMessage="Antallet må være fra 1 til 10"
+                              {...field}
+                              error={error}
+                              errorMessage="Antallet må være et heltall fra 1 til 10"
                               className={styles.textField}
-                              {...props}
                            />
                         )}
                      />
@@ -217,18 +218,19 @@ export default function AnalysisModal({ datasetId, coordinates, datasetIds, onCl
                         name="distance"
                         rules={{
                            validate: value => {
-                              const distance = parseInt(value);
-                              return !isNaN(distance) && distance >= 1 && distance <= 100;
+                              const distance = parseFloat(value);
+                              return Number.isInteger(distance) && distance >= 1 && distance <= 100;
                            }
                         }}
-                        render={props => (
+                        render={({ field, fieldState: { error } }) => (
                            <TextField
                               id="distance"
                               type="number"
                               label="Avstand (km)"
-                              errorMessage="Avstanden må være fra 1 til 100 (km)"
+                              {...field}
+                              error={error}
+                              errorMessage="Avstanden må være et heltall fra 1 til 100 (km)"
                               className={styles.textField}
-                              {...props}
                            />
                         )}
                      />

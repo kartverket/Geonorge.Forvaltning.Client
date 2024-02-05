@@ -78,6 +78,7 @@ export const api = createApi({
             url: `admin/object/${id}`
          }),
          invalidatesTags: (result, error, arg) => [
+            { type: 'Dataset', id: arg.id },
             { type: 'DatasetDefinition', id: arg.id },
             'DatasetDefinitions'
          ]
@@ -127,7 +128,7 @@ export const api = createApi({
 
             return { data, error };
          },
-         invalidatesTags: (result, error, arg) => [{ type: 'Dataset', id: arg.tableId }],
+         invalidatesTags: (result, error, arg) => [{ type: 'Dataset', id: arg.tableId }]
       }),
       updateDatasetObject: builder.mutation({
          queryFn: async ({ id, payload, table, ownerOrg }) => {
