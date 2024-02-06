@@ -23,6 +23,10 @@ gn-select select {
    height: 32px !important;
 }
 
+gn-label label {
+   user-select: none;
+}
+
 gn-label[block] {
    margin-bottom: 3px;
 }

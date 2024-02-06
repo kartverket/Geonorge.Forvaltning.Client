@@ -1,13 +1,12 @@
 import { renderProperty } from 'utils/helpers/general';
-import { getFeatureById, getProperties } from 'utils/helpers/map';
 import { inPlaceSort } from 'fast-sort';
 
-export function mapAnalysisResult(map, analysisResult) {
-   const objects = analysisResult.featureCollection.features
-      .filter(feature => feature.geometry?.type === 'Point');
+export function mapAnalysisResult(featureCollection) {
+   const objects = featureCollection.features
+      .filter(feature => feature.properties._type === 'destination');
 
-   const routes = analysisResult.featureCollection.features
-      .filter(feature => feature.geometry?.type !== 'Point');
+   const routes = featureCollection.features
+      .filter(feature => feature.properties._type === 'route');
 
    const resultList = objects.map(object => {
       const properties = Object.values(object.properties).slice(0, 3)
@@ -32,15 +31,14 @@ export function mapAnalysisResult(map, analysisResult) {
       asc: result => result.route.distance || Number.MAX_VALUE
    });
 
-   const feature = getFeatureById(map, analysisResult.featureId);
-   const props = getProperties(feature);
+   const start = featureCollection.features.find(feature => feature.properties._type === 'start');
 
-   const properties = Object.values(props).slice(0, 3)
+   const properties = Object.values(start.properties).slice(0, 3)
       .map(value => [value.name, renderProperty(value)]);
 
    return {
       start: {
-         id: analysisResult.featureId,
+         id: start.properties.id.value,
          properties
       },
       resultList

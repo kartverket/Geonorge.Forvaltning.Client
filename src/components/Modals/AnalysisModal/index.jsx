@@ -2,14 +2,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { Controller, FormProvider, useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { useAnalayzeMutation, useGetDatasetDefinitionsQuery } from 'store/services/api';
 import { Select, TextField } from 'components/Form';
-import { point as createPoint } from '@turf/helpers';
 import { useModal } from 'context/ModalProvider';
 import { modalType } from '..';
 import Filter from './Filter';
 import Spinner from 'components/Spinner';
 import styles from './AnalysisModal.module.scss';
 
-export default function AnalysisModal({ datasetId, coordinates, datasetIds, onClose, callback }) {
+export default function AnalysisModal({ datasetId, objectId, datasetIds, onClose, callback }) {
    const [propertyOptions, setPropertyOptions] = useState([]);
    const [metadata, setMetadata] = useState([]);
    const [loading, setLoading] = useState(false);
@@ -111,24 +110,21 @@ export default function AnalysisModal({ datasetId, coordinates, datasetIds, onCl
    function getDefaultValues() {
       return {
          datasetId,
+         objectId,
          targetDatasetId: '',
          count: 1,
          filters: [],
-         distance: 5,
-         coordinates
+         distance: 5
       };
    }
 
    function toPayload(model) {
-      const { coordinates, filters, ...payload } = model;
-      const feature = createPoint(coordinates);
+      const { filters, ...payload } = model;
 
       payload.filters = filters.map(filter => ({
          property: filter.property,
          value: filter.value !== '' ? filter.value : null
       }));
-
-      payload.point = feature.geometry;
 
       return payload;
    }

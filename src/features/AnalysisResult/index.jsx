@@ -1,11 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useMap } from 'context/MapProvider';
 import { useDispatch, useSelector } from 'react-redux';
+import { pdf } from '@react-pdf/renderer';
+import { saveAs } from 'file-saver';
+import { Menu, MenuItem, SubMenu, MenuDivider } from '@szhsin/react-menu';
 import { selectFeature } from 'store/slices/mapSlice';
 import { getFeatureById, getLayer, getVectorSource } from 'utils/helpers/map';
 import { mapAnalysisResult } from './mapper';
 import { addAnalysisFeaturesToMap, convertDistance, convertDuration, highlightRoute, removeAnalysisFeaturesFromMap } from './helpers';
-import { toGeoJson } from './export';
+import { toGeoJson } from './exportGeoJson';
+import { createMapImages } from './PdfExport/helpers';
+import dayjs from 'dayjs';
+import PdfExport from './PdfExport';
 import styles from './AnalysisResult.module.scss';
 
 export default function AnalysisResult() {
@@ -21,7 +27,7 @@ export default function AnalysisResult() {
             return;
          }
 
-         addAnalysisFeaturesToMap(map, analysisResult.featureCollection);
+         addAnalysisFeaturesToMap(map, analysisResult);
       },
       [analysisResult, map]
    );
@@ -35,13 +41,23 @@ export default function AnalysisResult() {
             };
          }
 
-         return mapAnalysisResult(map, analysisResult);
+         return mapAnalysisResult(analysisResult);
       },
       [analysisResult, map]
    );
 
    function exportToGeoJson() {
       toGeoJson(map, analysisResult);
+   }
+
+   async function exportToPdf() {
+      const images = await createMapImages(analysisResult);
+      const pdfDocument = <PdfExport featureCollection={analysisResult} images={images} />
+      const blob = await pdf(pdfDocument).toBlob();
+      const timestamp = dayjs().format('YYYYMMDDHHmmss');
+      const fileName = `analyseresultat-${timestamp}.pdf`;
+
+      saveAs(blob, fileName);
    }
 
    function toggleExpanded() {
@@ -150,12 +166,21 @@ export default function AnalysisResult() {
                <span>Analyseresultat</span>
 
                <div className={styles.headerButtons}>
-                  <button
-                     onClick={exportToGeoJson}
-                     className={`buttonLink ${styles.exportButton}`}
+                  <Menu
+                     menuButton={
+                        <button
+                           className={`buttonLink ${styles.exportButton}`}
+                        >
+                           Eksportér
+                        </button>
+                     }
+                     align="end"
+                     arrow={true}
+                     className={styles.exportMenu}
                   >
-                     Eksportér
-                  </button>
+                     <MenuItem onClick={exportToGeoJson}>GeoJSON</MenuItem>
+                     <MenuItem onClick={exportToPdf}>PDF</MenuItem>
+                  </Menu>
 
                   <button onClick={handleClose} className={styles.closeButton}></button>
                </div>

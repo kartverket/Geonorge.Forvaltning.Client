@@ -61,7 +61,7 @@ function addObjectsToMap(map, featureCollection) {
    const reader = new GeoJSON();
 
    const objects = featureCollection.features
-      .filter(feature => feature.geometry?.type === 'Point')
+      .filter(feature => feature.properties._type === 'destination')
       .map(feature => {
          const olFeature = reader.readFeature(feature, { dataProjection: `EPSG:${environment.DATASET_SRID}`, featureProjection: environment.MAP_EPSG });
 

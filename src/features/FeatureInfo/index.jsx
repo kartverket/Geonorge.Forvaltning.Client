@@ -254,15 +254,12 @@ function FeatureInfo() {
       const { data } = await showModal({
          type: modalType.ANALYSIS,
          datasetId: definition.Id,
-         coordinates: feature.get('_coordinates'),
+         objectId: feature.get('id').value,
          datasetIds: analysableDatasetIds
       });
 
       if (data !== null) {
-         setAnalysisResult({ 
-            featureId: feature.get('id').value, 
-            featureCollection: data 
-         });
+         setAnalysisResult(data);
       }
    }
 

@@ -6,9 +6,9 @@ import { getFeatureById, getProperties } from 'utils/helpers/map';
 import dayjs from 'dayjs';
 
 export function toGeoJson(map, analysisResult) {
-   const start = createStart(map, analysisResult.featureId);
-   const destinations = createDestinations(analysisResult.featureCollection)
-   const routes = createRoutes(analysisResult.featureCollection);
+   const start = createStart(map, analysisResult);
+   const destinations = createDestinations(analysisResult)
+   const routes = createRoutes(analysisResult);
 
    inPlaceSort(destinations).by({
       asc: destination => {
@@ -31,7 +31,8 @@ export function toGeoJson(map, analysisResult) {
    saveAs(blob, fileName);
 }
 
-function createStart(map, featureId) {
+function createStart(map, featureCollection) {
+   
    const feature = getFeatureById(map, featureId);
    const { id, ...restProperties } = getProperties(feature);
    const newProperties = mapProperties(restProperties, 'start');

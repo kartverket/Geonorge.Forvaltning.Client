@@ -6,17 +6,16 @@ import { useBreadcrumbs } from 'features/Breadcrumbs';
 import { Menu, MenuItem, SubMenu, MenuDivider } from '@szhsin/react-menu';
 import { useModal } from 'context/ModalProvider';
 import { modalType } from 'components/Modals';
+import { toGeoJson } from './export';
 import PlaceSearch from 'components/PlaceSearch';
 import MapProvider from 'context/MapProvider';
 import DatasetProvider from 'context/DatasetProvider';
 import DatasetTable from './DatasetTable';
 import styles from './Dataset.module.scss';
-import { toGeoJson } from './export';
 
 export default function Dataset() {
    const dataset = useLoaderData();
    useBreadcrumbs(dataset.definition);
-
    const { id } = useParams();
    const navigate = useNavigate();
    const [tableExpanded, setTableExpanded] = useState(false);
@@ -61,6 +60,7 @@ export default function Dataset() {
             <heading-text>
                <h1 underline="true">{dataset.definition.Name}</h1>
             </heading-text>
+                                           
             {
                showAdminMenu() ?
                   <Menu
@@ -87,7 +87,7 @@ export default function Dataset() {
                         className={styles.subMenu}
                      >
                         <MenuItem onClick={exportToGeoJson}>GeoJSON</MenuItem>
-                     </SubMenu>                     
+                     </SubMenu>
                      <MenuDivider />
                      <MenuItem onClick={deleteDataset}>
                         <span className={styles.deleteDataset}>Slett datasett...</span>
@@ -111,7 +111,7 @@ export default function Dataset() {
 
                      <MapContextMenu />
 
-                     <FeatureContextMenu />                  
+                     <FeatureContextMenu />
                   </div>
 
                   <AnalysisResult />

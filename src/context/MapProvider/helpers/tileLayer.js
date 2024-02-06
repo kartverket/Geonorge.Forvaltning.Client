@@ -16,7 +16,7 @@ export async function createTileLayer() {
 
    const tileLayer = new TileLayer({
       source: new WMTS(options),
-      maxZoom: baseMap.maxZoom   
+      maxZoom: baseMap.maxZoom
    });
 
    tileLayer.set('id', 'baseMap');
@@ -39,10 +39,15 @@ async function getWmtsOptions() {
 
    const capabilities = new WMTSCapabilities().read(response.data);
 
-   wmtsOptions = optionsFromCapabilities(capabilities, {
+   const options = optionsFromCapabilities(capabilities, {
       layer: baseMap.layer,
-      matrixSet: environment.MAP_EPSG
+      matrixSet: environment.MAP_EPSG,
    });
+
+   wmtsOptions = { 
+      ...options, 
+      crossOrigin: 'anonymous' 
+   };
 
    return wmtsOptions;
 }
