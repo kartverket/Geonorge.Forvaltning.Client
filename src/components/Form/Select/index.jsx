@@ -8,7 +8,7 @@ const Select = forwardRef(({ id, name, value, options, onChange, label, error, e
 
    useEffect(
       () => {
-         setValue(!isNil(value) ? value : '');
+         setValue(!isNil(value) ? value : '');         
       },
       [value]
    );

@@ -12,6 +12,7 @@ import MapProvider from 'context/MapProvider';
 import DatasetProvider from 'context/DatasetProvider';
 import DatasetTable from './DatasetTable';
 import styles from './Dataset.module.scss';
+import Legend from 'features/MapView/Legend';
 
 export default function Dataset() {
    const dataset = useLoaderData();
@@ -106,6 +107,8 @@ export default function Dataset() {
                      <div className={styles.placeSearch}>
                         <PlaceSearch />
                      </div>
+                     
+                     <Legend />
 
                      <MapView />
 

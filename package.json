@@ -20,6 +20,7 @@
     "@turf/distance": "^6.5.0",
     "@turf/helpers": "^6.5.0",
     "axios": "^1.6.5",
+    "colors-generator": "^0.3.4",
     "dayjs": "^1.11.10",
     "deep-object-diff": "^1.1.9",
     "fast-sort": "^3.4.0",

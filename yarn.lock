@@ -1287,6 +1287,11 @@ color-string@^1.9.1:
     color-name "^1.0.0"
     simple-swizzle "^0.2.2"
 
+colors-generator@^0.3.4:
+  version "0.3.4"
+  resolved "https://registry.yarnpkg.com/colors-generator/-/colors-generator-0.3.4.tgz#e1452082781e90ee3ca854d60f808766f351daa6"
+  integrity sha512-xsUyH0ABEuyF4c/wFlVOwGdcyy2AxMXR5PNMjrxxRFpdl7lJGAgqF1dnQ6VtUnS5Rpmrcmmg/uSJJLNZWePIAw==
+
 combined-stream@^1.0.8:
   version "1.0.8"
   resolved "https://registry.yarnpkg.com/combined-stream/-/combined-stream-1.0.8.tgz#c3d45a8b34fd730631a110a8a2520682b31d5a7f"
