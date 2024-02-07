@@ -4,6 +4,7 @@ import { createRoutesFeaturesLayer, createFeaturesLayer, createSelectedFeaturesL
 import { createTileLayer } from './tileLayer';
 import { toggleClusteredFeatures, handleMapClick, setFeatureIdsInExtent, handleContextMenu } from './eventListeners';
 import environment from 'config/environment';
+import baseMap from 'config/map/baseMap';
 
 const MAP_PADDING = [50, 50, 50, 50];
 
@@ -46,7 +47,8 @@ export default async function createMap(featureCollection) {
 
    map.setView(new View({
       padding: MAP_PADDING,
-      projection: environment.MAP_EPSG
+      projection: environment.MAP_EPSG,
+      maxZoom: baseMap.maxZoom
    }));
 
    return map;

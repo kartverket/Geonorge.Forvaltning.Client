@@ -109,7 +109,7 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
 
       if (dataType === 'text' && allowedValuesForProp !== null) {
          if (!allowedValuesForProp.includes(value)) {
-            handleChange({ name, value: allowedValuesForProp[0] });
+            handleChange({ target: { name, value: allowedValuesForProp[0] } });
          }
 
          const options = allowedValuesForProp.map(option => ({ value: option, label: option }));
@@ -199,9 +199,9 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
                                  }}
                                  render={({ field, fieldState: { error } }) => (
                                     <TextField
-                                       {...field}   
+                                       {...field}
                                        error={error}
-                                       errorMessage="Et gyldig koordinatpar må fylles ut"                                       
+                                       errorMessage="Et gyldig koordinatpar må fylles ut"
                                        onChange={event => {
                                           field.onChange(event);
                                           handleCoordinatesChange(event);

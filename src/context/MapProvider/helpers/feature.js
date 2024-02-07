@@ -37,13 +37,13 @@ export function createFeaturesLayer(featureCollection) {
       style: clusterStyle
    });
 
-   const disabledSource = new VectorSource({
-      features
-   });
+   // const disabledSource = new VectorSource({
+   //    features
+   // });
 
    vectorLayer.set('id', 'features');
    vectorLayer.set('_isCluster', true);
-   vectorLayer.set('_disabledSource', disabledSource);
+   vectorLayer.set('_disabledSource', vectorSource);
 
    return vectorLayer;
 }
@@ -85,16 +85,17 @@ export function addFeatureToMap(map, feature, layerName = 'features') {
 
    if (layerName === 'features') {
       let vectorSource = vectorLayer.getSource();
-      let disabledSource = vectorLayer.get('_disabledSource');
+      //let disabledSource = vectorLayer.get('_disabledSource');
 
       if (vectorSource.get('id') === 'cluster-source') {
          vectorSource = vectorSource.getSource();
-      } else {
-         disabledSource = disabledSource.getSource();
-      }
+      } 
+      // else {
+      //    disabledSource = disabledSource.getSource();
+      // }
 
       vectorSource.addFeature(feature);
-      disabledSource.addFeature(feature);
+      //disabledSource.addFeature(feature);
    } else {
       const vectorSource = vectorLayer.getSource();
       vectorSource.addFeature(feature);
@@ -106,16 +107,17 @@ export function removeFeatureFromMap(map, feature, layerName = 'features') {
 
    if (layerName === 'features') {
       let vectorSource = vectorLayer.getSource();
-      let disabledSource = vectorLayer.get('_disabledSource');
+      //let disabledSource = vectorLayer.get('_disabledSource');
 
       if (vectorSource.get('id') === 'cluster-source') {
          vectorSource = vectorSource.getSource();
-      } else {
-         disabledSource = disabledSource.getSource();
-      }
+      } 
+      // else {
+      //    disabledSource = disabledSource.getSource();
+      // }
 
       vectorSource.removeFeature(feature);
-      disabledSource.removeFeature(feature);
+      // disabledSource.removeFeature(feature);
    } else {
       const vectorSource = vectorLayer.getSource();
       vectorSource.removeFeature(feature);

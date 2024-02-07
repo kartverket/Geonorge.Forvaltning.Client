@@ -71,7 +71,6 @@ export default function MapView() {
             dispatch(selectFeature({ id: parseInt(objId), zoom: true }));
          } else {
             view.fit(extent, map.getSize());
-            view.setMaxZoom(baseMap.maxZoom);
 
             const currentZoom = view.getZoom();
 

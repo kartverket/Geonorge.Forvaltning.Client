@@ -13,7 +13,7 @@ export function toGeoJson(analysisResult) {
    inPlaceSort(destinations).by({
       asc: destination => {
          const route = routes.find(route => route.properties.destinationId === destination.id);
-         return route?.properties.distance || Number.MAX_VALUE
+         return route?.properties.distance || Number.MAX_VALUE;
       }
    });
 

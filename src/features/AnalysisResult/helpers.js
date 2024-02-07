@@ -110,13 +110,14 @@ function addRoutesToMap(map, featureCollection) {
 function removeObjectsFromMap(map) {
    const vectorLayer = getLayer(map, 'features');
    let vectorSource = vectorLayer.getSource();
-   let disabledSource = vectorLayer.get('_disabledSource');
+   //let disabledSource = vectorLayer.get('_disabledSource');
 
    if (vectorSource.get('id') === 'cluster-source') {
       vectorSource = vectorSource.getSource();
-   } else {
-      disabledSource = disabledSource.getSource();
-   }
+   } 
+   // else {
+   //    disabledSource = disabledSource.getSource();
+   // }
 
    vectorSource.getFeatures()
       .filter(feature => feature.get('_featureType') === 'analysis')
@@ -124,11 +125,11 @@ function removeObjectsFromMap(map) {
          vectorSource.removeFeature(feature);
       });
 
-   disabledSource.getFeatures()
-      .filter(feature => feature.get('_featureType') === 'analysis')
-      .forEach(feature => {
-         disabledSource.removeFeature(feature);
-      });
+   // disabledSource.getFeatures()
+   //    .filter(feature => feature.get('_featureType') === 'analysis')
+   //    .forEach(feature => {
+   //       disabledSource.removeFeature(feature);
+   //    });
 }
 
 function removeRoutesFromMap(map) {

@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useMap } from 'context/MapProvider';
 import { useDispatch, useSelector } from 'react-redux';
 import { pdf } from '@react-pdf/renderer';
 import { saveAs } from 'file-saver';
-import { Menu, MenuItem } from '@szhsin/react-menu';
+import { ControlledMenu, MenuItem } from '@szhsin/react-menu';
 import { selectFeature } from 'store/slices/mapSlice';
 import { getFeatureById, getLayer, getVectorSource } from 'utils/helpers/map';
 import { mapAnalysisResult } from './mapper';
@@ -12,12 +12,16 @@ import { toGeoJson } from './exportGeoJson';
 import { createMapImages } from './PdfExport/helpers';
 import dayjs from 'dayjs';
 import PdfExport from './PdfExport';
+import Spinner from 'components/Spinner';
 import styles from './AnalysisResult.module.scss';
 
 export default function AnalysisResult() {
    const { map, analysisResult, setAnalysisResult } = useMap();
    const [selectedResultId, setSelectedResultId] = useState(null);
    const [expanded, setExpanded] = useState(true);
+   const [exportMenuIsOpen, setExportMenuIsOpen] = useState(false);
+   const [loading, setLoading] = useState(null);
+   const exportMenuButtonRef = useRef(null);
    const selectedFeature = useSelector(state => state.map.selectedFeature);
    const dispatch = useDispatch();
 
@@ -51,6 +55,8 @@ export default function AnalysisResult() {
    }
 
    async function exportToPdf() {
+      setLoading(true);
+
       const images = await createMapImages(analysisResult);
       const pdfDocument = <PdfExport featureCollection={analysisResult} images={images} />
       const blob = await pdf(pdfDocument).toBlob();
@@ -58,6 +64,17 @@ export default function AnalysisResult() {
       const fileName = `analyseresultat-${timestamp}.pdf`;
 
       saveAs(blob, fileName);
+      setLoading(false);
+   }
+   
+   async function handleMenuClose({ value }) {
+      if (value === 'geojson') {
+         exportToGeoJson();
+      } else if (value === 'pdf') {
+         await exportToPdf();
+      }
+
+      setExportMenuIsOpen(false);
    }
 
    function toggleExpanded() {
@@ -166,21 +183,30 @@ export default function AnalysisResult() {
                <span>Analyseresultat</span>
 
                <div className={styles.headerButtons}>
-                  <Menu
-                     menuButton={
-                        <button
-                           className={`buttonLink ${styles.exportButton}`}
-                        >
-                           Eksportér
-                        </button>
-                     }
+                  <button
+                     ref={exportMenuButtonRef}
+                     onClick={() => setExportMenuIsOpen(true)}
+                     className={`buttonLink ${styles.exportButton}`}
+                  >
+                     Eksportér
+                  </button>
+
+                  <ControlledMenu
+                     state={exportMenuIsOpen ? 'open' : 'closed'}
+                     anchorRef={exportMenuButtonRef}
                      align="end"
                      arrow={true}
+                     onClose={handleMenuClose}
                      className={styles.exportMenu}
                   >
-                     <MenuItem onClick={exportToGeoJson}>GeoJSON</MenuItem>
-                     <MenuItem onClick={exportToPdf}>PDF</MenuItem>
-                  </Menu>
+                     <MenuItem value="geojson">GeoJSON</MenuItem>
+                     <MenuItem value="pdf" disabled={loading}>
+                        <div className={styles.menuItem}>
+                           <span>PDF</span>
+                           {loading && <Spinner className={styles.spinner} />}
+                        </div>
+                     </MenuItem>
+                  </ControlledMenu>
 
                   <button onClick={handleClose} className={styles.closeButton}></button>
                </div>

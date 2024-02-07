@@ -1,14 +1,34 @@
 import { Page, Text, Image, View, Document, StyleSheet, Font } from '@react-pdf/renderer';
+import { inPlaceSort } from 'fast-sort';
 import { renderProperty } from 'utils/helpers/general';
 import { getProperties } from 'utils/helpers/map';
 import { convertDistance, convertDuration } from '../helpers';
+import { useMemo } from 'react';
 
 Font.register({ family: 'Open Sans', src: '/fonts/Open-Sans.ttf' });
 Font.register({ family: 'Raleway', src: '/fonts/Raleway.ttf' });
 
 export default function PdfExport({ featureCollection, images }) {
-   const start = featureCollection.features.find(feature => feature.properties._type === 'start');
-   const destinations = featureCollection.features.filter(feature => feature.properties._type === 'destination');
+   const { start, destinations } = useMemo(
+      () => {
+         const _start = featureCollection.features.find(feature => feature.properties._type === 'start');
+         const _destinations = featureCollection.features.filter(feature => feature.properties._type === 'destination');
+         const routes = featureCollection.features.filter(feature => feature.properties._type === 'route');
+
+         inPlaceSort(_destinations).by({
+            asc: destination => {
+               const route = routes.find(route => route.properties.destinationId === destination.properties.id.value);
+               return route?.properties.distance || Number.MAX_VALUE;
+            }
+         });
+
+         return {
+            start: _start,
+            destinations: _destinations
+         };
+      },
+      [featureCollection]
+   );
 
    function renderProperties(feature) {
       const properties = getProperties(feature.properties);
@@ -23,7 +43,7 @@ export default function PdfExport({ featureCollection, images }) {
 
    function renderDestinations() {
       return destinations.map(destination => (
-         <View key={destination.properties.id.value} wrap={false} style={styles.object}>
+         <View key={destination.properties.id.value} wrap={true} style={styles.object}>
             <View style={styles.separator}></View>
             {renderProperties(destination)}
             {renderRouteData(destination)}
