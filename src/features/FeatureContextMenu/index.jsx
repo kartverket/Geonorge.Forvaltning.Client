@@ -33,7 +33,7 @@ export default function FeatureContextMenu() {
    }
 
    function renderMenuItem(feature) {
-      const properties = getProperties(feature);
+      const properties = getProperties(feature.getProperties());
       const entries = Object.entries(properties).slice(0, 5);
 
       return (
@@ -53,7 +53,7 @@ export default function FeatureContextMenu() {
 
       const features = getFeaturesById(map, menuData.featureIds);
       const feature = features[0];
-      const properties = getProperties(feature);
+      const properties = getProperties(feature.getProperties());
       const entries = Object.entries(properties).slice(0, 5);
 
       return (

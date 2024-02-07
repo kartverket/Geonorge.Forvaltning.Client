@@ -41,11 +41,11 @@ export function toDbModel(original, updated) {
    let origProps = {};
 
    if (original !== null) {
-      origProps = getProperties(original);
+      origProps = getProperties(original.getProperties());
       origProps._coordinates = original.get('_coordinates');
    }
 
-   const updatedProps = getProperties(updated);
+   const updatedProps = getProperties(updated.getProperties());
    updatedProps._coordinates = updated.get('_coordinates');
 
    const toUpdate = diff(origProps, updatedProps)

@@ -32,7 +32,7 @@ export default function FeatureTooltip() {
          const tooltip = tooltipRef.current;
 
          if (feature) {
-            const { id, ...properties } = getProperties(feature);
+            const { id, ...properties } = getProperties(feature.getProperties());
             const values = Object.entries(properties).map(entry => [entry[1].name, renderProperty(entry[1])]);
             values.unshift(['ID', id.value]);
 

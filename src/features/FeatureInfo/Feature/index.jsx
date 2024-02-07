@@ -3,7 +3,7 @@ import { getProperties } from 'utils/helpers/map';
 import styles from '../FeatureInfo.module.scss';
 
 export default function Feature({ feature }) {
-   const properties = getProperties(feature);
+   const properties = getProperties(feature.getProperties());
    const coordinates = feature.get('_coordinates');
 
    return (

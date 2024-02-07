@@ -63,8 +63,8 @@ export function getFeaturesById(map, ids, layerName = 'features') {
       .filter(feature => ids.includes(feature.get('id')?.value));
 }
 
-export function getProperties(feature) {
-   const { geometry, ...properties } = feature.getProperties();
+export function getProperties(featureProperties) {
+   const { geometry, ...properties } = featureProperties;
    const props = {};
 
    Object.entries(properties)

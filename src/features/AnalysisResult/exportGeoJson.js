@@ -1,12 +1,12 @@
 import { camelCase } from 'lodash';
-import { point as createPoint, featureCollection as createFeatureCollection } from '@turf/helpers';
+import { featureCollection as createFeatureCollection } from '@turf/helpers';
 import { inPlaceSort } from 'fast-sort';
 import { saveAs } from 'file-saver';
-import { getFeatureById, getProperties } from 'utils/helpers/map';
+import { getProperties } from 'utils/helpers/map';
 import dayjs from 'dayjs';
 
-export function toGeoJson(map, analysisResult) {
-   const start = createStart(map, analysisResult);
+export function toGeoJson(analysisResult) {
+   const start = createStart(analysisResult);
    const destinations = createDestinations(analysisResult)
    const routes = createRoutes(analysisResult);
 
@@ -31,22 +31,25 @@ export function toGeoJson(map, analysisResult) {
    saveAs(blob, fileName);
 }
 
-function createStart(map, featureCollection) {
-   
-   const feature = getFeatureById(map, featureId);
-   const { id, ...restProperties } = getProperties(feature);
+function createStart(featureCollection) {
+   const start = featureCollection.features.find(feature => feature.properties._type === 'start');
+   const { id, ...restProperties } = getProperties(start.properties);
    const newProperties = mapProperties(restProperties, 'start');
-   const start = createPoint(feature.get('_coordinates'), newProperties, { id: id.value });
-
-   return start;
+   
+   return {
+      type: 'Feature',
+      id: id.value,
+      properties: newProperties,
+      geometry: start.geometry
+   };
 }
 
 function createDestinations(featureCollection) {
    const destinations = featureCollection.features
-      .filter(feature => feature.geometry?.type === 'Point')
+      .filter(feature => feature.properties._type === 'destination')
       .map(feature => {
          const { properties, geometry, ...restFeature } = feature;
-         const { id, ...restProperties } = feature.properties;
+         const { id, ...restProperties } = getProperties(properties);
          const newProperties = mapProperties(restProperties, 'destination');
 
          restFeature.id = id.value;
@@ -61,7 +64,7 @@ function createDestinations(featureCollection) {
 
 function createRoutes(featureCollection) {
    const routes = featureCollection.features
-      .filter(feature => feature.geometry?.type !== 'Point')
+      .filter(feature => feature.properties._type === 'route')
       .map(feature => {
          const { properties, geometry, ...restFeature } = feature;
          const newProperties = { ...feature.properties };

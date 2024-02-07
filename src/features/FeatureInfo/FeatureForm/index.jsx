@@ -15,7 +15,7 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
    const { allowedValues } = useDataset();
    const { control, setValue, handleSubmit } = useForm({ defaultValues: getDefaultValues() });
    const coordinates = useWatch({ control, name: 'coordinates' });
-   const properties = getProperties(feature);
+   const properties = getProperties(feature.getProperties());
 
    const getCoordinate = useCallback(
       event => {

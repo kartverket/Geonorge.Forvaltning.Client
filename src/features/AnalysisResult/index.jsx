@@ -3,7 +3,7 @@ import { useMap } from 'context/MapProvider';
 import { useDispatch, useSelector } from 'react-redux';
 import { pdf } from '@react-pdf/renderer';
 import { saveAs } from 'file-saver';
-import { Menu, MenuItem, SubMenu, MenuDivider } from '@szhsin/react-menu';
+import { Menu, MenuItem } from '@szhsin/react-menu';
 import { selectFeature } from 'store/slices/mapSlice';
 import { getFeatureById, getLayer, getVectorSource } from 'utils/helpers/map';
 import { mapAnalysisResult } from './mapper';
@@ -34,7 +34,7 @@ export default function AnalysisResult() {
 
    const { start, resultList } = useMemo(
       () => {
-         if (analysisResult === null || map === null) {
+         if (analysisResult === null) {
             return {
                start: null,
                resultList: []
@@ -43,11 +43,11 @@ export default function AnalysisResult() {
 
          return mapAnalysisResult(analysisResult);
       },
-      [analysisResult, map]
+      [analysisResult]
    );
 
    function exportToGeoJson() {
-      toGeoJson(map, analysisResult);
+      toGeoJson(analysisResult);
    }
 
    async function exportToPdf() {

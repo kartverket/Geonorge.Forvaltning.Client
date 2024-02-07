@@ -39,19 +39,6 @@ async function createMapImage(start, destination, route) {
    });
 }
 
-export function getProperties(feature) {
-   const { geometry, ...properties } = feature;
-   const props = {};
-
-   Object.entries(properties)
-      .filter(entry => !entry[0].startsWith('_'))
-      .forEach(entry => {
-         props[entry[0]] = entry[1];
-      });
-
-   return props;
-}
-
 async function createTempMap(start, destination, route) {
    const featuresLayer = createFeaturesLayer(start, destination, route);
    const tileLayer = await createTileLayer();

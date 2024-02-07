@@ -1,6 +1,6 @@
 import { Page, Text, Image, View, Document, StyleSheet, Font } from '@react-pdf/renderer';
-import { getProperties } from './helpers';
 import { renderProperty } from 'utils/helpers/general';
+import { getProperties } from 'utils/helpers/map';
 import { convertDistance, convertDuration } from '../helpers';
 
 Font.register({ family: 'Open Sans', src: '/fonts/Open-Sans.ttf' });
