@@ -6,8 +6,8 @@ import { useMap } from 'context/MapProvider';
 import { selectFeature } from 'store/slices/mapSlice';
 import { getFeatureById, getLayer, getVectorSource, hasFeatures, zoomToFeature } from 'utils/helpers/map';
 import { highlightFeature, setNextAndPreviousFeatureId } from 'context/MapProvider/helpers/feature';
+import { FeatureTooltip } from '..';
 import baseMap from 'config/map/baseMap';
-import FeatureTooltip from './FeatureTooltip';
 import styles from './MapView.module.scss';
 
 export default function MapView() {
@@ -64,8 +64,8 @@ export default function MapView() {
          } else {
             extent = baseMap.extent;
          }
-         
-         map.addControl(new ZoomToExtent({ extent }));
+
+         map.addControl(new ZoomToExtent({ extent, tipLabel: 'Zoom til kartets utstrekning' }));
 
          if (!isNaN(objId)) {
             dispatch(selectFeature({ id: parseInt(objId), zoom: true }));

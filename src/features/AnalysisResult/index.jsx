@@ -3,6 +3,7 @@ import { useMap } from 'context/MapProvider';
 import { useDispatch, useSelector } from 'react-redux';
 import { pdf } from '@react-pdf/renderer';
 import { saveAs } from 'file-saver';
+import { isNil } from 'lodash';
 import { ControlledMenu, MenuItem } from '@szhsin/react-menu';
 import { selectFeature } from 'store/slices/mapSlice';
 import { getFeatureById, getLayer, getVectorSource } from 'utils/helpers/map';
@@ -27,7 +28,7 @@ export default function AnalysisResult() {
 
    useEffect(
       () => {
-         if (analysisResult === null || map === null) {
+         if (analysisResult === null || isNil(map)) {
             return;
          }
 
@@ -38,7 +39,7 @@ export default function AnalysisResult() {
 
    const { start, resultList } = useMemo(
       () => {
-         if (analysisResult === null) {
+         if (isNil(analysisResult)) {
             return {
                start: null,
                resultList: []

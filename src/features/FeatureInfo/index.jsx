@@ -6,7 +6,7 @@ import { useModal } from 'context/ModalProvider';
 import { selectFeature, toggleEditMode } from 'store/slices/mapSlice';
 import { createDataObject, deleteDataObjects, updateDataObject } from 'store/slices/objectSlice';
 import { getFeatureById, getPropertyValue, hasFeatures, zoomToFeature } from 'utils/helpers/map';
-import { addFeatureToMap, createFeature, removeFeatureFromMap, setNextAndPreviousFeatureId, toggleFeature } from 'context/MapProvider/helpers/feature';
+import { addFeatureToMap, createFeature, highlightFeature, removeFeatureFromMap, setNextAndPreviousFeatureId, toggleFeature } from 'context/MapProvider/helpers/feature';
 import { useAddDatasetObjectMutation, useDeleteDatasetObjectsMutation, useUpdateDatasetObjectMutation } from 'store/services/api';
 import { deleteFeatures } from 'utils/helpers/general';
 import { toDbModel, updateFeature } from './helpers';
@@ -54,7 +54,8 @@ function FeatureInfo() {
          if (map !== null && createdDataObject !== null) {
             const feature = createFeature(createdDataObject);
 
-            addFeatureToMap(map, feature, 'selected-features');
+            addFeatureToMap(map, feature, 'features');
+            highlightFeature(map, feature);
             setFeatureToEdit(feature);
             dispatch(toggleEditMode(true));
             setExpanded(true);
@@ -115,7 +116,7 @@ function FeatureInfo() {
          featureToEdit.set('id', { name: 'ID', value: response.id });
          setFeature(featureToEdit);
 
-         removeFeatureFromMap(map, featureToEdit, 'selected-features');
+         removeFeatureFromMap(map, featureToEdit, 'features');
          addFeatureToMap(map, featureToEdit);
          setNextAndPreviousFeatureId(map, featureToEdit);
          setFeatureToEdit(null);
@@ -147,7 +148,7 @@ function FeatureInfo() {
 
          revalidator.revalidate();
 
-         removeFeatureFromMap(map, featureToEdit, 'selected-features');
+         removeFeatureFromMap(map, featureToEdit, 'features');
          setFeatureToEdit(null);
          toggleFeature(feature);
 
@@ -186,7 +187,7 @@ function FeatureInfo() {
 
          revalidator.revalidate();
 
-         removeFeatureFromMap(map, featureToEdit, 'selected-features');
+         removeFeatureFromMap(map, featureToEdit, 'features');
          setFeatureToEdit(null);
 
          dispatch(deleteDataObjects([id]));
@@ -206,7 +207,7 @@ function FeatureInfo() {
    function edit() {
       const clone = feature.clone();
 
-      addFeatureToMap(map, clone, 'selected-features');
+      addFeatureToMap(map, clone, 'features');
       toggleFeature(feature);
       setFeatureToEdit(clone);
       dispatch(toggleEditMode(true));
@@ -217,7 +218,7 @@ function FeatureInfo() {
       const payload = toDbModel(feature, featureToEdit);
 
       if (payload === null) {
-         removeFeatureFromMap(map, featureToEdit, 'selected-features');
+         removeFeatureFromMap(map, featureToEdit, 'features');
          setFeatureToEdit(null);
          toggleFeature(feature);
          dispatch(toggleEditMode(false));
@@ -229,15 +230,16 @@ function FeatureInfo() {
    }
 
    function cancel() {
-      const createMode = getPropertyValue(featureToEdit, 'id') === null;
+      const createMode = featureToEdit.get('id').value === null;      
 
       if (createMode) {
          dispatch(createDataObject(null));
       } else {
-         toggleFeature(feature);
+         toggleFeature(feature);         
       }
 
-      removeFeatureFromMap(map, featureToEdit, 'selected-features');
+      highlightFeature(map, feature);      
+      removeFeatureFromMap(map, featureToEdit, 'features');
       setFeatureToEdit(null);
       dispatch(toggleEditMode(false));
    }

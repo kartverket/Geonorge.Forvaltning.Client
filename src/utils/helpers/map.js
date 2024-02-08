@@ -1,3 +1,4 @@
+import { isNil } from 'lodash';
 import GeoJSON from 'ol/format/GeoJSON';
 import proj4 from 'proj4';
 
@@ -78,6 +79,10 @@ export function getProperties(featureProperties) {
 
 export function getPropertyValue(feature, propName) {
    return feature.get(propName)?.value;
+}
+
+export function hasValue(feature, propName) {
+   return !isNil(propName)
 }
 
 export function zoomToGeoJsonFeature(map, geoJson, zoom) {

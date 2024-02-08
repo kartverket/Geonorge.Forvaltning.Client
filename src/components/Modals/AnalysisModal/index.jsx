@@ -69,7 +69,7 @@ export default function AnalysisModal({ datasetId, objectId, datasetIds, onClose
             const response = await analyze({ payload });
             setLoading(false);
 
-            if (response.data.features.length === 0) {
+            if (response.data.features.length <= 1) {
                await showModal({
                   type: modalType.INFO,
                   variant: 'success',

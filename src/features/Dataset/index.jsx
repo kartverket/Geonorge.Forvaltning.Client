@@ -1,22 +1,22 @@
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useLoaderData, useNavigate, useParams } from 'react-router-dom';
-import { FeatureInfo, FeatureContextMenu, MapView, MapContextMenu, AnalysisResult } from 'features';
+import { FeatureInfo, AnalysisResult } from 'features';
+import { FeatureContextMenu, Legend, MapContextMenu, MapView, PlaceSearch } from 'features/Map';
 import { useBreadcrumbs } from 'features/Breadcrumbs';
 import { Menu, MenuItem, SubMenu, MenuDivider } from '@szhsin/react-menu';
 import { useModal } from 'context/ModalProvider';
 import { modalType } from 'components/Modals';
 import { toGeoJson } from './export';
-import PlaceSearch from 'components/PlaceSearch';
 import MapProvider from 'context/MapProvider';
 import DatasetProvider from 'context/DatasetProvider';
 import DatasetTable from './DatasetTable';
 import styles from './Dataset.module.scss';
-import Legend from 'features/MapView/Legend';
 
 export default function Dataset() {
    const dataset = useLoaderData();
    useBreadcrumbs(dataset.definition);
+   
    const { id } = useParams();
    const navigate = useNavigate();
    const [tableExpanded, setTableExpanded] = useState(false);

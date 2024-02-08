@@ -1,0 +1,107 @@
+import { useEffect, useMemo, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { useDataset } from 'context/DatasetProvider';
+import { useMap } from 'context/MapProvider';
+import { getLayer } from 'utils/helpers/map';
+import { setStyling } from 'store/slices/mapSlice';
+import { Select } from 'components/Form';
+import colorsGenerator from 'colors-generator';
+import styles from './Legend.module.scss';
+
+export default function Legend() {
+   const { metadata } = useDataset();
+   const { map } = useMap();
+   const [selectedProperty, setSelectedProperty] = useState('')
+   const [legend, setLegend] = useState(null);
+   const [expanded, setExpanded] = useState(false);
+   const dispatch = useDispatch();
+
+   useEffect(
+      () => {
+         return () => dispatch(setStyling(null))
+      },
+      [dispatch]
+   );
+
+   const selectOptions = useMemo(
+      () => {
+         const options = metadata
+            .filter(property => property.AllowedValues !== null)
+            .map(property => ({ value: property.ColumnName, label: property.Name }));
+
+         options.unshift({ value: '', label: 'Velg egenskap' });
+
+         return options;
+      },
+      [metadata]
+   );
+
+   function createLegend(propName) {
+      const properties = metadata.find(property => property.ColumnName === propName);
+      const colors = colorsGenerator.generate('#86bff2', properties.AllowedValues.length).get();
+      const legend = {};
+
+      properties.AllowedValues.forEach((value, index) => legend[value] = colors[index]);
+
+      return legend;
+   }
+
+   function handleChange(event) {
+      const vectorLayer = getLayer(map, 'features');
+      const value = event.target.value;
+
+      setSelectedProperty(value);
+
+      if (value !== '') {
+         const legend = createLegend(value);
+         setLegend(legend);
+
+         dispatch(setStyling({ property: value, legend }));
+         vectorLayer.changed();
+      } else {
+         setLegend(null);
+
+         dispatch(setStyling(null));
+         vectorLayer.changed();
+      }
+   }
+
+   if (selectOptions.length <= 1) {
+      return null;
+   }
+
+   return (
+      <div className={`${styles.container} ${expanded ? styles.expanded : ''}`}>
+         <button
+            onClick={() => setExpanded(!expanded)}
+            title={!expanded ? 'Vis tegneregler' : 'Skjul tegneregler'}
+            className={styles.button}
+         ></button>
+
+         <div className={styles.legend}>
+            <div className={styles.select}>
+               <Select
+                  value={selectedProperty}
+                  options={selectOptions}
+                  onChange={handleChange}
+                  allowEmpty={false}
+               />
+            </div>
+            {
+               legend !== null && (
+                  <div className={styles.legendList}>
+                     {
+                        Object.entries(legend).map(entry => (
+                           <div key={entry[1]} className={styles.item}>
+                              <span className={styles.color} style={{ background: entry[1] }}></span>
+                              <span className={styles.text}>{entry[0]}</span>
+                           </div>
+                        ))
+                     }
+                  </div>
+               )
+            }
+         </div>
+      </div>
+   );
+}

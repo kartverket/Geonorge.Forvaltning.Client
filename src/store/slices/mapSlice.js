@@ -5,6 +5,7 @@ const initialState = {
    selectedFeature: null,
    featureContextMenuData: null,
    mapContextMenuData: null,
+   styling: null,
    featuresInExtent: [],
    editMode: false
 };
@@ -46,6 +47,12 @@ export const mapSlice = createSlice({
             mapContextMenuData: action.payload
          };
       },
+      setStyling: (state, action) => {
+         return {
+            ...state,
+            styling: action.payload
+         };
+      },
       setFeaturesInExtent: (state, action) => {
          return {
             ...state,
@@ -64,7 +71,8 @@ export const mapSlice = createSlice({
 export const { 
    selectFeature, 
    setFeatureContextMenuData, 
-   setMapContextMenuData, 
+   setMapContextMenuData,
+   setStyling,
    setFeaturesInExtent, 
    toggleEditMode 
 } = mapSlice.actions;

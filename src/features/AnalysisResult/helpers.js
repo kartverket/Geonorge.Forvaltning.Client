@@ -1,6 +1,6 @@
 import { GeoJSON } from 'ol/format';
 import { Stroke, Style } from 'ol/style';
-import { createFeatureStyle } from 'context/MapProvider/helpers/style';
+import { featureStyle } from 'context/MapProvider/helpers/style';
 import { getLayer, getVectorSource } from 'utils/helpers/map';
 import environment from 'config/environment';
 
@@ -65,7 +65,7 @@ function addObjectsToMap(map, featureCollection) {
       .map(feature => {
          const olFeature = reader.readFeature(feature, { dataProjection: `EPSG:${environment.DATASET_SRID}`, featureProjection: environment.MAP_EPSG });
 
-         olFeature.setStyle(createFeatureStyle('#249446', '#2494465e'));
+         olFeature.setStyle(featureStyle);
          olFeature.set('_visible', true);
          olFeature.set('_coordinates', feature.geometry?.coordinates);
          olFeature.set('_featureType', 'analysis');
@@ -74,17 +74,9 @@ function addObjectsToMap(map, featureCollection) {
       });
 
    const vectorLayer = getLayer(map, 'features');
-   let vectorSource = vectorLayer.getSource();
-   let disabledSource = vectorLayer.get('_disabledSource');
-
-   if (vectorSource.get('id') === 'cluster-source') {
-      vectorSource = vectorSource.getSource();
-   } else {
-      disabledSource = disabledSource.getSource();
-   }
+   const vectorSource = getVectorSource(vectorLayer);   
 
    vectorSource.addFeatures(objects);
-   disabledSource.addFeatures(objects);
 }
 
 function addRoutesToMap(map, featureCollection) {
@@ -109,27 +101,13 @@ function addRoutesToMap(map, featureCollection) {
 
 function removeObjectsFromMap(map) {
    const vectorLayer = getLayer(map, 'features');
-   let vectorSource = vectorLayer.getSource();
-   //let disabledSource = vectorLayer.get('_disabledSource');
-
-   if (vectorSource.get('id') === 'cluster-source') {
-      vectorSource = vectorSource.getSource();
-   } 
-   // else {
-   //    disabledSource = disabledSource.getSource();
-   // }
+   const vectorSource = getVectorSource(vectorLayer);
 
    vectorSource.getFeatures()
       .filter(feature => feature.get('_featureType') === 'analysis')
-      .forEach(feature => {
+      .forEach(feature => {         
          vectorSource.removeFeature(feature);
       });
-
-   // disabledSource.getFeatures()
-   //    .filter(feature => feature.get('_featureType') === 'analysis')
-   //    .forEach(feature => {
-   //       disabledSource.removeFeature(feature);
-   //    });
 }
 
 function removeRoutesFromMap(map) {

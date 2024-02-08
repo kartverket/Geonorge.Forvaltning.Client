@@ -1,6 +1,5 @@
 import { Map, View } from 'ol';
-import { defaults as defaultInteractions, DragRotateAndZoom } from 'ol/interaction';
-import { createRoutesFeaturesLayer, createFeaturesLayer, createSelectedFeaturesLayer } from './feature';
+import { createRoutesFeaturesLayer, createFeaturesLayer } from './feature';
 import { createTileLayer } from './tileLayer';
 import { toggleClusteredFeatures, handleMapClick, setFeatureIdsInExtent, handleContextMenu } from './eventListeners';
 import environment from 'config/environment';
@@ -11,13 +10,11 @@ const MAP_PADDING = [50, 50, 50, 50];
 export default async function createMap(featureCollection) {
    const featuresLayer = createFeaturesLayer(featureCollection);
 
-   const map = new Map({
-      interactions: defaultInteractions().extend([new DragRotateAndZoom()]),
+   const map = new Map({      
       layers: [
          await createTileLayer(),
          createRoutesFeaturesLayer(),
-         featuresLayer,
-         createSelectedFeaturesLayer()
+         featuresLayer
       ]
    });
 

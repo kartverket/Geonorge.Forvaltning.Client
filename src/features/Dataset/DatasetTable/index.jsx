@@ -22,6 +22,7 @@ import ReactPaginate from 'react-paginate';
 import useFilters from './Filters/useFilters';
 import Filters from './Filters';
 import styles from './DatasetTable.module.scss';
+import { isNil } from 'lodash';
 
 export default function DatasetTable() {
    const { objects, definition, metadata, allowedValues } = useDataset();
@@ -41,7 +42,7 @@ export default function DatasetTable() {
 
    useEffect(
       () => {
-         if (map !== null) {
+         if (!isNil(map)) {
             dispatch(setShowObjectsInExtent(debouncedShowOnlyInExtent));
             map.dispatchEvent('moveend');
          }
@@ -121,14 +122,16 @@ export default function DatasetTable() {
          );
       }
 
-      const selectOptions = allowedValues[name];
+      const allowedValuesForProp = allowedValues[name];
 
-      if (dataType === 'text' && selectOptions !== null) {
+      if (dataType === 'text' && allowedValuesForProp !== null) {
+         const options = allowedValuesForProp.map(option => ({ value: option, label: option }));
+
          return (
             <Select
                name={name}
                value={value}
-               options={selectOptions}
+               options={options}
                onChange={event => handleUpdate(event, objectId)}
                allowEmpty={false}
             />

@@ -1,9 +1,8 @@
 import { Cluster, Vector as VectorSource } from 'ol/source';
 import { Vector as VectorLayer } from 'ol/layer';
 import { GeoJSON } from 'ol/format';
-import { Style } from 'ol/style';
 import { getEpsgCode, getLayer, getVectorSource, readGeoJsonFeature } from 'utils/helpers/map';
-import { clusterStyle, createFeatureStyle } from './style';
+import { clusterStyle, featureStyle } from './style';
 import environment from 'config/environment';
 
 export function createFeaturesLayer(featureCollection) {
@@ -15,7 +14,7 @@ export function createFeaturesLayer(featureCollection) {
       .map(feature => {
          const olFeature = reader.readFeature(feature, { dataProjection: epsgCode, featureProjection: environment.MAP_EPSG });
 
-         olFeature.setStyle(createFeatureStyle('#3767c7', '#3767c75e'));
+         olFeature.setStyle(featureStyle);
          olFeature.set('_visible', true);
          olFeature.set('_coordinates', feature.geometry?.coordinates);
          olFeature.set('_featureType', 'default');
@@ -37,25 +36,9 @@ export function createFeaturesLayer(featureCollection) {
       style: clusterStyle
    });
 
-   // const disabledSource = new VectorSource({
-   //    features
-   // });
-
    vectorLayer.set('id', 'features');
    vectorLayer.set('_isCluster', true);
    vectorLayer.set('_disabledSource', vectorSource);
-
-   return vectorLayer;
-}
-
-export function createSelectedFeaturesLayer() {
-   const vectorLayer = new VectorLayer({
-      source: new VectorSource(),
-      declutter: true,
-      zIndex: 2
-   });
-
-   vectorLayer.set('id', 'selected-features');
 
    return vectorLayer;
 }
@@ -73,8 +56,8 @@ export function createRoutesFeaturesLayer() {
 export function createFeature(geoJson) {
    const feature = readGeoJsonFeature(geoJson);
 
-   feature.setStyle(createFeatureStyle('#3767c7', '#3767c75e'));
-   feature.set('_visible', true);
+   feature.setStyle(featureStyle);
+   feature.set('_visible', true);      
    feature.set('_featureType', 'default');
 
    return feature;
@@ -82,91 +65,38 @@ export function createFeature(geoJson) {
 
 export function addFeatureToMap(map, feature, layerName = 'features') {
    const vectorLayer = getLayer(map, layerName);
+   const vectorSource = getVectorSource(vectorLayer);
 
-   if (layerName === 'features') {
-      let vectorSource = vectorLayer.getSource();
-      //let disabledSource = vectorLayer.get('_disabledSource');
-
-      if (vectorSource.get('id') === 'cluster-source') {
-         vectorSource = vectorSource.getSource();
-      } 
-      // else {
-      //    disabledSource = disabledSource.getSource();
-      // }
-
-      vectorSource.addFeature(feature);
-      //disabledSource.addFeature(feature);
-   } else {
-      const vectorSource = vectorLayer.getSource();
-      vectorSource.addFeature(feature);
-   }
+   vectorSource.addFeature(feature);
 }
 
 export function removeFeatureFromMap(map, feature, layerName = 'features') {
    const vectorLayer = getLayer(map, layerName);
+   const vectorSource = getVectorSource(vectorLayer);
 
-   if (layerName === 'features') {
-      let vectorSource = vectorLayer.getSource();
-      //let disabledSource = vectorLayer.get('_disabledSource');
-
-      if (vectorSource.get('id') === 'cluster-source') {
-         vectorSource = vectorSource.getSource();
-      } 
-      // else {
-      //    disabledSource = disabledSource.getSource();
-      // }
-
-      vectorSource.removeFeature(feature);
-      // disabledSource.removeFeature(feature);
-   } else {
-      const vectorSource = vectorLayer.getSource();
-      vectorSource.removeFeature(feature);
-   }
+   vectorSource.removeFeature(feature);
 }
 
 export function toggleFeature(feature) {
-   const visible = !feature.get('_visible');
-
-   if (visible) {
-      const savedStyle = feature.get('_savedStyle');
-      feature.setStyle(savedStyle);
-   } else {
-      feature.set('_savedStyle', feature.getStyle());
-      feature.setStyle(new Style(null));
-   }
-
-   feature.set('_visible', visible);
+   feature.set('_visible', !feature.get('_visible'));
 }
 
 export function highlightFeature(map, feature) {
-   const layer = getLayer(map, 'features');
-   const source = getVectorSource(layer);
-   const highlighted = layer.get('_highlightedFeature');
+   const vectorLayer = getLayer(map, 'features');
+   const selectedFeature = vectorLayer.get('_selectedFeature');
 
-   if (highlighted) {
-      const highlightedFeature = source.getFeatures()
-         .find(feature => feature.get('id').value === highlighted.featureId && feature.get('_featureType') === highlighted.featureType);
-
-      if (highlightedFeature) {
-         const savedStyle = highlightedFeature.get('_savedStyle');
-         highlightedFeature.setStyle(savedStyle);
-      }
+   if (selectedFeature) {
+      selectedFeature.set('_selected', false);
    }
 
-   const style = feature.getStyle();
-   feature.set('_savedStyle', style);
-   feature.setStyle(createFeatureStyle('#fe5000', '#fe50005e', 2));
-
-   layer.set('_highlightedFeature', {
-      featureId: feature.get('id').value,
-      featureType: feature.get('_featureType')
-   });
+   feature.set('_selected', true);
+   vectorLayer.set('_selectedFeature', feature);
 }
 
 export function setNextAndPreviousFeatureId(map, feature) {
-   const layer = getLayer(map, 'features');
-   const source = getVectorSource(layer);
-   const features = source.getFeatures();
+   const vectorLayer = getLayer(map, 'features');
+   const vectorSource = getVectorSource(vectorLayer);
+   const features = vectorSource.getFeatures();
 
    if (features.length <= 1) {
       feature.set('_nextFeature', null);
