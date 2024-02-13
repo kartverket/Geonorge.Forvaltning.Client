@@ -1,0 +1,48 @@
+.tagsinput {
+   display: flex;
+
+   .tagsinput-input {
+      margin-right: 12px;
+   }
+
+   .tagsinput-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+
+      .tagsinput-tag {
+         display: flex;
+         align-items: center;
+         padding: 5px 12px;
+         height: 32px;
+         line-height: 1;
+         box-sizing: border-box;
+         border: 1px solid #d8d8d8;
+         border-radius: 4px;
+         user-select: none;
+         transition: background-color 0.15s ease-in-out;
+
+         &:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+         }
+
+         button {
+            font-size: 0;
+            padding: 0;
+            border: 0 none;
+            background: none;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            margin-left: 12px;
+
+            &::after {
+               content: "";
+               background: url(../../../assets/gfx/icon-close.svg) center no-repeat;
+               width: 13px;
+               height: 13px;
+            }
+         }
+      }
+   }
+}

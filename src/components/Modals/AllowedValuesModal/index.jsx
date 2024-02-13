@@ -1,5 +1,5 @@
 import { Controller, useForm } from 'react-hook-form';
-import { Tags } from 'components/Form/Controllers';
+import { Tags } from 'components/Form';
 import styles from './AllowedValuesModal.module.scss';
 
 export default function AllowedValuesModal({ values, onClose, callback }) {   
@@ -23,11 +23,11 @@ export default function AllowedValuesModal({ values, onClose, callback }) {
             <Controller
                control={control}
                name="allowedValues"
-               render={props => (
+               render={({ field }) => (
                   <Tags
                      placeholder="Legg til tillatt verdi..."
                      className={styles.allowedValues}
-                     {...props}
+                     {...field}
                   />
                )}
             />

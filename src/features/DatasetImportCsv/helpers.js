@@ -1,23 +1,24 @@
 import dayjs from 'dayjs';
 import WKT from 'ol/format/WKT';
 import { Point } from 'ol/geom';
-import { isUndefined } from 'lodash';
-import { writeGeoJson } from 'utils/helpers/map';
+import { isUndefined, orderBy } from 'lodash';
+import { roundCoordinates, writeGeoJson } from 'utils/helpers/map';
+import environment from 'config/environment';
 
 const WKT_REGEX = /^POINT\s?\(-?\d+(\.\d+)?\s-?\d+(\.\d+)?\)$/;
 const COORDINATE_REGEX = /^-?\d+(\.\d+)?$/;
 
-export function mapCsvToObjects(csv, geomColumns, mappings, importSrId, datasetSrId, user) {
+export function mapCsvToObjects(csv, geomColumns, mappings, importSrId, user) {
    const ownerOrg = user.organization;
    const editor = user.email;
    const updateDate = dayjs().format();
    const errors = [];
    let options = null;
 
-   if (importSrId !== datasetSrId) {
+   if (importSrId !== environment.DATASET_SRID) {
       options = {
          srcProjection: `EPSG:${importSrId}`,
-         destProjection: `EPSG:${datasetSrId}`
+         destProjection: `EPSG:${environment.DATASET_SRID}`
       }
    }
 
@@ -68,13 +69,17 @@ function createGeometryFromXY(row, columnNames, options) {
       throw new Error('Ugyldige koordinater');
    }
 
-   const point = new Point([x, y]);
+   const geometry = new Point([x, y]);
 
    if (options !== null) {
-      point.transform(options.srcProjection, options.destProjection);
+      geometry.transform(options.srcProjection, options.destProjection);
    }
 
-   return writeGeoJson(point);
+   const geoJson = JSON.parse(writeGeoJson(geometry));
+
+   geoJson.coordinates = roundCoordinates(geoJson.coordinates);
+   
+   return JSON.stringify(geoJson);
 }
 
 function createGeometryFromWkt(row, columnNames, options) {
@@ -99,7 +104,11 @@ function createGeometryFromWkt(row, columnNames, options) {
       throw new Error('Geometrien er ikke et punkt');
    }
 
-   return writeGeoJson(geometry);
+   const geoJson = JSON.parse(writeGeoJson(geometry));
+
+   geoJson.coordinates = roundCoordinates(geoJson.coordinates);
+   
+   return JSON.stringify(geoJson);
 }
 
 export function detectGeometryColumns(rows) {
@@ -113,7 +122,7 @@ export function detectGeometryColumns(rows) {
       if (wktColumn) {
          return { wkt: [wktColumn[0]] };
       } else {
-         const xyColumns = entries.filter(entry => ['x', 'y'].includes(entry[0].toLowerCase()));
+         const xyColumns = orderBy(entries.filter(entry => ['x', 'y'].includes(entry[0].toLowerCase())), entry => entry[0]);
 
          if (xyColumns.length === 2 && isCoordinate(xyColumns[0][1]) && isCoordinate(xyColumns[1][1])) {
             return { xy: [xyColumns[0][0], xyColumns[1][0]] };

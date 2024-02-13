@@ -1,5 +1,10 @@
 import { diff } from 'deep-object-diff';
-import { getFeatureById, getProperties, readGeoJson, writeGeoJson } from 'utils/helpers/map';
+import { getFeatureById, getProperties, readGeoJson } from 'utils/helpers/map';
+import { reproject } from 'reproject';
+import { point as createPoint } from '@turf/helpers';
+import environment from 'config/environment';
+
+const DATASET_EPSG = `EPSG:${environment.DATASET_SRID}`;
 
 export function updateFeature({ id, properties }, map) {
    const feature = getFeatureById(map, id);
@@ -14,7 +19,11 @@ export function updateFeature({ id, properties }, map) {
       .filter(entry => featureKeys.includes(entry[0]))
       .forEach(entry => {
          if (entry[0] === 'geometry') {
-            feature.setGeometry(readGeoJson(entry[1]));
+            const geometry = JSON.parse(entry[1]);
+            const transformed = reproject(geometry, DATASET_EPSG, environment.MAP_EPSG);
+
+            feature.setGeometry(readGeoJson(transformed));
+            feature.set('_coordinates', geometry.coordinates);
          } else {
             const prop = feature.get(entry[0]);
 
@@ -32,17 +41,23 @@ export function toDbModel(original, updated) {
    let origProps = {};
 
    if (original !== null) {
-      origProps = getProperties(original);
-      origProps.geometry = { value: writeGeoJson(original.getGeometry()) };
+      origProps = getProperties(original.getProperties());
+      origProps._coordinates = original.get('_coordinates');
    }
 
-   const updatedProps = getProperties(updated);
-   updatedProps.geometry = { value: writeGeoJson(updated.getGeometry()) };
+   const updatedProps = getProperties(updated.getProperties());
+   updatedProps._coordinates = updated.get('_coordinates');
 
    const toUpdate = diff(origProps, updatedProps)
 
    if (Object.keys(toUpdate).length === 0) {
       return null;
+   }
+
+   if ('_coordinates' in toUpdate) {
+      const feature = createPoint(updated.get('_coordinates'));
+      toUpdate.geometry = { value: JSON.stringify(feature.geometry) };
+      delete toUpdate._coordinates;
    }
 
    const payload = {};

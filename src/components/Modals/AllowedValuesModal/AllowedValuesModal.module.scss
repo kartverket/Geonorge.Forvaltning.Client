@@ -16,6 +16,22 @@
       margin-bottom: 24px;
    }
 
+   .allowedValues {
+      flex-direction: column;
+
+      > div:first-child {
+         margin: 0;
+
+         input {
+            width: 100%;
+         }
+      }
+
+      > div:last-child:not(:only-child) {
+         margin-top: 24px;
+      }
+   }
+
    .buttons {
       display: flex;
       justify-content: flex-end;
@@ -28,8 +44,3 @@
    }
 }
 
-.allowedValues {
-   input {
-      width: 240px !important;
-   }
-}

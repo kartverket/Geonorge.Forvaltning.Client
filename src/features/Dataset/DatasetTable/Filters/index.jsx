@@ -1,15 +1,18 @@
 import { useState, useMemo } from 'react';
-import { BooleanSelect, Select, TextField } from 'components/Form';
 import { getTableStyle } from '../helpers';
+import { BooleanSelect, Select, TextField } from 'components/Form';
 import styles from './Filters.module.scss';
 
 export default function Filters({ definition, onChange }) {
    const [state, setState] = useState(getDefaultState());
    const filterStyle = useMemo(() => getTableStyle(definition), [definition]);
 
-   function handleChange({ name, value, exact = false }) {
-      setState({ ...state, [name]: value });
-      onChange({ name, value, exact });
+   function handleChange(event, exact = false) {
+      const { name, value } = event.target;
+      const newValue = value !== '' ? value : null;
+      
+      setState({ ...state, [name]: newValue });
+      onChange({ name, value: newValue, exact });
    }
 
    function renderFilter(name, dataType, allowedValues) {
@@ -18,18 +21,20 @@ export default function Filters({ definition, onChange }) {
             <BooleanSelect
                name={name}
                value={state[name]}
-               onChange={({ name, value }) => handleChange({ name, value, exact: true })}
+               onChange={event => handleChange(event, true)}
             />
          );
       }
 
       if (dataType === 'text' && allowedValues?.length) {
+         const options = allowedValues.map(value => ({ value, label: value }));
+
          return (
             <Select
                name={name}
                value={state[name]}
-               options={allowedValues}
-               onChange={({ name, value }) => handleChange({ name, value, exact: true })}
+               options={options}
+               onChange={event => handleChange(event, true)}
             />
          );
       }

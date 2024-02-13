@@ -1,0 +1,13 @@
+.select {
+   width: 324px;
+}
+
+.customOption {
+   display: flex;
+   flex-direction: column;
+   font-size: 15px;
+
+   span:last-child {
+      font-size: 13px;
+   }
+}

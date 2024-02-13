@@ -1,25 +1,35 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useMap } from 'context/MapProvider';
 import { useDataset } from 'context/DatasetProvider';
-import { getProperties, zoomToFeature } from 'utils/helpers/map';
+import { getProperties, roundCoordinates, transformCoordinates, zoomToFeature } from 'utils/helpers/map';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { BooleanSelect, DatePicker, Select, TextField } from 'components/Form';
 import { Point } from 'ol/geom';
+import environment from 'config/environment';
 import styles from '../FeatureInfo.module.scss';
+
+const LAT_LON_REGEX = /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/;
 
 export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
    const { map } = useMap();
    const { allowedValues } = useDataset();
-   const [coordinates, setCoordinates] = useState(feature.getGeometry()?.getCoordinates() || null);
-   const properties = getProperties(feature);
+   const { control, setValue, handleSubmit } = useForm({ defaultValues: getDefaultValues() });
+   const coordinates = useWatch({ control, name: 'coordinates' });
+   const properties = getProperties(feature.getProperties());
 
    const getCoordinate = useCallback(
       event => {
          const coords = event.coordinate;
-         setCoordinates(coords);
+         const transformed = transformCoordinates(environment.MAP_EPSG, `EPSG:${environment.DATASET_SRID}`, coords);
+         const rounded = roundCoordinates(transformed);
+
+         setValue('coordinates', `${rounded[1]}, ${rounded[0]}`);
+         feature.set('_coordinates', rounded);
+
          const point = new Point(coords);
          feature.setGeometry(point);
       },
-      [feature]
+      [feature, setValue]
    );
 
    useEffect(
@@ -39,13 +49,39 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
       [map, getCoordinate]
    );
 
-   function handleChange({ name, value }) {
+   function handleChange({ target: { name, value } }) {
       const prop = feature.get(name);
-      feature.set(name, { ...prop, value });
+      const newValue = value !== '' ? value : null;
+
+      feature.set(name, { ...prop, value: newValue });
+   }
+
+   function handleCoordinatesChange(event) {
+      const value = event.target.value.trim();
+      const isValid = LAT_LON_REGEX.test(value);
+
+      if (!isValid) {
+         return;
+      }
+
+      const [lat, lon] = value.split(',').map(value => parseFloat(value.trim()));
+      const transformed = transformCoordinates(`EPSG:${environment.DATASET_SRID}`, environment.MAP_EPSG, [lon, lat]);
+
+      getCoordinate({ coordinate: transformed });
+   }
+
+   function getDefaultValues() {
+      const coordinates = feature.get('_coordinates') || null;
+
+      return {
+         coordinates: coordinates !== null ? `${coordinates[1]}, ${coordinates[0]}` : ''
+      };
    }
 
    function handleSave() {
-      onSave();
+      handleSubmit(() => {
+         onSave();
+      })();
    }
 
    function handleDelete() {
@@ -69,15 +105,21 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
          );
       }
 
-      const selectOptions = allowedValues[name];
+      const allowedValuesForProp = allowedValues[name];
 
-      if (dataType === 'text' && selectOptions !== null) {
+      if (dataType === 'text' && allowedValuesForProp !== null) {
+         if (!allowedValuesForProp.includes(value)) {
+            handleChange({ target: { name, value: allowedValuesForProp[0] } });
+         }
+
+         const options = allowedValuesForProp.map(option => ({ value: option, label: option }));
+
          return (
             <div className={styles.formControl}>
                <Select
                   name={name}
                   value={value}
-                  options={selectOptions}
+                  options={options}
                   onChange={handleChange}
                   allowEmpty={false}
                />
@@ -148,7 +190,26 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
                      <div className={styles.row}>
                         <div className={styles.label}>Posisjon:</div>
                         <div className={styles.value}>
-                           <div className={styles.noInput} title={coordinates.join(', ')}>{coordinates[0].toFixed(2)}, {coordinates[1].toFixed(2)}</div>
+                           <div className={`${styles.value} ${styles.coordinates}`}>
+                              <Controller
+                                 control={control}
+                                 name="coordinates"
+                                 rules={{
+                                    validate: value => LAT_LON_REGEX.test(value.trim())
+                                 }}
+                                 render={({ field, fieldState: { error } }) => (
+                                    <TextField
+                                       {...field}
+                                       error={error}
+                                       errorMessage="Et gyldig koordinatpar må fylles ut"
+                                       onChange={event => {
+                                          field.onChange(event);
+                                          handleCoordinatesChange(event);
+                                       }}
+                                    />
+                                 )}
+                              />
+                           </div>
                         </div>
                      </div> :
                      null

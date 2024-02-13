@@ -10,28 +10,30 @@
 }
 
 .inputContainer {
-   position: relative;
+   .input {
+      position: relative;
 
-   button {
-      position: absolute;
-      background: none;
-      cursor: pointer;
-      width: 30px;
-      height: 30px;
-      border: 0;
-      top: 1px;
-      right: 1px;
-      z-index: 1;
-      padding: 0;
-
-      &::after {
-         content: "\D7";
-         font-size: 28px;
-         color: #d8d8d8;
-      }
-
-      &:hover::after {
-         color: #a6a6a6;
+      button {
+         position: absolute;
+         background: none;
+         cursor: pointer;
+         width: 30px;
+         height: 30px;
+         border: 0;
+         top: 1px;
+         right: 1px;
+         z-index: 1;
+         padding: 0;
+   
+         &::after {
+            content: "\D7";
+            font-size: 28px;
+            color: #d8d8d8;
+         }
+   
+         &:hover::after {
+            color: #a6a6a6;
+         }
       }
    }
 }

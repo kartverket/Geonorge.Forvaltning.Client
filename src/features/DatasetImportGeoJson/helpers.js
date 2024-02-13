@@ -1,36 +1,24 @@
-import { isUndefined } from 'lodash';
+import { isNil } from 'lodash';
+import { reproject } from 'reproject';
 import gjv from 'geojson-validation';
-import proj4 from 'proj4';
 import dayjs from 'dayjs';
+import environment from 'config/environment';
+import { roundCoordinates } from 'utils/helpers/map';
 
-export function mapGeoJsonToObjects(featureCollection, mappings, importSrId, datasetSrId, user) {
+export function mapGeoJsonToObjects(geoJson, mappings, importSrId, user) {
    const ownerOrg = user.organization;
    const editor = user.email;
    const updateDate = dayjs().format();
-   let srcProjection, destProjection;
 
-   if (importSrId !== datasetSrId) {
-      srcProjection = proj4(`EPSG:${importSrId}`);
-      destProjection = proj4(`EPSG:${datasetSrId}`);
-   }
-
-   return featureCollection.features
+   return geoJson.features
       .map(feature => {
-         const { geometry, properties } = feature;
+         const geometry = getGeometry(feature.geometry, importSrId);
 
-         if (!gjv.isPoint(geometry)) {
+         if (geometry === null) {
             return null;
          }
 
-         if (importSrId !== datasetSrId) {
-            const transformed  = transformCoordinates(srcProjection, destProjection, geometry.coordinates);
-
-            if (transformed === null) {
-               return null;
-            }
-
-            geometry.coordinates = [transformed.x, transformed.y];
-         }
+         const { properties } = feature;
 
          const object = {
             geometry: JSON.stringify(geometry),
@@ -41,7 +29,7 @@ export function mapGeoJsonToObjects(featureCollection, mappings, importSrId, dat
 
          Object.entries(mappings).forEach(entry => {
             const prop = properties[entry[1]];
-            object[entry[0]] = !isUndefined(prop) ? prop : null;
+            object[entry[0]] = getPropValue(prop);
          });
 
          return object;
@@ -49,10 +37,24 @@ export function mapGeoJsonToObjects(featureCollection, mappings, importSrId, dat
       .filter(feature => feature !== null);
 }
 
-function transformCoordinates(srcProjection, destProjection, coordinates) {
-   try {
-      return proj4.transform(srcProjection.oProj, destProjection.oProj, coordinates)
-   } catch {
-      return null;  
+function getGeometry(geometry, importSrId) {
+   if (!gjv.isPoint(geometry)) {
+      return null;
    }
+
+   const transformed = importSrId !== environment.DATASET_SRID ?
+      reproject(geometry, `EPSG:${importSrId}`, `EPSG:${environment.DATASET_SRID}`) :
+      geometry;
+
+   transformed.coordinates = roundCoordinates(transformed.coordinates);
+
+   return transformed;
+}
+
+function getPropValue(prop) {
+   if (isNil(prop) || prop.toString().toLowerCase() === 'null') {
+      return null;
+   }
+
+   return prop;
 }

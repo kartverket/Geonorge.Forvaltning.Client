@@ -1,0 +1,35 @@
+.mapContainer {
+   position: relative;
+   flex: 1;
+
+   .map {
+      box-sizing: border-box;
+      width: 100%;
+      height: 570px;
+      border: 1px solid #d8d8d8;
+      border-radius: 4px;
+   }
+}
+
+.zoomToExtent {
+   top: 100px;
+   left: 6px;
+
+   button {
+      background: url(../../../assets/gfx/icon-extent.svg) no-repeat center;
+      font-size: 0 !important;
+      width: 36px !important;
+      height: 36px !important;
+      background-size: 24px;
+      cursor: pointer;
+      outline: 1px solid #ababab !important;
+
+      &:focus {
+         outline: none !important;
+      }
+
+      &:hover {
+         outline: 1px solid #555555 !important;
+      }
+   }
+}

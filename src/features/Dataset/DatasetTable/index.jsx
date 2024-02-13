@@ -1,7 +1,7 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { selectFeature } from 'store/slices/mapSlice';
-import { deleteDataObjects, updateDataObject } from 'store/slices/objectSlice';
+import { deleteDataObjects, setShowObjectsInExtent, updateDataObject } from 'store/slices/objectSlice';
 import { useRevalidator } from 'react-router-dom';
 import { Table, Header, HeaderRow, Body, HeaderCell, Row, Cell } from '@table-library/react-table-library/table';
 import { useTheme } from '@table-library/react-table-library/theme';
@@ -13,16 +13,20 @@ import { inPlaceSort } from 'fast-sort';
 import { renderProperty } from 'utils/helpers/general';
 import { getTableStyle } from './helpers';
 import { useDataset } from 'context/DatasetProvider';
+import { useMap } from 'context/MapProvider';
 import { useModal } from 'context/ModalProvider';
 import { modalType } from 'components/Modals';
 import { BooleanSelect, DatePicker, Select, TextField } from 'components/Form';
+import useDebounceValue from 'hooks/useDebouceValue';
 import ReactPaginate from 'react-paginate';
 import useFilters from './Filters/useFilters';
 import Filters from './Filters';
 import styles from './DatasetTable.module.scss';
+import { isNil } from 'lodash';
 
 export default function DatasetTable() {
-   const { objects, definition, metadata, allowedValues  } = useDataset();
+   const { objects, definition, metadata, allowedValues } = useDataset();
+   const { map } = useMap();
    const [editMode, setEditMode] = useState(false);
    const [update] = useUpdateDatasetObjectMutation();
    const [_delete] = useDeleteDatasetObjectsMutation();
@@ -30,9 +34,28 @@ export default function DatasetTable() {
    const dispatch = useDispatch();
    const { showModal } = useModal();
    const [selectedRows, setSelectedRows] = useState({ ids: [] });
+   const [showOnlyInExtent, setShowOnlyInExtent] = useState(false);
+   const debouncedShowOnlyInExtent = useDebounceValue(showOnlyInExtent, 500);
    const visibleTableRowsRef = useRef([]);
    const theme = useTheme(tableTheme);
    const { data, setFilters } = useFilters(objects, metadata);
+
+   useEffect(
+      () => {
+         if (!isNil(map)) {
+            dispatch(setShowObjectsInExtent(debouncedShowOnlyInExtent));
+            map.dispatchEvent('moveend');
+         }
+      },
+      [debouncedShowOnlyInExtent, dispatch, map]
+   );
+
+   useEffect(
+      () => {
+         return () => dispatch(setShowObjectsInExtent(false));
+      },
+      [dispatch]
+   );
 
    const tableStyle = useMemo(() => getTableStyle(definition), [definition]);
 
@@ -99,15 +122,17 @@ export default function DatasetTable() {
          );
       }
 
-      const selectOptions = allowedValues[name];
+      const allowedValuesForProp = allowedValues[name];
 
-      if (dataType === 'text' && selectOptions !== null) {
+      if (dataType === 'text' && allowedValuesForProp !== null) {
+         const options = allowedValuesForProp.map(option => ({ value: option, label: option }));
+
          return (
             <Select
                name={name}
                value={value}
-               options={selectOptions}
-               onChange={({ name, value }) => handleUpdate(name, value, objectId)}
+               options={options}
+               onChange={event => handleUpdate(event, objectId)}
                allowEmpty={false}
             />
          );
@@ -118,7 +143,7 @@ export default function DatasetTable() {
             <DatePicker
                name={name}
                value={value}
-               onChange={({ name, value }) => handleUpdate(name, value, objectId)}
+               onChange={event => handleUpdate(event, objectId)}
             />
          );
       }
@@ -127,16 +152,15 @@ export default function DatasetTable() {
          <TextField
             name={name}
             value={value}
-            onChange={({ name, value }) => handleUpdate(name, value, objectId)}
+            onChange={event => handleUpdate(event, objectId)}
             mode='blur'
          />
       );
    }
 
-   async function handleUpdate(name, value, objectId) {
-      const payload = {
-         [name]: value
-      };
+   async function handleUpdate(event, objectId) {
+      const { name, value } = event.target;
+      const payload = { [name]: value };
 
       try {
          await update({
@@ -205,10 +229,25 @@ export default function DatasetTable() {
       <>
          <div className={styles.container}>
             <div className={styles.buttonsTop}>
-               <gn-button>
-                  <button onClick={() => setEditMode(!editMode)} className={styles.edit}>{!editMode ? 'Rediger tabell' : 'Avslutt redigering'}</button>
-               </gn-button>
+               <div>
+                  <gn-button>
+                     <button onClick={() => setEditMode(!editMode)} className={styles.edit}>{!editMode ? 'Rediger tabell' : 'Avslutt redigering'}</button>
+                  </gn-button>
 
+                  <div className={styles.checkbox}>
+                     <gn-input>
+                        <input
+                           id="features-in-extent"
+                           type="checkbox"
+                           checked={showOnlyInExtent}
+                           onChange={event => setShowOnlyInExtent(event.target.checked)}
+                        />
+                     </gn-input>
+                     <gn-label>
+                        <label htmlFor="features-in-extent">Vis kun objekter i kartutsnitt</label>
+                     </gn-label>
+                  </div>
+               </div>
                {
                   editMode && selectedRows.ids.length > 0 ?
                      <gn-button color="danger">

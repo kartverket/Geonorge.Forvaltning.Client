@@ -1,6 +1,6 @@
 import { isNil, orderBy } from 'lodash';
 
-export function getAllowedValuesForUser(columnName, metadata, user) {   
+export function getAllowedValuesForUser(columnName, metadata, user, ownerOrganization) {   
    if (user === null) {
       return [];
    }
@@ -12,7 +12,7 @@ export function getAllowedValuesForUser(columnName, metadata, user) {
       return null;
    }
 
-   if (column.AccessByProperties.length === 0) {
+   if (column.AccessByProperties.length === 0 || user.organization === ownerOrganization) {
       return column.AllowedValues;
    }
 
@@ -26,17 +26,10 @@ export function getAllowedValuesForUser(columnName, metadata, user) {
 
 export function createFeatureCollectionGeoJson(dataset) {
    const metadata = dataset.definition.ForvaltningsObjektPropertiesMetadata;
-   const srid = dataset.definition.srid;
    const features = dataset.objects.map(object => createFeatureGeoJson(metadata, object));
 
    return {
       type: 'FeatureCollection',
-      crs: {
-         type: 'name',
-         properties: {
-            name: `urn:ogc:def:crs:EPSG::${srid || 4326}`
-         }
-      },
       features
    };
 }

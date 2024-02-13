@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { setUser } from 'store/slices/appSlice';
 import supabase from 'store/services/supabase/client';
 import environment from 'config/environment';
+import { getOrganizationName } from 'store/services/loaders';
 
 export default function AuthProvider({ children }) {
    const [session, setSession] = useState();
@@ -30,9 +31,15 @@ export default function AuthProvider({ children }) {
             .select('organization, role')
             .single();
 
+         let organizationName = null;
+
+         if (data.organization) {
+            organizationName = await getOrganizationName(data.organization);            
+         }
+         
          const { name, email } = session.user.user_metadata;
 
-         dispatch(setUser({ name, email, organization: data.organization }));
+         dispatch(setUser({ name, email, organization: data.organization, organizationName }));
       },
       [dispatch]
    );

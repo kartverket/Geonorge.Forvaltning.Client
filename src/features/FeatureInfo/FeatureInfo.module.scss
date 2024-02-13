@@ -34,13 +34,13 @@
       display: none;
       flex-direction: column;
       justify-content: space-between;
-      width: 420px;
+      width: 480px;
       background: #ffffff;
       border: 1px solid #d8d8d8;
       padding: 18px;
       border-radius: 4px;
 
-      > div {
+      >div {
          display: flex;
          flex-direction: column;
          height: 100%;
@@ -95,6 +95,23 @@
             }
          }
 
+         .analysis {
+            display: flex;
+            align-items: center;
+            font-size: 15px;
+
+            &::before {
+               content: "";
+               background: url(../../assets/gfx/icon-analysis.svg) no-repeat center center;
+               width: 20px;
+               height: 33px;
+               background-size: 19px;
+               border: 0;
+               padding: 0;
+               margin-right: 5px;
+            }
+         }
+
          .add {
             display: flex;
             align-items: center;
@@ -111,6 +128,11 @@
                margin-right: 5px;
             }
          }
+      }
+
+      .properties {
+         max-height: 402px;
+         overflow-y: auto;
       }
 
       .buttonsBottom {
@@ -139,13 +161,13 @@
          height: 100%;
          justify-content: flex-end;
 
-         > div {
+         >div {
             display: flex;
             justify-content: space-between;
             margin-top: 12px;
             padding-top: 18px;
             border-top: 1px solid #d8d8d8;
-   
+
             .prevButton::before,
             .nextButton::after {
                content: "";
@@ -156,12 +178,12 @@
                background-repeat: no-repeat;
                background-size: 12px;
             }
-   
+
             .prevButton::before {
                transform: rotate(270deg);
                margin: 0 4px 0 0;
             }
-   
+
             .nextButton::after {
                transform: rotate(90deg);
                margin: 0 0 0 4px;
@@ -171,7 +193,7 @@
 
       .row {
          display: flex;
-         align-items: center;
+         align-items: baseline;
          margin-bottom: 5px;
          min-height: 32px;
 
@@ -180,15 +202,18 @@
          }
 
          .label {
-            text-transform: capitalize;
-            flex: 0 0 30%;
+            flex: 0 0 33%;
+            display: flex;
+            align-self: flex-start;
+            margin-top: 6px;
          }
 
          .value {
             flex: 1;
+            overflow-wrap: anywhere;
 
             .formControl {
-               margin-top: -2px;
+               margin-top: -1px;
             }
          }
 
@@ -196,6 +221,26 @@
             min-height: 32px;
             padding: 0 9px;
             display: flex;
+            align-items: center;
+         }
+
+         .coordinates input {
+            width: 100%;
+         }
+      }
+
+      .form {
+         display: flex;
+         flex-direction: column;
+         justify-content: space-between;
+         flex: 1;
+
+         >div {
+            max-height: 343px;
+            overflow-y: auto;
+         }
+
+         .row {
             align-items: center;
          }
       }
@@ -211,11 +256,4 @@
          }
       }
    }
-}
-
-.form {
-   display: flex;
-   flex-direction: column;
-   justify-content: space-between;
-   flex: 1;
 }

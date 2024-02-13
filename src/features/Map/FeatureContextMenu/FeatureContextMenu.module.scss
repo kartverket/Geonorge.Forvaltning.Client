@@ -1,0 +1,60 @@
+.contextMenu ul {
+   display: table;
+   table-layout: fixed;
+   border-collapse: collapse;
+   margin-top: 1px !important;
+   font-size: 14px;
+   padding: 6px;
+   border-radius: 4px;
+   box-shadow: 0 3px 7px rgba(0, 0, 0, 0.133), 0 0.6px 2px rgba(0, 0, 0, 0.1);
+   border: 0 none;
+
+   li:not(:empty) {
+      display: table-row;
+
+      span {
+         display: table-cell;
+         white-space: nowrap;
+         overflow-x: hidden;
+         text-overflow: ellipsis;
+         min-width: 60px;
+         max-width: 150px;
+
+         &:first-child {
+            padding-left: 12px !important;
+         }
+
+         &:last-child {
+            padding-right: 12px !important;
+         }
+      }
+
+      &:not(.header) {
+         cursor: pointer;
+         border-bottom: 1px solid #d8d8d8;
+         transition: background-color .15s ease-in-out;
+
+         &:last-child {
+            border-bottom: 0 none;
+         }
+         
+         span {
+            padding: 6px 8px;
+         }
+
+         &:hover {
+            background-color: rgba(0, 0, 0, .05);
+         }
+      }
+
+      &.header {
+         text-transform: uppercase;
+         border-bottom: 2px solid #fe5000;
+         color: #3767c7;
+
+         span {
+            padding: 6px 8px 3px 8px;
+         }
+      }
+   }
+}

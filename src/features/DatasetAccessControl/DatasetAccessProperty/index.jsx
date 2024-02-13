@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Controller, useFieldArray, useFormContext, useWatch } from 'react-hook-form';
-import { Select } from 'components/Form/Controllers';
+import { Select } from 'components/Form';
 import DatasetAccessPropertyValue from '../DatasetAccessPropertyValue';
 import styles from '../DatasetAccessControl.module.scss';
 
@@ -19,10 +19,10 @@ export default function DatasetAccessProperty({ index, metadata }) {
       [metadata, selectedProperty, selectedProperties]
    );
 
-   function getSelectedProperty() {      
+   function getSelectedProperty() {
       const propertyId = getValues(`accessByProperties.${index}.propertyId`);
       const property = metadata.find(data => data.Id === propertyId) || null;
-      
+
       return property;
    }
 
@@ -32,7 +32,7 @@ export default function DatasetAccessProperty({ index, metadata }) {
 
       target.value = newValue !== '' ? parseInt(newValue) : '';
       const property = metadata.find(data => data.Id === target.value) || null;
-      
+
       setValue(`accessByProperties.${index}.values`, [getDefaultValues(property.Id)]);
       setSelectedProperty(property);
 
@@ -40,10 +40,10 @@ export default function DatasetAccessProperty({ index, metadata }) {
    }
 
    function getDefaultValues(propertyId) {
-      return { 
-         propertyId, 
-         value: '', 
-         contributors: [] 
+      return {
+         propertyId,
+         value: '',
+         contributors: []
       };
    }
 
@@ -65,19 +65,20 @@ export default function DatasetAccessProperty({ index, metadata }) {
                rules={{
                   required: true
                }}
-               render={props => (
+               render={({ field, fieldState: { error } }) => (
                   <Select
                      id={`accessByProperties.${index}.propertyId`}
                      options={properties}
                      label="Egenskap"
+                     {...field}
+                     error={error}
                      errorMessage="Egenskap må velges"
                      className={styles.select}
-                     {...props}
-                     onChange={event => handlePropertyChange(event, props.field)}
+                     onChange={event => handlePropertyChange(event, field)}
                   />
                )}
             />
-         </div>         
+         </div>
          {
             selectedProperty !== null ?
                <div className={styles.valueRows}>

@@ -1,0 +1,222 @@
+.container {
+   display: flex;
+   width: auto;
+
+   >gn-button {
+      display: flex;
+
+      button {
+         height: 100%;
+         padding: 0;
+
+         span {
+            display: flex;
+            width: 20px;
+            height: 20px;
+            background-image: url(../../assets/gfx/icon-chevron.svg);
+            background-position: center;
+            background-repeat: no-repeat;
+            transform: rotate(270deg);
+         }
+      }
+   }
+
+   &.expanded {
+      width: 450px;
+
+      >gn-button>button>span {
+         transform: rotate(90deg);
+      }
+
+      .analysisResult {
+         display: flex;
+      }
+   }
+}
+
+.analysisResult {
+   display: none;
+   flex-grow: 1;
+   flex-direction: column;
+   justify-content: space-between;
+   background: #ffffff;
+   border: 1px solid #d8d8d8;
+   border-radius: 4px;
+   background-color: #fff;
+   overflow-x: hidden;
+   padding-top: 6px;
+}
+
+.header,
+.subHeader {
+   padding: 12px 18px;
+   border-bottom: 1px solid #d8d8d8;
+   font-size: 15px;
+   font-weight: 600;
+   line-height: 1;
+}
+
+.header {
+   position: relative;
+
+   .headerButtons {
+      position: absolute;
+      top: 9px;
+      right: 18px;
+      display: flex;
+      align-items: center;
+
+      .exportMenu ul {
+         font-weight: 400;
+         border-radius: 4px;
+         box-shadow: 0 3px 7px rgba(0, 0, 0, 0.133), 0 0.6px 2px rgba(0, 0, 0, 0.1);
+         border: 0 none;
+         margin-top: 1px !important;
+      }
+
+      .exportButton {
+         display: flex;
+         align-items: center;
+         margin-right: 18px;
+
+         &::before {
+            content: "";
+            background: url(../../assets/gfx/icon-export.svg) no-repeat center center;
+            width: 20px;
+            height: 20px;
+            background-size: 22px;
+            border: 0;
+            padding: 0;
+            margin-right: 5px;
+         }
+      }
+
+      .closeButton {
+         border: 0 none;
+         background: url(../../assets/gfx/icon-close.svg) center no-repeat;
+         background-size: 12px;
+         width: 12px;
+         height: 12px;
+         cursor: pointer;
+      }
+   }
+}
+
+.start {
+   display: flex;
+   flex-direction: column;
+   padding: 12px 18px;
+   border-bottom: 1px solid #d8d8d8;
+
+   .buttons {
+      justify-content: flex-end;
+   }
+}
+
+.destinations {
+   height: 343px;
+   overflow-y: auto;
+
+   .destination {
+      display: flex;
+      flex-direction: column;
+      border-top: 1px solid #d8d8d8;
+      padding: 12px 18px;
+
+      .object {
+         display: flex;
+         flex-direction: column;
+      }
+
+      .route {
+         border-top: 1px dashed #d8d8d8;
+         margin-top: 6px;
+         padding-top: 6px;
+      }
+
+      &:first-child {
+         border-top: 0 none;
+      }
+
+      &.selected {
+         background-color: #f6f6f6;
+
+         .object .property {
+            display: flex;
+         }
+      }
+   }
+}
+
+.buttons {
+   display: flex;
+   justify-content: space-between;
+   border-top: 1px dashed #d8d8d8;
+   margin-top: 6px;
+   padding-top: 12px;
+
+   .goToRoute {
+      display: flex;
+      align-items: center;
+
+      &::before {
+         content: "";
+         background: url(../../assets/gfx/icon-route.svg) no-repeat center center;
+         width: 20px;
+         height: 20px;
+         background-size: 21px;
+         border: 0;
+         padding: 0;
+         margin-right: 5px;
+      }
+   }
+
+   .goToObject {
+      display: flex;
+      align-items: center;
+
+      &::before {
+         content: "";
+         background: url(../../assets/gfx/icon-zoom.svg) no-repeat center center;
+         width: 20px;
+         height: 20px;
+         background-size: 21px;
+         border: 0;
+         padding: 0;
+         margin-right: 5px;
+      }
+   }
+}
+
+.property {
+   display: flex;
+   margin-top: 6px;
+
+   &:first-child {
+      margin-top: 0;
+   }
+
+   >:first-child {
+      width: 45%;
+   }
+
+   >:last-child {
+      width: 55%;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+   }
+}
+
+.menuItem {
+   position: relative;
+
+   .spinner {
+      position: absolute;
+      right: -28px;
+      width: 22px;
+      height: 22px;
+      top: -3px;
+      border-width: 4px;
+   }
+}

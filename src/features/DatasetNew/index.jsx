@@ -4,7 +4,7 @@ import { useAddDatasetMutation } from 'store/services/api';
 import { useModal } from 'context/ModalProvider';
 import { useBreadcrumbs } from 'features/Breadcrumbs';
 import { modalType } from 'components/Modals';
-import { getDefaultValues } from './mapper';
+import { getDefaultValues, toDbModel } from './mapper';
 import DatasetForm from './DatasetForm';
 import Spinner from 'components/Spinner';
 import styles from './DatasetNew.module.scss';
@@ -18,11 +18,12 @@ export default function DatasetNew() {
    const { showModal } = useModal();
 
    function submit() {
-      handleSubmit(async dataset => {
+      handleSubmit(async dataset => {        
          setLoading(true);
+         const payload = toDbModel(dataset);
 
          try {
-            await addDataset(dataset).unwrap();
+            await addDataset(payload).unwrap();
             setLoading(false);
             reset(getDefaultValues());
 

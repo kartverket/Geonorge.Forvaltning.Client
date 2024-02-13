@@ -1,14 +1,11 @@
-import { useMemo } from 'react';
 import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
-import { Checkbox, Select, TextArea, TextField } from 'components/Form/Controllers';
-import projections from 'config/map/projections.json';
+import { Checkbox, TextArea, TextField } from 'components/Form';
 import DatasetProperty from '../DatasetProperty';
 import styles from './DatasetForm.module.scss';
 
 export default function DatasetForm() {
    const { control } = useFormContext();
    const { fields, insert, remove } = useFieldArray({ control, name: 'properties' });
-   const projOptions = useMemo(() => projections.map(projection => ({ value: projection.srId, label: projection.epsg })), []);
 
    function addProperty(index) {
       insert(index + 1, { name: '', dataType: '' });
@@ -28,13 +25,14 @@ export default function DatasetForm() {
                   rules={{
                      validate: value => value.trim().length > 0
                   }}
-                  render={props => (
+                  render={({ field, fieldState: { error } }) => (
                      <TextField
                         id="name"
                         label="Navn"
+                        {...field}
+                        error={error}
                         errorMessage="Navn må fylles ut"
                         className={styles.textField}
-                        {...props}
                      />
                   )}
                />
@@ -44,38 +42,13 @@ export default function DatasetForm() {
                <Controller
                   control={control}
                   name="description"
-                  render={props => (
+                  render={({ field }) => (
                      <TextArea
                         id="description"
                         label="Beskrivelse"
+                        {...field}
                         optional={true}
                         className={styles.textArea}
-                        {...props}
-                     />
-                  )}
-               />
-            </div>
-
-            <div className={styles.row}>
-               <Controller
-                  control={control}
-                  name="srid"
-                  rules={{
-                     required: true
-                  }}
-                  render={props => (
-                     <Select
-                        id="srid"
-                        options={projOptions}
-                        label="Projeksjon"
-                        allowEmpty={false}
-                        className={styles.projection}
-                        {...props}
-                        onChange={event => {
-                           const target = { ...event.target };
-                           target.value = parseInt(event.target.value);
-                           props.field.onChange({ target });
-                        }}
                      />
                   )}
                />
@@ -85,11 +58,11 @@ export default function DatasetForm() {
                <Controller
                   control={control}
                   name="isopendata"
-                  render={props => (
+                  render={({ field }) => (
                      <Checkbox
                         id="isopendata"
                         label="Åpne data"
-                        {...props}
+                        {...field}
                      />
                   )}
                />

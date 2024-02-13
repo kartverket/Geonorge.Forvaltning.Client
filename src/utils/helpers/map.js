@@ -1,5 +1,5 @@
+import { isNil } from 'lodash';
 import GeoJSON from 'ol/format/GeoJSON';
-import { getFeatureStyle } from 'utils/map/style';
 import proj4 from 'proj4';
 
 const EPSG_REGEX = /^(http:\/\/www\.opengis\.net\/def\/crs\/EPSG\/0\/|^urn:ogc:def:crs:EPSG::|^EPSG:)(?<epsg>\d+)$/m;
@@ -26,7 +26,7 @@ export function getSrId(geoJson) {
 
 export function getLayer(map, id) {
    return map.getLayers().getArray()
-      .find(layer => layer.get('id') === id);
+      .find(layer => layer.get('id') === id) || null;
 }
 
 export function getVectorSource(layer) {
@@ -48,16 +48,24 @@ export function hasFeatures(map, layerName = 'features', withGeom = true) {
    return source.getFeatures().length > 0;
 }
 
-export function getFeatureById(map, id, layerName = 'features') {
+export function getFeatureById(map, id, featureType = 'default', layerName = 'features') {
+   const layer = getLayer(map, layerName);
+   const source = getVectorSource(layer);
+   
+   return source.getFeatures()
+      .find(feature => feature.get('id')?.value === id && feature.get('_featureType') === featureType);
+}
+
+export function getFeaturesById(map, ids, layerName = 'features') {
    const layer = getLayer(map, layerName);
    const source = getVectorSource(layer);
 
    return source.getFeatures()
-      .find(feature => feature.get('id')?.value === id);
+      .filter(feature => ids.includes(feature.get('id')?.value));
 }
 
-export function getProperties(feature) {
-   const { geometry, ...properties } = feature.getProperties();
+export function getProperties(featureProperties) {
+   const { geometry, ...properties } = featureProperties;
    const props = {};
 
    Object.entries(properties)
@@ -73,31 +81,28 @@ export function getPropertyValue(feature, propName) {
    return feature.get(propName)?.value;
 }
 
-export function zoomToGeoJsonFeature(map, geoJson) {
+export function hasValue(feature, propName) {
+   return !isNil(propName)
+}
+
+export function zoomToGeoJsonFeature(map, geoJson, zoom) {
    const feature = new GeoJSON().readFeature(geoJson)
    const geometry = feature.getGeometry();
 
-   zoomToGeometry(map, geometry);
+   zoomToGeometry(map, geometry, zoom);
 }
 
-export function zoomToFeature(map, feature) {
+export function zoomToFeature(map, feature, zoom) {
    const geometry = feature.getGeometry();
 
-   zoomToGeometry(map, geometry);
+   zoomToGeometry(map, geometry, zoom);
 }
 
-export function zoomToGeometry(map, geometry) {
+export function zoomToGeometry(map, geometry, zoom = 15) {
    const view = map.getView();
+   
    view.fit(geometry, { padding: [50, 50, 50, 50] });
-   view.setZoom(15);
-}
-
-export function cloneFeature(feature) {
-   const geoJson = writeGeoJsonFeature(feature);
-   const clone = readGeoJsonFeature(geoJson);
-   clone.setStyle(getFeatureStyle(7, 8));
-
-   return clone;
+   view.setZoom(zoom)
 }
 
 export function readGeoJsonFeature(feature) {
@@ -108,12 +113,21 @@ export function readGeoJsonFeature(feature) {
    return new GeoJSON().readFeature(feature);
 }
 
-export function readGeoJson(geometry) {
+export function readGeoJson(geometry, srcEpsg, destEpsg) {
    if (geometry === null) {
       return null;
    }
 
-   return new GeoJSON().readGeometry(geometry);
+   let options = {};
+
+   if (srcEpsg && destEpsg) {
+      options = {
+         dataProjection: srcEpsg,
+         featureProjection: destEpsg
+      };
+   }
+
+   return new GeoJSON().readGeometry(geometry, options);
 }
 
 export function writeGeoJsonFeature(feature) {
@@ -124,12 +138,21 @@ export function writeGeoJsonFeature(feature) {
    return new GeoJSON().writeFeatureObject(feature);
 }
 
-export function writeGeoJson(geometry) {
+export function writeGeoJson(geometry, srcEpsg, destEpsg) {
    if (geometry === null) {
       return null;
    }
 
-   return new GeoJSON().writeGeometry(geometry);
+   let options = {};
+      
+   if (srcEpsg && destEpsg) {
+      options = {
+         dataProjection: destEpsg,
+         featureProjection: srcEpsg
+      };
+   }
+
+   return new GeoJSON().writeGeometry(geometry, options);
 }
 
 export function transformCoordinates(srcEpsg, destEpsg, coordinates) {
@@ -143,6 +166,11 @@ export function transformCoordinates(srcEpsg, destEpsg, coordinates) {
       console.error(error);
       return null;  
    }
+}
+
+export function roundCoordinates(coordinates) {
+   return coordinates
+      .map(coordinate => Math.round((coordinate + Number.EPSILON) * 1000000) / 1000000);
 }
 
 function getCrsName(geoJson) {

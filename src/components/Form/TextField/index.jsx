@@ -1,14 +1,16 @@
-import { useEffect, useState, useRef } from 'react';
-import styles from './TextField.module.scss';
+import { forwardRef, useEffect, useRef, useState } from 'react';
+import { hasError } from '../helpers';
+import styles from '../Form.module.scss';
 
 const INPUT_TYPES = {
+   'text': 'text',
+   'number': 'number',
    'numeric': 'number',
-   'text': 'text'
+   'date': 'date'
 };
 
-export default function TextField({ name, value, onChange, type, disabled, mode = 'change' }) {   
+const TextField = forwardRef(({ id, name, type, value, onChange, label, error, errorMessage, mode = 'change', disabled, className = '' }, ref) => {
    const [_value, setValue] = useState(value || '');
-   const nameRef = useRef(name);
    const valueRef = useRef(value || '');
 
    useEffect(
@@ -19,12 +21,17 @@ export default function TextField({ name, value, onChange, type, disabled, mode 
       [value]
    );
 
+   function getRandomId() {
+      return Math.random().toString(36).replace(/[^a-z]+/g, '');
+   }
+
    function handleChange(event) {
       const newValue = event.target.value;
       setValue(newValue);
 
       if (mode === 'change') {
-         onChange({ name: nameRef.current, value: newValue !== '' ? newValue : null });
+         const payload = { target: { name, value: event.target.value } };
+         onChange(payload);
       } 
    }
 
@@ -33,29 +40,43 @@ export default function TextField({ name, value, onChange, type, disabled, mode 
          const newValue = event.target.value;
 
          if (newValue !== valueRef.current) {
-            onChange({ name: nameRef.current, value: newValue !== '' ? newValue : null });
+            const payload = { target: { name, value: event.target.value } };
+            onChange(payload);
             valueRef.current = newValue;
          }
       }
    }
 
-   function getRandomId() {
-      return Math.random().toString(36).replace(/[^a-z]+/g, '');
-   }
-
    return (
-      <div className={styles.textField}>
+      <div className={`${styles.textField} ${className}`}>
+         {
+            label ?
+               <gn-label block="">
+                  <label htmlFor={id}>{label}</label>
+               </gn-label> :
+               null
+         }
          <gn-input width="" block="">
             <input
-               name={getRandomId()}
+               id={id}
+               ref={ref}
+               name={getRandomId()}               
+               type={INPUT_TYPES[type] || 'text'}     
                value={_value}
                onChange={handleChange}
                onBlur={handleBlur}
-               disabled={disabled}  
-               type={INPUT_TYPES[type] || 'text'}     
-               autoComplete="chrome-off"
+               disabled={disabled} 
             />
          </gn-input>
+         {
+            hasError(error) ?
+               <div className={styles.error}>{errorMessage}</div> :
+               null
+         }
       </div>
    );
-}
+});
+
+TextField.displayName = 'TextField';
+
+export default TextField;

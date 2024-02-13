@@ -1,5 +1,5 @@
-export function fromDbModel(dbModel) {  
-   return {
+export function fromDbModel(dbModel) {
+   const model = {
       objekt: dbModel.Id,
       contributors: dbModel.Contributors || [],
       accessByProperties: dbModel.ForvaltningsObjektPropertiesMetadata
@@ -13,19 +13,37 @@ export function fromDbModel(dbModel) {
                }))
          }))
    };
+
+   model.accessControlType = getAccessControlType(model);
+
+   return model;
 }
 
 export function toDbModel(model) {
-   return {
-      objekt: model.objekt,
-      contributors: model.contributors.length ? model.contributors : null,
-      accessByProperties: model.accessByProperties
+   const dbModel = {
+      objekt: model.objekt
+   };
+
+   if (model.accessControlType === 'contributors') {
+      dbModel.contributors = model.contributors.length ? model.contributors : null;
+      dbModel.accessByProperties = [];
+   } else {
+      dbModel.contributors = null;
+      dbModel.accessByProperties = model.accessByProperties
          .flatMap(access => access.values
             .map(value => ({
                propertyId: access.propertyId,
                value: value.value,
                contributors: value.contributors
             })
-         ))
-   };
+         ));
+   }
+
+   return dbModel;
+}
+
+function getAccessControlType(model) {
+   return model.contributors.length > 0 || model.accessByProperties.length === 0 ?
+      'contributors' :
+      'properties';
 }

@@ -1,0 +1,125 @@
+.modal {
+   display: flex;
+   flex-direction: column;
+   width: 612px;
+
+   &:focus-visible {
+      outline: none;
+   }
+
+   h1 {
+      font-size: 20px;
+      margin: 0 0 18px 0;
+   }
+
+   .body {
+      margin-bottom: 24px;
+
+      .description {
+         border-bottom: 1px solid #d8d8d8;
+         padding-bottom: 12px;
+         margin-bottom: 12px;
+      }
+   }
+
+   .buttons {
+      display: flex;
+      justify-content: flex-end;
+
+      button {
+         font-size: 15px;
+         margin-left: 12px;
+         min-width: 72px;
+      }
+   }
+}
+
+.form {
+   height: 360px;
+   overflow-y: auto;
+
+   .label {
+      color: #2f3940;
+      font-weight: 600;
+      line-height: 22.5px;
+      margin-bottom: 3px;
+   }
+
+   .row {
+      margin-bottom: 12px;
+   }
+
+   .select {
+      width: 240px;      
+   }
+
+   .textField {
+      width: 240px;
+
+      input {
+         width: 100%;
+      }
+   }
+}
+
+.filter {
+   display: flex;
+   margin-bottom: 12px;
+
+   &:last-child {
+      margin-bottom: 0;
+   }
+}
+
+.noFilters {
+   margin-bottom: 10px;
+
+   .addButton {
+      display: flex;
+      align-items: center;
+      margin-right: 12px;
+
+      &::before {
+         content: "";
+         background: url(../../../assets/gfx/icon-add.svg) center no-repeat;
+         display: flex;
+         width: 20px;
+         height: 33px;
+         background-size: 20px;
+         margin-right: 5px;
+      }
+   }
+}
+
+.filterButtons {
+   display: flex;
+   align-items: flex-end;
+   margin-bottom: 2px;
+
+   button {
+      margin-right: 12px;
+      width: 30px;
+      height: 30px;
+      border: 1px solid #d8d8d8;
+      border-radius: 50%;
+      transition: border-color 250ms linear;
+      cursor: pointer;
+
+      &:last-child {
+         margin-right: 0;
+      }
+
+      &:hover {
+         border-color: #000000;
+      }
+   }
+
+   .addButton {
+      background: url(../../../assets/gfx/icon-add.svg) center no-repeat;
+   }
+
+   .removeButton {
+      background: url(../../../assets/gfx/icon-remove.svg) center no-repeat;
+      background-size: 18px;
+   }
+}

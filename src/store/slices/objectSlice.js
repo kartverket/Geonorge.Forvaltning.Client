@@ -3,7 +3,8 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
    createdDataObject: null,
    updatedDataObject: null,
-   deletedDataObjects: []
+   deletedDataObjects: [],
+   showObjectsInExtent: false
 };
 
 export const objectSlice = createSlice({
@@ -27,10 +28,16 @@ export const objectSlice = createSlice({
             ...state,
             deletedDataObjects: action.payload
          };
-      }
+      },
+      setShowObjectsInExtent: (state, action) => {
+         return {
+            ...state,
+            showObjectsInExtent: action.payload
+         };
+      },
    }
 });
 
-export const { createDataObject, updateDataObject, deleteDataObjects } = objectSlice.actions;
+export const { createDataObject, updateDataObject, deleteDataObjects, setShowObjectsInExtent } = objectSlice.actions;
 
 export default objectSlice.reducer;

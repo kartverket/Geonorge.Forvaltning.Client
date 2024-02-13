@@ -45,7 +45,7 @@ export const api = createApi({
       getDataset: builder.query({
          queryFn: async id => {
             const { data, error } = await getDataset(id);
-            
+
             if (error !== null) {
                throw error;
             }
@@ -53,6 +53,15 @@ export const api = createApi({
             return { data, error };
          },
          providesTags: (result, error, arg) => [{ type: 'Dataset', id: arg }],
+      }),
+      getOrganizationName: builder.query({
+         query: orgName => ({
+            url: `organizationSearch/${orgName}`,
+            responseHandler: 'text'
+         })
+      }),
+      getAnalysableDatasetIds: builder.query({
+         query: datasetId => `analysis/${datasetId}`
       }),
       addDataset: builder.mutation({
          query: dataset => ({
@@ -69,6 +78,7 @@ export const api = createApi({
             url: `admin/object/${id}`
          }),
          invalidatesTags: (result, error, arg) => [
+            { type: 'Dataset', id: arg.id },
             { type: 'DatasetDefinition', id: arg.id },
             'DatasetDefinitions'
          ]
@@ -118,7 +128,7 @@ export const api = createApi({
 
             return { data, error };
          },
-         invalidatesTags: (result, error, arg) => [{ type: 'Dataset', id: arg.tableId }],
+         invalidatesTags: (result, error, arg) => [{ type: 'Dataset', id: arg.tableId }]
       }),
       updateDatasetObject: builder.mutation({
          queryFn: async ({ id, payload, table, ownerOrg }) => {
@@ -192,12 +202,20 @@ export const api = createApi({
             url: 'admin/authorize-request'
          })
       }),
+      analayze: builder.mutation({
+         query: ({ payload }) => ({
+            method: 'POST',
+            body: payload,
+            url: 'analysis'
+         }),
+      }),
    })
 });
 
 export const {
    useGetDatasetDefinitionsQuery,
    useGetDatasetQuery,
+   useGetAnalysableDatasetIdsQuery,
    useAddDatasetMutation,
    useUpdateDatasetMutation,
    useDeleteDatasetMutation,
@@ -207,5 +225,6 @@ export const {
    useDeleteDatasetObjectsMutation,
    useDeleteAllDatasetObjectsMutation,
    useSetDatasetAccessMutation,
-   useRequestAuthorizationMutation
+   useRequestAuthorizationMutation,
+   useAnalayzeMutation
 } = api;

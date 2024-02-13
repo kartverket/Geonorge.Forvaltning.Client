@@ -1,6 +1,6 @@
 
 import { useState, useCallback, useContext, createContext } from 'react';
-import ModalWrapper from 'components/ModalWrapper';
+import ModalWrapper from './ModalWrapper';
 
 export default function ModalProvider({ children }) {
    const [modalParams, setModalParams] = useState({});

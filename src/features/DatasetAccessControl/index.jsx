@@ -1,14 +1,15 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useLoaderData } from 'react-router-dom';
 import { useBreadcrumbs } from 'features/Breadcrumbs';
 import { isValidOrgNo } from './helpers';
-import { useForm, FormProvider, Controller, useFieldArray } from 'react-hook-form';
-import { Tags } from 'components/Form/Controllers';
+import { useForm, FormProvider, Controller, useFieldArray, useWatch } from 'react-hook-form';
+import { Tags } from 'components/Form';
 import { fromDbModel, toDbModel } from './mapper';
 import { useSetDatasetAccessMutation } from 'store/services/api';
 import { useModal } from 'context/ModalProvider';
 import { modalType } from 'components/Modals';
 import { formatOrgNo } from 'utils/helpers/general';
+import { getOrganizationName } from 'store/services/loaders';
 import Spinner from 'components/Spinner';
 import DatasetAccessProperty from './DatasetAccessProperty';
 import styles from './DatasetAccessControl.module.scss';
@@ -16,13 +17,15 @@ import styles from './DatasetAccessControl.module.scss';
 export default function DatasetAccessControl() {
    const dataset = useLoaderData();
    useBreadcrumbs(dataset);
+
    const methods = useForm({ values: fromDbModel(dataset) });
-   const { control, handleSubmit, getValues } = methods;
+   const { control, handleSubmit, register } = methods;
    const { fields, append, remove } = useFieldArray({ control, name: 'accessByProperties' });
    const metadata = dataset.ForvaltningsObjektPropertiesMetadata;
    const [loading, setLoading] = useState(false);
    const [setDatasetAccess] = useSetDatasetAccessMutation();
    const { showModal } = useModal();
+   const accessControlType = useWatch({ control, name: 'accessControlType' });
 
    function addProperty() {
       append({ propertyId: '', value: '', contributors: [] });
@@ -61,6 +64,20 @@ export default function DatasetAccessControl() {
       })();
    }
 
+   const formatTag = useCallback(
+      async tag => {
+         const formatted = formatOrgNo(tag);
+         const orgName = await getOrganizationName(tag);
+   
+         return orgName !== null ?
+            <>
+               <span className={styles.orgNo}>{formatted}</span>{orgName}
+            </> :
+            formatted;
+      },
+      []
+   );
+
    return (
       <>
          <heading-text>
@@ -69,11 +86,19 @@ export default function DatasetAccessControl() {
 
          <div className="container">
             <FormProvider {...methods}>
-               <heading-text>
-                  <h3 className={styles.h3}>Bidragsytere med redigeringstilgang</h3>
-               </heading-text>
+               <div className={styles.heading}>
+                  <gn-input>
+                     <input
+                        id="ac-contributors"
+                        type="radio"
+                        value="contributors"
+                        {...register('accessControlType')}
+                     />
+                  </gn-input>
+                  <label htmlFor="ac-contributors">Bidragsytere med redigeringstilgang</label>
+               </div>
 
-               <div className="panel">
+               <div className={`panel ${accessControlType !== 'contributors' ? styles.disabled : ''}`}>
                   <gn-label block="">
                      <label htmlFor="contributors">Organisasjon(er)</label>
                   </gn-label>
@@ -81,28 +106,32 @@ export default function DatasetAccessControl() {
                   <Controller
                      control={control}
                      name="contributors"
-                     rules={{
-                        validate: values => values.length > 0 || getValues('accessByProperties').length > 0
-                     }}
-                     render={props => (
+                     render={({ field }) => (
                         <Tags
                            id="contributors"
                            placeholder="Legg til organisasjon..."
-                           errorMessage="Minst én organisasjon må legges til"
                            validator={isValidOrgNo}
-                           formatTag={formatOrgNo}
+                           formatTag={formatTag}
                            className={styles.organizations}
-                           {...props}
+                           {...field}
                         />
                      )}
                   />
                </div>
 
-               <heading-text>
-                  <h3 className={styles.h3}>Egenskapsbaserte tilgangsrettigheter</h3>
-               </heading-text>
+               <div className={styles.heading}>
+                  <gn-input>
+                     <input
+                        id="ac-properties"
+                        type="radio"
+                        value="properties"
+                        {...register('accessControlType')}
+                     />
+                  </gn-input>
+                  <label htmlFor="ac-properties">Egenskapsbaserte tilgangsrettigheter</label>
+               </div>
 
-               <div className={styles.properties}>
+               <div className={`${styles.properties} ${accessControlType !== 'properties' ? styles.disabled : ''}`}>
                   {
                      fields.length > 0 ?
                         fields.map((field, index) => (

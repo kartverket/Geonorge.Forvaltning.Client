@@ -1,0 +1,19 @@
+.filter {
+   display: flex;
+
+   > div {
+      margin-right: 12px;
+   }
+
+   .property {
+      width: 240px;
+   }
+
+   .value {
+      width: 240px;
+
+      input {
+         width: 100%;
+      }
+   }
+}

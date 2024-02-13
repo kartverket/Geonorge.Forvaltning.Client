@@ -1,0 +1,40 @@
+.overlay {
+   position: fixed;
+   inset: 0px;
+   z-index: 100;
+   background-color: rgba(0, 0, 0, 0.25) !important;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+}
+
+.content {
+   position: relative;
+   max-width: fit-content;
+   font-family: 'Open Sans';
+   box-shadow: 0 11px 15px -7px rgba(0, 0, 0, .2), 0 24px 38px 3px rgba(0, 0, 0, .14), 0 9px 46px 8px rgba(0, 0, 0, .12);
+   border-radius: 4px;
+   width: 100%;
+   background-color: #ffffff;
+
+   &:focus-visible {
+      outline: none !important;
+   }
+}
+
+.modal {
+   position: relative;
+   margin: 24px;
+}
+
+.closeButton {
+   border: 0 none;
+   background: url(../../../assets/gfx/icon-close.svg) center no-repeat;
+   background-size: 12px;
+   width: 12px;
+   height: 12px;
+   cursor: pointer;
+   position: absolute;
+   top: 0;
+   right: 0;
+}

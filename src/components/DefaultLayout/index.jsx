@@ -1,7 +1,6 @@
 import { useSelector } from 'react-redux';
 import { useAuth } from 'context/AuthProvider';
 import { Menu, MenuItem } from '@szhsin/react-menu';
-import { formatOrgNo } from 'utils/helpers/general';
 import Breadcrumbs from 'features/Breadcrumbs';
 import styles from './DefaultLayout.module.scss';
 
@@ -23,7 +22,7 @@ export default function DefaultLayout({ children }) {
                   >
                      <li className={styles.userInfo}>
                         {user.email}<br />
-                        {formatOrgNo(user.organization)}
+                        <span>{user.organizationName}</span>
                      </li>
                      <MenuItem onClick={signOut}>Logg ut</MenuItem>
                   </Menu>

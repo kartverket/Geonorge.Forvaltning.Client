@@ -1,11 +1,11 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useDataset } from 'context/DatasetProvider';
-import createMap from 'utils/map';
+import createMap from './helpers/map';
 
 export default function MapProvider({ children }) {
    const { featureCollection } = useDataset();
    const [map, setMap] = useState(null);
-   const [contextMenuData, setContextMenuData] = useState(null);
+   const [analysisResult, setAnalysisResult] = useState(null);
    const initRef = useRef(true);
 
    useEffect(
@@ -24,7 +24,7 @@ export default function MapProvider({ children }) {
    );
 
    return (
-      <MapContext.Provider value={{ map, setMap, contextMenuData, setContextMenuData }}>
+      <MapContext.Provider value={{ map, analysisResult, setAnalysisResult }}>
          {children}
       </MapContext.Provider>
    );
