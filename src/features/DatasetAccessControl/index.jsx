@@ -86,6 +86,33 @@ export default function DatasetAccessControl() {
 
          <div className="container">
             <FormProvider {...methods}>
+
+            <div className={styles.heading}>
+                  <label htmlFor="ac-viewers">Brukere med lesetilgang </label>
+               </div>
+
+               <div className={`panel`}>
+                  <gn-label block="">
+                     <label htmlFor="viewers">Organisasjon(er)</label>
+                  </gn-label>
+
+                  <Controller
+                     control={control}
+                     name="viewers"
+                     render={({ field }) => (
+                        <Tags
+                           id="viewers"
+                           placeholder="Legg til organisasjon..."
+                           validator={isValidOrgNo}
+                           formatTag={formatTag}
+                           className={styles.organizations}
+                           {...field}
+                        />
+                     )}
+                  />
+               </div>
+
+
                <div className={styles.heading}>
                   <gn-input>
                      <input

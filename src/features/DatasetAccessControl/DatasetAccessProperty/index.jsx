@@ -43,7 +43,8 @@ export default function DatasetAccessProperty({ index, metadata }) {
       return {
          propertyId,
          value: '',
-         contributors: []
+         contributors: [],
+         viewers: []
       };
    }
 
