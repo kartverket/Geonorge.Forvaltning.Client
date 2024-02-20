@@ -2,6 +2,7 @@ export function fromDbModel(dbModel) {
    const model = {
       objekt: dbModel.Id,
       contributors: dbModel.Contributors || [],
+      viewers: dbModel.Viewers || [],
       accessByProperties: dbModel.ForvaltningsObjektPropertiesMetadata
          .filter(metadata => metadata.AccessByProperties.length > 0)
          .map(metadata => ({
@@ -23,6 +24,8 @@ export function toDbModel(model) {
    const dbModel = {
       objekt: model.objekt
    };
+
+   dbModel.viewers = model.viewers.length ? model.viewers : null;
 
    if (model.accessControlType === 'contributors') {
       dbModel.contributors = model.contributors.length ? model.contributors : null;

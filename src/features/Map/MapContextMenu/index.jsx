@@ -10,24 +10,25 @@ import styles from './MapContextMenu.module.scss';
 
 export default function MapContextMenu() {
    const { map } = useMap();
-   const { metadata } = useDataset();
+   const { definition, metadata } = useDataset();
    const [open, setOpen] = useState(false);
    const menuData = useSelector(state => state.map.mapContextMenuData);
+   const user = useSelector(state => state.app.user);
    const dispatch = useDispatch();
 
    useEffect(
       () => {
-         if (map === null) {
+         if (map === null || definition.Viewers !== null && definition.Viewers.includes(user?.organization)) {
             return;
          }
-
+         
          setOpen(menuData !== null);
 
          if (menuData !== null) {
             map.once('movestart', () => setOpen(false));
          }
       },
-      [menuData, map]
+      [menuData, map, definition.Viewers, user?.organization]
    );
 
    function addObject() {

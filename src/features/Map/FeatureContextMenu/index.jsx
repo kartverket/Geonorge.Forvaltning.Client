@@ -11,6 +11,7 @@ export default function FeatureContextMenu() {
    const { map } = useMap();
    const [open, setOpen] = useState(false);
    const menuData = useSelector(state => state.map.featureContextMenuData);
+
    const dispatch = useDispatch();
 
    useEffect(

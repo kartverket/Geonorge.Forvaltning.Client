@@ -6,8 +6,9 @@ import { Style, Stroke } from 'ol/style';
 import { createFeatureStyle } from 'context/MapProvider/helpers/style';
 import { createTileLayer } from 'context/MapProvider/helpers/tileLayer';
 
-const IMAGE_WIDTH = 800;
-const IMAGE_HEIGHT = 270;
+const IMAGE_WIDTH = 1200;
+const IMAGE_HEIGHT = 600;
+const TIMEOUT_MS = 5000;
 
 export async function createMapImages(featureCollection) {
    const start = featureCollection.features.find(feature => feature.properties._type === 'start');
@@ -22,20 +23,26 @@ export async function createMapImages(featureCollection) {
       promises.push(createMapImage(start, destination, route));
    }
 
-   return await Promise.all(promises);
+   return await Promise.allSettled(promises);
 }
 
 async function createMapImage(start, destination, route) {
    const [map, mapElement] = await createTempMap(start, destination, route);
 
-   return new Promise(resolve => {
+   return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+         reject(null);
+      }, TIMEOUT_MS);
+
       map.once('rendercomplete', () => {
+         clearTimeout(timeout);
+
          const base64 = exportToPngImage(map);
          map.dispose();
          mapElement.remove();
 
          resolve({ destinationId: route.properties.destinationId, image: base64 });
-      })
+      });
    });
 }
 

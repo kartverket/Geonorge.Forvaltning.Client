@@ -89,8 +89,10 @@ export function highlightFeature(map, feature) {
       selectedFeature.set('_selected', false);
    }
 
-   feature.set('_selected', true);
-   vectorLayer.set('_selectedFeature', feature);
+   if (feature !== null) {
+      feature.set('_selected', true);
+      vectorLayer.set('_selectedFeature', feature);
+   }
 }
 
 export function setNextAndPreviousFeatureId(map, feature) {
