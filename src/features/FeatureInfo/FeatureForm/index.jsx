@@ -1,9 +1,10 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useMap } from 'context/MapProvider';
 import { useDataset } from 'context/DatasetProvider';
 import { getProperties, roundCoordinates, transformCoordinates, zoomToFeature } from 'utils/helpers/map';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { BooleanSelect, DatePicker, Select, TextField } from 'components/Form';
+import { toDbModel } from '../helpers';
 import { Point } from 'ol/geom';
 import environment from 'config/environment';
 import styles from '../FeatureInfo.module.scss';
@@ -16,6 +17,7 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
    const { control, setValue, handleSubmit } = useForm({ defaultValues: getDefaultValues() });
    const coordinates = useWatch({ control, name: 'coordinates' });
    const properties = getProperties(feature.getProperties());
+   const featureRef = useRef(feature.clone());
 
    const getCoordinate = useCallback(
       event => {
@@ -80,8 +82,14 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
 
    function handleSave() {
       handleSubmit(() => {
-         onSave();
+         const payload = toDbModel(featureRef.current, feature);
+         onSave(payload);
       })();
+   }
+
+   function handleCancel() {
+      feature.setProperties(featureRef.current.getProperties());
+      onCancel();
    }
 
    function handleDelete() {
@@ -224,8 +232,9 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
                </div>
                <div>
                   <gn-button>
-                     <button onClick={onCancel}>Avbryt</button>
+                     <button onClick={handleCancel}>Avbryt</button>
                   </gn-button>
+                  
                   <gn-button color="primary">
                      <button onClick={handleSave} disabled={coordinates === null}>Lagre</button>
                   </gn-button>

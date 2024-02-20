@@ -93,11 +93,19 @@ export default function Legend() {
                      {
                         Object.entries(legend).map(entry => (
                            <div key={entry[1]} className={styles.item}>
-                              <span className={styles.color} style={{ background: entry[1] }}></span>
+                              <span className={styles.color} style={{ background: entry[1] }}>
+                                 {entry[0][0].toUpperCase()}
+                              </span>
                               <span className={styles.text}>{entry[0]}</span>
                            </div>
                         ))
                      }
+                     <div className={styles.item}>
+                        <span className={styles.color} style={{ background: '#333333', color: '#ffffff' }}>
+                           ?
+                        </span>
+                        <span className={styles.text}>Ikke angitt</span>
+                     </div>
                   </div>
                )
             }

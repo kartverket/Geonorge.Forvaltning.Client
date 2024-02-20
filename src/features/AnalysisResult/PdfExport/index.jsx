@@ -4,6 +4,7 @@ import { renderProperty } from 'utils/helpers/general';
 import { getProperties } from 'utils/helpers/map';
 import { convertDistance, convertDuration } from '../helpers';
 import { useMemo } from 'react';
+import dayjs from 'dayjs';
 
 Font.register({ family: 'Open Sans', src: '/fonts/Open-Sans.ttf' });
 Font.register({ family: 'Raleway', src: '/fonts/Raleway.ttf' });
@@ -42,8 +43,9 @@ export default function PdfExport({ featureCollection, images }) {
    }
 
    function renderDestinations() {
-      return destinations.map(destination => (
-         <View key={destination.properties.id.value} wrap={true} style={styles.object}>
+      return destinations.map((destination, index) => (
+         <View key={destination.properties.id.value} wrap={false} style={styles.object}>
+            <Text style={styles.subTitle}>Treff {index + 1} av {destinations.length}:</Text>
             <View style={styles.separator}></View>
             {renderProperties(destination)}
             {renderRouteData(destination)}
@@ -71,11 +73,11 @@ export default function PdfExport({ featureCollection, images }) {
    }
 
    function renderMapImage(feature) {
-      const { image } = images.find(img => img.destinationId === feature.properties.id.value);
+      const result = images.find(img => img.value?.destinationId === feature.properties.id.value);
 
-      return (
+      return result && (
          <View style={styles.mapImage}>
-            <Image src={image} />
+            <Image src={result.value.image} />
          </View>
       );
    }
@@ -83,9 +85,13 @@ export default function PdfExport({ featureCollection, images }) {
    return (
       <Document>
          <Page size="A4" style={styles.page}>
-            <Text style={styles.title}>Analyseresultat</Text>
+            <Text style={styles.header} fixed>
+               Nettverksanalyse - {dayjs().format('DD.MM.YYYY [kl.] HH:mm:ss')}
+            </Text>
 
-            <Text style={styles.subTitle}>Start</Text>
+            <Text style={styles.title}>Analyseresultat ({destinations.length} treff)</Text>
+
+            <Text style={styles.subTitle}>Start:</Text>
 
             <View wrap={false} style={styles.object}>
                <View style={styles.separator}></View>
@@ -93,11 +99,10 @@ export default function PdfExport({ featureCollection, images }) {
                <View style={[styles.separator, { marginTop: 3 }]}></View>
             </View>
 
-            <Text style={styles.subTitle}>Destinasjoner ({destinations.length})</Text>
             {renderDestinations()}
 
             <Text
-               style={styles.pageNumber}
+               style={styles.footer}
                render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`}
                fixed
             />
@@ -154,7 +159,14 @@ const styles = StyleSheet.create({
       borderBottom: '1px solid #d8d8d8',
       marginBottom: 6
    },
-   pageNumber: {
+   header: {
+      top: -5,
+      fontSize: 10,
+      marginBottom: 20,
+      textAlign: 'center',
+      color: 'grey',
+   },
+   footer: {
       position: 'absolute',
       fontSize: 10,
       bottom: 30,

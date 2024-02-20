@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { selectFeature } from 'store/slices/mapSlice';
 import { deleteDataObjects, setShowObjectsInExtent, updateDataObject } from 'store/slices/objectSlice';
 import { useRevalidator } from 'react-router-dom';
@@ -10,6 +10,7 @@ import { HeaderCellSort, useSort } from '@table-library/react-table-library/sort
 import { SelectTypes, useRowSelect } from "@table-library/react-table-library/select";
 import { useDeleteDatasetObjectsMutation, useUpdateDatasetObjectMutation } from 'store/services/api';
 import { inPlaceSort } from 'fast-sort';
+import { isNil } from 'lodash';
 import { renderProperty } from 'utils/helpers/general';
 import { getTableStyle } from './helpers';
 import { useDataset } from 'context/DatasetProvider';
@@ -22,11 +23,11 @@ import ReactPaginate from 'react-paginate';
 import useFilters from './Filters/useFilters';
 import Filters from './Filters';
 import styles from './DatasetTable.module.scss';
-import { isNil } from 'lodash';
 
 export default function DatasetTable() {
    const { objects, definition, metadata, allowedValues } = useDataset();
    const { map } = useMap();
+   const user = useSelector(state => state.app.user);
    const [editMode, setEditMode] = useState(false);
    const [update] = useUpdateDatasetObjectMutation();
    const [_delete] = useDeleteDatasetObjectsMutation();
@@ -111,13 +112,17 @@ export default function DatasetTable() {
       }
    }
 
+   function canEdit() {
+      return user !== null && (definition.Viewers === null || !definition.Viewers.includes(user.organization));
+   }
+
    function renderFormControl(name, value, dataType, objectId) {
       if (dataType === 'bool') {
          return (
             <BooleanSelect
                name={name}
                value={value}
-               onChange={({ name, value }) => handleUpdate(name, value, objectId)}
+               onChange={event => handleUpdate(event, objectId)}
             />
          );
       }
@@ -153,7 +158,7 @@ export default function DatasetTable() {
             name={name}
             value={value}
             onChange={event => handleUpdate(event, objectId)}
-            mode='blur'
+            mode="blur"
          />
       );
    }
@@ -230,9 +235,13 @@ export default function DatasetTable() {
          <div className={styles.container}>
             <div className={styles.buttonsTop}>
                <div>
-                  <gn-button>
-                     <button onClick={() => setEditMode(!editMode)} className={styles.edit}>{!editMode ? 'Rediger tabell' : 'Avslutt redigering'}</button>
-                  </gn-button>
+                  {
+                     canEdit() && (
+                        <gn-button>
+                           <button onClick={() => setEditMode(!editMode)} className={styles.edit}>{!editMode ? 'Rediger tabell' : 'Avslutt redigering'}</button>
+                        </gn-button>
+                     )
+                  }
 
                   <div className={styles.checkbox}>
                      <gn-input>

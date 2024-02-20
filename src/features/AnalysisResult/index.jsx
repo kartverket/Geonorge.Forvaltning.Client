@@ -58,14 +58,19 @@ export default function AnalysisResult() {
    async function exportToPdf() {
       setLoading(true);
 
-      const images = await createMapImages(analysisResult);
-      const pdfDocument = <PdfExport featureCollection={analysisResult} images={images} />
-      const blob = await pdf(pdfDocument).toBlob();
-      const timestamp = dayjs().format('YYYYMMDDHHmmss');
-      const fileName = `analyseresultat-${timestamp}.pdf`;
-
-      saveAs(blob, fileName);
-      setLoading(false);
+      try {
+         const images = await createMapImages(analysisResult);
+         const pdfDocument = <PdfExport featureCollection={analysisResult} images={images} />
+         const blob = await pdf(pdfDocument).toBlob();
+         const timestamp = dayjs().format('YYYYMMDDHHmmss');
+         const fileName = `analyseresultat-${timestamp}.pdf`;
+   
+         saveAs(blob, fileName);
+         setLoading(false);
+      } catch (error) {
+         console.error(error);
+         setLoading(false);
+      }
    }
    
    async function handleMenuClose({ value }) {
@@ -234,7 +239,7 @@ export default function AnalysisResult() {
                </div>
             </div>
 
-            <div className={styles.subHeader}>Destinasjoner ({resultList.length}):</div>
+            <div className={styles.subHeader}>Treff ({resultList.length}):</div>
 
             <div className={styles.destinations}>
                {renderDestinations()}

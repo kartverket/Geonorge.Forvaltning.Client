@@ -5,11 +5,11 @@ import { useMap } from 'context/MapProvider';
 import { useModal } from 'context/ModalProvider';
 import { selectFeature, toggleEditMode } from 'store/slices/mapSlice';
 import { createDataObject, deleteDataObjects, updateDataObject } from 'store/slices/objectSlice';
-import { getFeatureById, getPropertyValue, hasFeatures, zoomToFeature } from 'utils/helpers/map';
-import { addFeatureToMap, createFeature, highlightFeature, removeFeatureFromMap, setNextAndPreviousFeatureId, toggleFeature } from 'context/MapProvider/helpers/feature';
+import { getFeatureById, getPropertyValue, zoomToFeature } from 'utils/helpers/map';
+import { addFeatureToMap, createFeature, highlightFeature, removeFeatureFromMap, setNextAndPreviousFeatureId } from 'context/MapProvider/helpers/feature';
 import { useAddDatasetObjectMutation, useDeleteDatasetObjectsMutation, useUpdateDatasetObjectMutation } from 'store/services/api';
 import { deleteFeatures } from 'utils/helpers/general';
-import { toDbModel, updateFeature } from './helpers';
+import { updateFeature } from './helpers';
 import { modalType } from 'components/Modals';
 import { useDataset } from 'context/DatasetProvider';
 import { isNil } from 'lodash';
@@ -32,6 +32,7 @@ function FeatureInfo() {
    const createdDataObject = useSelector(state => state.object.createdDataObject);
    const updatedDataObject = useSelector(state => state.object.updatedDataObject);
    const deletedDataObjects = useSelector(state => state.object.deletedDataObjects);
+   const user = useSelector(state => state.app.user);
    const dispatch = useDispatch();
 
    useEffect(
@@ -83,20 +84,11 @@ function FeatureInfo() {
             return;
          }
 
-         if (selectedFeature === null || !deletedDataObjects.includes(selectedFeature.id)) {
-            deleteFeatures(deletedDataObjects, map);
-         } else {
-            const feature = getFeatureById(map, selectedFeature.id);
-            const featureId = feature.get('_nextFeature') || feature.get('_prevFeature') || null;
+         deleteFeatures(deletedDataObjects, map);
 
-            deleteFeatures(deletedDataObjects, map);
+         if (selectedFeature !== null && deletedDataObjects.includes(selectedFeature.id)) {
             dispatch(deleteDataObjects([]));
-
-            if (hasFeatures(map) && featureId !== null) {
-               dispatch(selectFeature({ id: featureId, zoom: true }));
-            } else {
-               dispatch(selectFeature(null));
-            }
+            dispatch(selectFeature(null));
          }
       },
       [deletedDataObjects, selectedFeature, map, dispatch]
@@ -116,8 +108,6 @@ function FeatureInfo() {
          featureToEdit.set('id', { name: 'ID', value: response.id });
          setFeature(featureToEdit);
 
-         removeFeatureFromMap(map, featureToEdit, 'features');
-         addFeatureToMap(map, featureToEdit);
          setNextAndPreviousFeatureId(map, featureToEdit);
          setFeatureToEdit(null);
 
@@ -148,9 +138,7 @@ function FeatureInfo() {
 
          revalidator.revalidate();
 
-         removeFeatureFromMap(map, featureToEdit, 'features');
          setFeatureToEdit(null);
-         toggleFeature(feature);
 
          dispatch(updateDataObject({ id, properties: payload }));
          dispatch(toggleEditMode(false));
@@ -204,23 +192,20 @@ function FeatureInfo() {
       }
    }
 
-   function edit() {
-      const clone = feature.clone();
+   function canEdit() {
+      return user !== null && (definition.Viewers === null || !definition.Viewers.includes(user.organization));
+   }
 
-      addFeatureToMap(map, clone, 'features');
-      toggleFeature(feature);
-      setFeatureToEdit(clone);
+   function edit() {
+      setFeatureToEdit(feature);
       dispatch(toggleEditMode(true));
    }
 
-   async function save() {
-      const featureId = getPropertyValue(featureToEdit, 'id');
-      const payload = toDbModel(feature, featureToEdit);
-
+   async function save(payload) {
+      const featureId = featureToEdit.get('id').value;
+      
       if (payload === null) {
-         removeFeatureFromMap(map, featureToEdit, 'features');
          setFeatureToEdit(null);
-         toggleFeature(feature);
          dispatch(toggleEditMode(false));
       } else if (featureId === null) {
          await addObject(payload);
@@ -230,16 +215,13 @@ function FeatureInfo() {
    }
 
    function cancel() {
-      const createMode = featureToEdit.get('id').value === null;      
+      const isNewObject = featureToEdit.get('id').value === null;
 
-      if (createMode) {
+      if (isNewObject) {
          dispatch(createDataObject(null));
-      } else {
-         toggleFeature(feature);         
+         removeFeatureFromMap(map, featureToEdit);
       }
 
-      highlightFeature(map, feature);      
-      removeFeatureFromMap(map, featureToEdit, 'features');
       setFeatureToEdit(null);
       dispatch(toggleEditMode(false));
    }
@@ -299,7 +281,7 @@ function FeatureInfo() {
                                  </button>
                               </gn-button>
                               {
-                                 featureToEdit === null && feature.get('_featureType') === 'default' ?
+                                 featureToEdit === null && feature?.get('_featureType') === 'default' ?
                                     <div className={styles.right}>
                                        {
                                           analysableDatasetIds.length > 0 ?
@@ -308,9 +290,13 @@ function FeatureInfo() {
                                              </gn-button> :
                                              null
                                        }
-                                       <gn-button>
-                                          <button onClick={edit} className={styles.edit}>Rediger</button>
-                                       </gn-button>
+                                       {
+                                          canEdit() && (
+                                             <gn-button>
+                                                <button onClick={edit} className={styles.edit}>Rediger</button>
+                                             </gn-button>
+                                          )
+                                       }
                                     </div> :
                                     null
                               }
@@ -336,6 +322,7 @@ function FeatureInfo() {
                         >
                         </button>
                      </gn-button>
+                     
                      <gn-button>
                         <button
                            onClick={() => goToNextFeature()}

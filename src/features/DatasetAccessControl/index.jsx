@@ -68,7 +68,7 @@ export default function DatasetAccessControl() {
       async tag => {
          const formatted = formatOrgNo(tag);
          const orgName = await getOrganizationName(tag);
-   
+
          return orgName !== null ?
             <>
                <span className={styles.orgNo}>{formatted}</span>{orgName}
@@ -87,11 +87,11 @@ export default function DatasetAccessControl() {
          <div className="container">
             <FormProvider {...methods}>
 
-            <div className={styles.heading}>
-                  <label htmlFor="ac-viewers">Brukere med lesetilgang </label>
+               <div className={styles.heading}>
+                  <span>Brukere med lesetilgang </span>
                </div>
 
-               <div className={`panel`}>
+               <div className="panel">
                   <gn-label block="">
                      <label htmlFor="viewers">Organisasjon(er)</label>
                   </gn-label>
@@ -111,7 +111,6 @@ export default function DatasetAccessControl() {
                      )}
                   />
                </div>
-
 
                <div className={styles.heading}>
                   <gn-input>
