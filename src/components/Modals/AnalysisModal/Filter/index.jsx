@@ -5,7 +5,7 @@ import styles from './Filter.module.scss';
 
 export default function Filter({ index, metadata, propertyOptions }) {
    const { control, setValue } = useFormContext();
-   const [selectedProperty, setSelectedProperty] = useState(metadata[0].ColumnName);   
+   const [selectedProperty, setSelectedProperty] = useState(metadata[0].ColumnName);
 
    useEffect(
       () => {
@@ -14,14 +14,14 @@ export default function Filter({ index, metadata, propertyOptions }) {
       [index, metadata, setValue]
    );
 
-   function getFormControl() {
+   function getFormControl(props) {
       const column = metadata.find(column => column.ColumnName === selectedProperty);
       const dataType = column.DataType;
-      
+
       if (dataType === 'bool') {
-         return props => (
+         return (
             <BooleanSelect
-               {...props}
+               {...props.field}
             />
          );
       }
@@ -29,42 +29,42 @@ export default function Filter({ index, metadata, propertyOptions }) {
       const allowedValues = column.AllowedValues;
 
       if (dataType === 'text' && allowedValues === null) {
-         return props => (
+         return (
             <TextField
-               {...props}
+               {...props.field}
             />
          );
       } else if (dataType === 'text') {
          const selectOptions = allowedValues.map(option => ({ value: option, label: option }));
 
-         return props => (
+         return (
             <Select
                options={selectOptions}
-               {...props}
+               {...props.field}
             />
          );
       }
 
       if (dataType === 'numeric') {
-         return props => (
+         return (
             <TextField
                type="number"
-               {...props}
+               {...props.field}
             />
          );
       }
 
       if (dataType === 'timestamp') {
-         return props => (
+         return (
             <DatePicker
-               {...props}
+               {...props.field}
             />
          );
       }
 
-      return props => (
+      return (
          <TextField
-            {...props}
+            {...props.field}
          />
       );
    }
@@ -96,7 +96,7 @@ export default function Filter({ index, metadata, propertyOptions }) {
             <Controller
                control={control}
                name={`filters.${index}.value`}
-               render={getFormControl()}
+               render={props => getFormControl(props)}
             />
          </div>
       </div>

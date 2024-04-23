@@ -38,17 +38,7 @@ export function updateFeature({ id, properties }, map) {
 }
 
 export function toDbModel(original, updated) {
-   let origProps = {};
-
-   if (original !== null) {
-      origProps = getProperties(original.getProperties());
-      origProps._coordinates = original.get('_coordinates');
-   }
-
-   const updatedProps = getProperties(updated.getProperties());
-   updatedProps._coordinates = updated.get('_coordinates');
-
-   const toUpdate = diff(origProps, updatedProps)
+   const toUpdate = getPropsToUpdate(original, updated);
 
    if (Object.keys(toUpdate).length === 0) {
       return null;
@@ -70,4 +60,27 @@ export function toDbModel(original, updated) {
    }
 
    return payload;
+}
+
+function getPropsToUpdate(original, updated) {
+   let updatedProps;
+
+   if (updated.get('id').value === null) {
+      updatedProps = getProperties(updated.getProperties());
+      updatedProps._coordinates = updated.get('_coordinates');
+
+      return updatedProps;
+   }
+
+   let origProps = {};
+
+   if (original !== null) {
+      origProps = getProperties(original.getProperties());
+      origProps._coordinates = original.get('_coordinates');
+   }
+
+   updatedProps = getProperties(updated.getProperties());
+   updatedProps._coordinates = updated.get('_coordinates');
+
+   return diff(origProps, updatedProps);
 }
