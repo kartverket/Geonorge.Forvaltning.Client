@@ -7,19 +7,20 @@ import { useLoaderData, useRevalidator } from 'react-router-dom';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useModal } from 'context/ModalProvider';
 import { modalType } from 'components/Modals';
+import environment from 'config/environment';
 
 export default function Feature({ feature }) {
    const properties = getProperties(feature.getProperties());
    const coordinates = feature.get('_coordinates');
-   const [tag, setTag] = useState(feature.get('_tag')); //todo set tag from api
+   const [tag, setTag] = useState(feature.get('_tag')); 
+
    if(tag === undefined) {
       setTag("Nei");
    }
-   console.log(tag);
-   console.log(feature);
-   const dataset = useLoaderData();
 
-   const [loading, setLoading] = useState(false);
+   const dataset = useLoaderData();
+   console.log(dataset);
+
    const methods = useForm();
    const { handleSubmit } = methods;
    const [updateTag] = useUpdateTagMutation();
@@ -28,20 +29,19 @@ export default function Feature({ feature }) {
 
    
 
-   let displayTag = true; //todo only true for datasetId = X  and (owner = true or in list of statsforvalters)
+   let displayTag = false;
+   if(dataset.definition.Id == environment.TAG_DATASET) {
+      //todo check for owner/county governors
+      displayTag = true;
+   }
 
    
    function handleChange(value) {
-      console.log(value);
       setTag(value);
-      //feature.set('_tag', value);
-      handleSubmit(async dataset => {
-         setLoading(true);
-         //const payload = toDbModel(dataset);
+      handleSubmit(async () => {
 
          try {
-            await updateTag({ datasetId: 42, id: 60627, tag: value }).unwrap();
-            setLoading(false);
+            await updateTag({ datasetId: environment.TAG_DATASET, id: properties.id.value, tag: value }).unwrap();
 
             revalidator.revalidate();
 
@@ -53,7 +53,6 @@ export default function Feature({ feature }) {
             });
          } catch (error) {
             console.error(error);
-            setLoading(false);
 
             await showModal({
                type: modalType.INFO,
