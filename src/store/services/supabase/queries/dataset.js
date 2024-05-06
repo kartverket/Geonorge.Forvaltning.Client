@@ -16,7 +16,11 @@ export async function getDataset(id) {
 async function getDatasetData(metadata) {
    const table = metadata.TableName;
    const columns = metadata.ForvaltningsObjektPropertiesMetadata.map(metadata => metadata.ColumnName);
-   const select = `id, ${columns.join(', ')}, geometry`;
+   let useTag = false;
+   if(metadata.datasetId === 42){ //todo read from config
+      useTag = true;
+   }
+   const select = `id, ${columns.join(', ')}, geometry${useTag ? ", tag" : ''}`;
    const { data: objects, error } = await getData(table, select);
 
    if (error !== null) {

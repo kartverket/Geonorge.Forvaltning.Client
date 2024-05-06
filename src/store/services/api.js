@@ -83,6 +83,12 @@ export const api = createApi({
             'DatasetDefinitions'
          ]
       }),
+      updateTag: builder.mutation({
+         query: ({ datasetId, id, tag }) => ({
+            method: 'PUT',
+            url: `admin/tag/${datasetId}/${id}/${tag}`,
+         })
+      }),
       deleteDataset: builder.mutation({
          query: ({ id }) => ({
             method: 'DELETE',
@@ -218,6 +224,7 @@ export const {
    useGetAnalysableDatasetIdsQuery,
    useAddDatasetMutation,
    useUpdateDatasetMutation,
+   useUpdateTagMutation,
    useDeleteDatasetMutation,
    useAddDatasetObjectMutation,
    useAddDatasetObjectsMutation,
