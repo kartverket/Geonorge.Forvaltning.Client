@@ -4,6 +4,7 @@ import { useGetAnalysableDatasetIdsQuery } from 'store/services/api';
 import { createFeatureCollectionGeoJson, getAllowedValuesForUser } from './helpers';
 
 export default function DatasetProvider({ dataset, children }) {
+   const datasetInfo = {id : dataset.definition.Id};
    const metadata = dataset.definition.ForvaltningsObjektPropertiesMetadata;
    const ownerOrganization = dataset.definition.Organization;
    const user = useSelector(state => state.app.user);
@@ -40,7 +41,7 @@ export default function DatasetProvider({ dataset, children }) {
    );
 
    return (
-      <DatasetContext.Provider value={{ objects, definition: dataset.definition, metadata, featureCollection, allowedValues, analysableDatasetIds }}>
+      <DatasetContext.Provider value={{ objects, definition: dataset.definition, metadata, featureCollection, allowedValues, analysableDatasetIds, datasetInfo }}>
          {children}
       </DatasetContext.Provider>
    );

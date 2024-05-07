@@ -20,7 +20,7 @@ export default function Feature({ feature }) {
    }
 
    const dataset = useLoaderData();
-   console.log(dataset);
+   //console.log(dataset);
 
    const methods = useForm();
    const { handleSubmit } = methods;

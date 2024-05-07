@@ -7,9 +7,10 @@ import { setStyling } from 'store/slices/mapSlice';
 import { Select } from 'components/Form';
 import colorsGenerator from 'colors-generator';
 import styles from './Legend.module.scss';
+import environment from 'config/environment';
 
 export default function Legend() {
-   const { metadata } = useDataset();
+   const { metadata, datasetInfo } = useDataset();
    const { map } = useMap();
    const [selectedProperty, setSelectedProperty] = useState('')
    const [legend, setLegend] = useState(null);
@@ -31,8 +32,8 @@ export default function Legend() {
 
          options.unshift({ value: '', label: 'Velg egenskap' });
          
-         //todo check for datasetId = X
-         options.push({ value: 'tag', label: 'Prioritert' });
+         if(datasetInfo.id == environment.TAG_DATASET)
+            options.push({ value: 'tag', label: 'Prioritert' });
 
          return options;
       },
