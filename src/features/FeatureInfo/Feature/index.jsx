@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSelector } from 'react-redux';
 import { renderProperty } from 'utils/helpers/general';
 import { getProperties } from 'utils/helpers/map';
 import styles from '../FeatureInfo.module.scss';
@@ -31,8 +32,25 @@ export default function Feature({ feature }) {
 
    let displayTag = false;
    if(dataset.definition.Id == environment.TAG_DATASET) {
-      //todo check for owner/county governors
-      displayTag = true;
+
+      const countyGovernors = 
+         [
+         "974762994",
+         "974761645",
+         "974764067",
+         "974764687",
+         "974761319",
+         "974763230",
+         "967311014",
+         "974764350",
+         "974762501",
+         "974760665"
+         ];
+
+      const user = useSelector(state => state.app.user);
+
+      if(user?.organization == dataset.definition.Organization || countyGovernors.includes(user?.organization))
+         displayTag = true;
    }
 
    
