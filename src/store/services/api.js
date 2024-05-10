@@ -87,7 +87,8 @@ export const api = createApi({
          query: ({ datasetId, id, tag }) => ({
             method: 'PUT',
             url: `admin/tag/${datasetId}/${id}/${tag}`,
-         })
+         }),
+         invalidatesTags: (result, error, arg) => [{ type: 'Dataset', id: arg.datasetId }]
       }),
       deleteDataset: builder.mutation({
          query: ({ id }) => ({

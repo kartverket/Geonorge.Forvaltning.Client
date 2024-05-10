@@ -37,12 +37,12 @@ export default function Legend() {
 
          return options;
       },
-      [metadata]
+      [metadata, datasetInfo]
    );
 
    function createLegend(propName) {
 
-      console.log(propName);
+      //console.log(propName);
 
       if(propName === 'tag')
       {
@@ -56,12 +56,12 @@ export default function Legend() {
       const legend = {};
 
       properties.AllowedValues.forEach((value, index) => legend[value] = colors[index]);
-      console.log(legend);
+      //console.log(legend);
       return legend;
    }
 
    function handleChange(event) {
-      console.log(event);
+      //console.log(event);
       const vectorLayer = getLayer(map, 'features');
       const value = event.target.value;
 

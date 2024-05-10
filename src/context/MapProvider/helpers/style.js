@@ -20,7 +20,7 @@ export function clusterStyle(feature) {
 
 export function featureStyle(feature) {
 
-   console.log(feature);
+   //console.log(feature);
 
    if (feature.get('_visible') === false) {
       return null;
