@@ -1,4 +1,4 @@
-import { useEffect, useState,useRef, useCallback  } from 'react';
+import { useEffect, useState, useCallback  } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { renderProperty } from 'utils/helpers/general';
 import { getProperties } from 'utils/helpers/map';
@@ -24,7 +24,6 @@ export default function Feature({ feature }) {
    const getTag = useCallback(
       event => {
          const tag = event.tag;
-         tagInfo = tag;
 
          setValue('tag', tag);
          feature.set('_tag', tag);
@@ -38,18 +37,14 @@ export default function Feature({ feature }) {
 
    let tagInfo = feature.get('_tag');
    const [tag, setTag] = useState(tagInfo); 
-   const tagRef = useRef(tag);
 
    const dataset = useLoaderData();
 
    useEffect(
-      () => {
-         
-            tagRef.current = tagInfo;
+      () => {       
             setTag(tagInfo);
-
       },
-      [tagRef, tagInfo,dispatch]
+      [tagInfo,dispatch]
    );
 
    const methods = useForm();
