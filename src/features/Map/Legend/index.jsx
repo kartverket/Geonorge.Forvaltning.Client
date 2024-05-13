@@ -7,9 +7,10 @@ import { setStyling } from 'store/slices/mapSlice';
 import { Select } from 'components/Form';
 import colorsGenerator from 'colors-generator';
 import styles from './Legend.module.scss';
+import environment from 'config/environment';
 
 export default function Legend() {
-   const { metadata } = useDataset();
+   const { metadata, datasetInfo } = useDataset();
    const { map } = useMap();
    const [selectedProperty, setSelectedProperty] = useState('')
    const [legend, setLegend] = useState(null);
@@ -30,23 +31,37 @@ export default function Legend() {
             .map(property => ({ value: property.ColumnName, label: property.Name }));
 
          options.unshift({ value: '', label: 'Velg egenskap' });
+         
+         if(datasetInfo.id == environment.TAG_DATASET)
+            options.push({ value: 'tag', label: 'Prioritert' });
 
          return options;
       },
-      [metadata]
+      [metadata, datasetInfo]
    );
 
    function createLegend(propName) {
+
+      //console.log(propName);
+
+      if(propName === 'tag')
+      {
+         return {
+            "Ja": "#86bff2",
+            "Nei": "#ff0000"
+         };
+      }
       const properties = metadata.find(property => property.ColumnName === propName);
       const colors = colorsGenerator.generate('#86bff2', properties.AllowedValues.length).get();
       const legend = {};
 
       properties.AllowedValues.forEach((value, index) => legend[value] = colors[index]);
-
+      //console.log(legend);
       return legend;
    }
 
    function handleChange(event) {
+      //console.log(event);
       const vectorLayer = getLayer(map, 'features');
       const value = event.target.value;
 

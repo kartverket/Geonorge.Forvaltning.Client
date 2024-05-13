@@ -7,7 +7,8 @@ const environment = {
    'BUILD_VERSION_NUMBER': import.meta.env.VITE_BUILD_VERSION_NUMBER,
    'SUPABASE_MAX_ROWS': 1000,
    'DATASET_SRID': 4326,
-   'MAP_EPSG': 'EPSG:3857'
+   'MAP_EPSG': 'EPSG:3857',
+   'TAG_DATASET': import.meta.env.VITE_TAG_DATASET  
 };
 
 export default environment;
