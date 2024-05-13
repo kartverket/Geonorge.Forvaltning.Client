@@ -1,5 +1,5 @@
-import { useEffect, useState,useRef  } from 'react';
-import { useSelector } from 'react-redux';
+import { useEffect, useState,useRef, useCallback  } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { renderProperty } from 'utils/helpers/general';
 import { getProperties } from 'utils/helpers/map';
 import styles from '../FeatureInfo.module.scss';
@@ -9,10 +9,17 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useModal } from 'context/ModalProvider';
 import { modalType } from 'components/Modals';
 import environment from 'config/environment';
+import { updateDataObject } from 'store/slices/objectSlice';
 
 export default function Feature({ feature }) {
+
+   const dispatch = useDispatch();
+
    const user = useSelector(state => state.app.user);
    console.log(feature);
+
+   const inputRefJa = useRef();
+   const inputRefNei = useRef();
 
    const properties = getProperties(feature.getProperties());
 
@@ -20,6 +27,32 @@ export default function Feature({ feature }) {
    .map(entry => (
       console.log(renderProperty(entry[1])) 
    ))
+
+   const { setValue } = useForm();
+
+   const getTag = useCallback(
+      event => {
+         console.log("GetTag:");
+         console.log(event);
+         const tag = event.tag;
+         tagInfo = tag;
+
+         setValue('tag', tag);
+         feature.set('_tag', tag);
+         setTag(tag);
+
+         /*if(tag == "Ja") {
+            inputRefJa.current.checked = true;
+            inputRefNei.current.checked = false;
+         } else {
+            inputRefJa.current.checked = false;
+            inputRefNei.current.checked = true;
+         }*/
+
+
+      },
+      [feature, setValue]
+   );
 
    const coordinates = feature.get('_coordinates');
    //const selected = feature.get('_selected');
@@ -47,7 +80,7 @@ export default function Feature({ feature }) {
 
           //}, 2000);
       },
-      [tagRef, tagInfo]
+      [tagRef, tagInfo,dispatch]
    );
 
    const methods = useForm();
@@ -87,12 +120,40 @@ export default function Feature({ feature }) {
          displayTag = true;
    }
 
+   function setInitialTag() {
+
+      setTimeout(()=>{
+         console.log("Set initial tag:" +tagInfo);
+
+         if(tagInfo == "Ja") {
+            inputRefJa.current.checked = true;
+            inputRefNei.current.checked = false;
+         } else {
+            inputRefJa.current.checked = false;
+            inputRefNei.current.checked = true;
+         }
+     }, 500);
+
+
+   }
+ 
+
    function handleChange(value) {
+
+      console.log(inputRefJa.current);
       console.log("Change checked to:" +value);
 
       //setTimeout(() => {
             
       setTag(value);
+
+      /*if(value == "Ja") {
+         inputRefJa.current.checked = true;
+         inputRefNei.current.checked = false;
+      } else {
+         inputRefJa.current.checked = false;
+         inputRefNei.current.checked = true;
+      }*/
 
       // }, 2000);
 
@@ -104,6 +165,10 @@ export default function Feature({ feature }) {
 
             revalidator.revalidate();
 
+            const payload = { tag: value };
+
+            dispatch(updateDataObject({ id: properties.id.value, properties: payload }));
+
             await showModal({
                type: modalType.INFO,
                variant: 'success',
@@ -112,6 +177,8 @@ export default function Feature({ feature }) {
             });
 
             //refreshPage();
+
+            getTag({ tag: value });
 
          } catch (error) {
             console.error(error);
@@ -156,14 +223,15 @@ export default function Feature({ feature }) {
                   <div className={styles.label}>Prioritert:</div>
                   <div className={styles.value}>
                      <div className={styles.noInput}>
-                        <input type="radio" name="tag" value="Ja"  checked={tag == "Ja"}  onChange={() => handleChange('Ja')}></input>Ja
-                        <input type="radio" name="tag" value="Nei" checked={tag == "Nei"} onChange={() => handleChange('Nei')}></input>Nei
+                        <input type="radio" ref={inputRefJa} checked={tag == "Ja"} name="tag"  id="tagJa" value="Ja" onChange={() => handleChange('Ja')}></input>Ja
+                        <input type="radio" ref={inputRefNei} checked={tag == "Nei"}  name="tag"  id="tagNei" value="Nei" onChange={() => handleChange('Nei')}></input>Nei
                      </div>
                   </div>
-               </div> 
+               </div>
                </FormProvider>:
                null
          }
       </div>
    );
+
 }
