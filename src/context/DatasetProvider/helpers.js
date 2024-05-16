@@ -38,6 +38,7 @@ export function createFeatureGeoJson(metadata, object = {}) {
    const feature = {
       type: 'Feature',
       geometry: object.geometry || null,
+      tag: object.tag || null,
       properties: {
          id: {
             name: 'ID',

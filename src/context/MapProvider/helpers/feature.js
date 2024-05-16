@@ -17,6 +17,8 @@ export function createFeaturesLayer(featureCollection) {
          olFeature.setStyle(featureStyle);
          olFeature.set('_visible', true);
          olFeature.set('_coordinates', feature.geometry?.coordinates);
+         olFeature.set('_tag', feature?.tag);
+         //console.log(feature);
          olFeature.set('_featureType', 'default');
 
          return olFeature;
