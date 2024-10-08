@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useMap } from 'context/MapProvider';
 import { useDataset } from 'context/DatasetProvider';
 import { getProperties, roundCoordinates, transformCoordinates, zoomToFeature } from 'utils/helpers/map';
@@ -8,16 +8,26 @@ import { toDbModel } from '../helpers';
 import { Point } from 'ol/geom';
 import environment from 'config/environment';
 import styles from '../FeatureInfo.module.scss';
+import { useDispatch } from 'react-redux';
+import { toggleEditor } from 'store/slices/mapSlice';
 
 const LAT_LON_REGEX = /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/;
+
+const GEOMETRY_TYPES = {
+   'Point': 'Punkt',
+   'LineString': 'Linje',
+   'Polygon': 'Polygon'
+};
 
 export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
    const { map } = useMap();
    const { allowedValues } = useDataset();
    const { control, setValue, handleSubmit } = useForm({ defaultValues: getDefaultValues() });
    const coordinates = useWatch({ control, name: 'coordinates' });
+   const geometryType = useWatch({ control, name: '_geometryType' });
    const properties = getProperties(feature.getProperties());
    const featureRef = useRef(feature.clone());
+   const dispatch = useDispatch();
 
    const getCoordinate = useCallback(
       event => {
@@ -51,6 +61,20 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
       [map, getCoordinate]
    );
 
+   useEffect(
+      () => {
+         dispatch(toggleEditor(geometryType !== 'Punkt'));
+      },
+      [geometryType, dispatch]
+   );
+
+   const geometryTypeOptions = useMemo(
+      () => {
+         return Object.values(GEOMETRY_TYPES).map(value => ({ value, label: value }));
+      },
+      []
+   );
+
    function handleChange({ target: { name, value } }) {
       const prop = feature.get(name);
       const newValue = value !== '' ? value : null;
@@ -74,8 +98,10 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
 
    function getDefaultValues() {
       const coordinates = feature.get('_coordinates') || null;
+      const geometryType = feature.getGeometry().getType();
 
       return {
+         _geometryType: GEOMETRY_TYPES[geometryType],
          coordinates: coordinates !== null ? `${coordinates[1]}, ${coordinates[0]}` : ''
       };
    }
@@ -193,8 +219,24 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
                         </div>
                      ))
                }
+               <div className={styles.row}>
+                  <div className={styles.label}>Geometri:</div>
+                  <div className={styles.value}>
+                     <Controller
+                        control={control}
+                        name="_geometryType"
+                        render={({ field }) => (
+                           <Select
+                              {...field}
+                              options={geometryTypeOptions}
+                              allowEmpty={false}
+                           />
+                        )}
+                     />
+                  </div>
+               </div>
                {
-                  coordinates ?
+                  coordinates && geometryType === 'Punkt' && (
                      <div className={styles.row}>
                         <div className={styles.label}>Posisjon:</div>
                         <div className={styles.value}>
@@ -219,8 +261,8 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
                               />
                            </div>
                         </div>
-                     </div> :
-                     null
+                     </div>
+                  )
                }
             </div>
 
@@ -234,7 +276,7 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
                   <gn-button>
                      <button onClick={handleCancel}>Avbryt</button>
                   </gn-button>
-                  
+
                   <gn-button color="primary">
                      <button onClick={handleSave} disabled={coordinates === null}>Lagre</button>
                   </gn-button>

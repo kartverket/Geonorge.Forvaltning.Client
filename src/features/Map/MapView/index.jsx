@@ -9,6 +9,7 @@ import { highlightFeature, setNextAndPreviousFeatureId } from 'context/MapProvid
 import { FeatureTooltip } from '..';
 import baseMap from 'config/map/baseMap';
 import styles from './MapView.module.scss';
+import Editor from '../Editor';
 
 export default function MapView() {
    const { map } = useMap();
@@ -16,6 +17,7 @@ export default function MapView() {
    const location = useLocation();
    const mapElementRef = useRef(null);
    const selectedFeature = useSelector(state => state.map.selectedFeature);
+   const showEditor = useSelector(state => state.map.editor.show);
    const dispatch = useDispatch();
 
    useEffect(
@@ -93,6 +95,14 @@ export default function MapView() {
          <div ref={mapElementRef} className={styles.map}></div>
 
          <FeatureTooltip />
+
+         {
+            map !== null && (
+               <div className={styles.editor} style={{ display: showEditor ? 'block' : 'none' }}>
+                  <Editor />
+               </div>
+            )
+         }
       </div>
    );
 }

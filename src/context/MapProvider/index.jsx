@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useDataset } from 'context/DatasetProvider';
+import { addInteractions } from 'features/Map/Editor/helpers';
 import createMap from './helpers/map';
 
 export default function MapProvider({ children }) {
@@ -17,7 +18,10 @@ export default function MapProvider({ children }) {
          initRef.current = false;
          
          (async () => {
-            setMap(await createMap(featureCollection));
+            const olMap = await createMap(featureCollection);
+
+            addInteractions(olMap);
+            setMap(olMap);
          })();
       },
       [featureCollection]

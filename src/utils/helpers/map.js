@@ -173,6 +173,13 @@ export function roundCoordinates(coordinates) {
       .map(coordinate => Math.round((coordinate + Number.EPSILON) * 1000000) / 1000000);
 }
 
+export function getInteraction(map, name) {
+   return map
+      .getInteractions()
+      .getArray()
+      .find(interaction => interaction.get('_name') === name) || null;
+}
+
 function getCrsName(geoJson) {
    return geoJson?.crs?.properties?.name;
 }

@@ -19,9 +19,6 @@ export function clusterStyle(feature) {
 }
 
 export function featureStyle(feature) {
-
-   //console.log(feature);
-
    if (feature.get('_visible') === false) {
       return null;
    }
@@ -41,9 +38,7 @@ export function featureStyle(feature) {
    }
 
    const tag = feature.get('_tag');
-
    const property = feature.getProperties()[styling.property];
-
    const value = property?.value !== undefined ? property.value : tag;
 
    let color;

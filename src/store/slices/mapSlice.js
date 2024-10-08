@@ -7,7 +7,11 @@ const initialState = {
    mapContextMenuData: null,
    styling: null,
    featuresInExtent: [],
-   editMode: false
+   editMode: false,
+   editor: {
+      show: false,
+      featuresSelected: false
+   }
 };
 
 export const mapSlice = createSlice({
@@ -64,6 +68,24 @@ export const mapSlice = createSlice({
             ...state,
             editMode: action.payload
          };
+      },
+      toggleEditor: (state, action) => {
+         return {
+            ...state,
+            editor: {
+               ...state.editor,
+               show: action.payload
+            }         
+         };
+      },
+      setFeaturesSelected: (state, action) => {
+         return {
+            ...state,
+            editor: {
+               ...state.editor,
+               featuresSelected: action.payload
+            }         
+         };
       }
    }
 });
@@ -74,7 +96,9 @@ export const {
    setMapContextMenuData,
    setStyling,
    setFeaturesInExtent, 
-   toggleEditMode 
+   toggleEditMode,
+   toggleEditor,
+   setFeaturesSelected
 } = mapSlice.actions;
 
 export default mapSlice.reducer;
