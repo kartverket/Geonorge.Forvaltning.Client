@@ -1,24 +1,31 @@
 import { Cluster, Vector as VectorSource } from 'ol/source';
 import { Vector as VectorLayer } from 'ol/layer';
 import { GeoJSON } from 'ol/format';
+import { Point } from 'ol/geom';
+import { GeometryType } from './constants';
 import { getEpsgCode, getLayer, getVectorSource, readGeoJsonFeature } from 'utils/helpers/map';
 import { clusterStyle, featureStyle } from './style';
 import environment from 'config/environment';
+import bboxPolygon from '@turf/bbox-polygon';
+import centroid from '@turf/centroid';
 
 export function createFeaturesLayer(featureCollection) {
    const vectorSource = new VectorSource();
-   const reader = new GeoJSON();
+   const format = new GeoJSON();
    const epsgCode = getEpsgCode(featureCollection);
 
    const features = featureCollection.features
       .map(feature => {
-         const olFeature = reader.readFeature(feature, { dataProjection: epsgCode, featureProjection: environment.MAP_EPSG });
-
+         const olFeature = format.readFeature(feature, { dataProjection: epsgCode, featureProjection: environment.MAP_EPSG });
+         
          olFeature.setStyle(featureStyle);
-         olFeature.set('_visible', true);
-         olFeature.set('_coordinates', feature.geometry?.coordinates);
+         olFeature.set('_visible', true);         
          olFeature.set('_tag', feature?.tag);
          olFeature.set('_featureType', 'default');
+
+         if (feature.geometry?.type === GeometryType.Point) {
+            olFeature.set('_coordinates', feature.geometry?.coordinates);
+         }
 
          return olFeature;
       });
@@ -27,7 +34,26 @@ export function createFeaturesLayer(featureCollection) {
 
    const clusterSource = new Cluster({
       source: vectorSource,
-      distance: 35
+      distance: 35,
+      geometryFunction: feature => {
+         const geometry = feature.getGeometry();
+         const type = geometry?.getType();
+
+         switch (type) {
+            case GeometryType.Point:
+               return geometry;
+            case GeometryType.LineString:
+               return new Point(geometry.getCoordinateAt(0.5));
+            case GeometryType.MultiLineString:
+               const polygon = bboxPolygon(geometry.getExtent());
+               const center = centroid(polygon);
+               return new Point(center.geometry.coordinates);
+            case GeometryType.Polygon:
+               return geometry.getInteriorPoint();
+            default:
+               return null;
+         }
+      },
    });
 
    clusterSource.set('id', 'cluster-source');
@@ -58,7 +84,7 @@ export function createFeature(geoJson) {
    const feature = readGeoJsonFeature(geoJson);
 
    feature.setStyle(featureStyle);
-   feature.set('_visible', true);      
+   feature.set('_visible', true);
    feature.set('_featureType', 'default');
 
    return feature;

@@ -17,7 +17,6 @@ export default function MapView() {
    const location = useLocation();
    const mapElementRef = useRef(null);
    const selectedFeature = useSelector(state => state.map.selectedFeature);
-   const showEditor = useSelector(state => state.map.editor.show);
    const dispatch = useDispatch();
 
    useEffect(
@@ -94,11 +93,11 @@ export default function MapView() {
       <div className={styles.mapContainer}>
          <div ref={mapElementRef} className={styles.map}></div>
 
-         <FeatureTooltip />
+         {/* <FeatureTooltip /> */}
 
          {
             map !== null && (
-               <div className={styles.editor} style={{ display: showEditor ? 'block' : 'none' }}>
+               <div className={styles.editor}>
                   <Editor />
                </div>
             )

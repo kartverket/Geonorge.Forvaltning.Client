@@ -57,7 +57,13 @@ function FeatureInfo() {
 
             addFeatureToMap(map, feature, 'features');
             highlightFeature(map, feature);
-            setFeatureToEdit(feature);
+
+            setFeatureToEdit(prevFeature => {
+               prevFeature?.set('_editing', false);
+               feature.set('_editing', true);               
+               return feature;
+            });
+
             dispatch(toggleEditMode(true));
             setExpanded(true);
          }
@@ -109,7 +115,11 @@ function FeatureInfo() {
          setFeature(featureToEdit);
 
          setNextAndPreviousFeatureId(map, featureToEdit);
-         setFeatureToEdit(null);
+
+         setFeatureToEdit(prevFeature => {
+            prevFeature?.set('_editing', false);            
+            return null;
+         });
 
          dispatch(createDataObject(null));
          dispatch(toggleEditMode(false));
@@ -138,7 +148,10 @@ function FeatureInfo() {
 
          revalidator.revalidate();
 
-         setFeatureToEdit(null);
+         setFeatureToEdit(prevFeature => {
+            prevFeature?.set('_editing', false);            
+            return null;
+         });
 
          dispatch(updateDataObject({ id, properties: payload }));
          dispatch(toggleEditMode(false));
@@ -176,7 +189,11 @@ function FeatureInfo() {
          revalidator.revalidate();
 
          removeFeatureFromMap(map, featureToEdit, 'features');
-         setFeatureToEdit(null);
+
+         setFeatureToEdit(prevFeature => {
+            prevFeature?.set('_editing', false);            
+            return null;
+         });
 
          dispatch(deleteDataObjects([id]));
          dispatch(toggleEditMode(false));
@@ -197,15 +214,24 @@ function FeatureInfo() {
    }
 
    function edit() {
-      setFeatureToEdit(feature);
+      setFeatureToEdit(prevFeature => {
+         prevFeature?.set('_editing', false);
+         feature.set('_editing', true);         
+         return feature;
+      });
+
       dispatch(toggleEditMode(true));
    }
 
    async function save(payload) {
       const featureId = featureToEdit.get('id').value;
-      
+
       if (payload === null) {
-         setFeatureToEdit(null);
+         setFeatureToEdit(prevFeature => {
+            prevFeature?.set('_editing', false);
+            return null;
+         });
+
          dispatch(toggleEditMode(false));
       } else if (featureId === null) {
          await addObject(payload);
@@ -222,7 +248,11 @@ function FeatureInfo() {
          removeFeatureFromMap(map, featureToEdit);
       }
 
-      setFeatureToEdit(null);
+      setFeatureToEdit(prevFeature => {
+         prevFeature?.set('_editing', false);
+         return null;
+      });
+
       dispatch(toggleEditMode(false));
    }
 
@@ -322,7 +352,7 @@ function FeatureInfo() {
                         >
                         </button>
                      </gn-button>
-                     
+
                      <gn-button>
                         <button
                            onClick={() => goToNextFeature()}

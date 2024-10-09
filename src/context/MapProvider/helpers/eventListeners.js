@@ -112,8 +112,7 @@ export function setFeatureIdsInExtent(map) {
 
 function handleNonClusteredFeatures(map, event) {
    const features = map
-      .getFeaturesAtPixel(event.pixel, { hitTolerance: 10 })
-      .filter(feature => feature.getGeometry().getType() === 'Point');
+      .getFeaturesAtPixel(event.pixel, { hitTolerance: 10 });
 
    if (features.length === 1) {
       store.dispatch(selectFeature({ id: features[0].get('id').value, zoom: true, featureType: features[0].get('_featureType') }));

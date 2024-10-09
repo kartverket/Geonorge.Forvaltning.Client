@@ -1,26 +1,25 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { getInteraction, getLayer } from 'utils/helpers/map';
 import DrawHole from 'ol-ext/interaction/DrawHole';
 import styles from '../Editor.module.scss';
+import { createDrawPolygonHoleStyle } from '../helpers';
 
 export default function DrawPolygonHole({ map, active, onClick }) {
-   const name = DrawPolygonHole.interactionName;
+   const interactionRef = useRef(getInteraction(map, DrawPolygonHole.name));
    const [_active, setActive] = useState(false);
    const featuresSelected = useSelector(state => state.map.editor.featuresSelected);
 
    useEffect(
       () => {
-         const interaction = getInteraction(map, name);
-
-         interaction.setActive(active === name);
-         setActive(active === name);
+         interactionRef.current.setActive(active === DrawPolygonHole.name);
+         setActive(active === DrawPolygonHole.name);
       },
-      [map, name, active]
+      [active]
    );
 
    function toggle() {
-      onClick(!_active ? name : null);
+      onClick(!_active ? DrawPolygonHole.name : null);
    }
 
    return (
@@ -33,20 +32,19 @@ export default function DrawPolygonHole({ map, active, onClick }) {
    );
 }
 
-DrawPolygonHole.interactionName = 'drawPolygonHole';
-
 DrawPolygonHole.addInteraction = map => {
-   if (getInteraction(map, DrawPolygonHole.interactionName) !== null) {
+   if (getInteraction(map, DrawPolygonHole.name) !== null) {
       return;
    }
 
    const vectorLayer = getLayer(map, 'features');
 
    const interaction = new DrawHole({
-      layers: [vectorLayer]
+      layers: [vectorLayer],
+      style: createDrawPolygonHoleStyle()
    });
 
-   interaction.set('_name', DrawPolygonHole.interactionName);
+   interaction.set('_name', DrawPolygonHole.name);
    interaction.setActive(false);
 
    map.addInteraction(interaction);

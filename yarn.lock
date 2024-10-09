@@ -856,6 +856,35 @@
     react-virtualized-auto-sizer "1.0.7"
     react-window "1.8.7"
 
+"@turf/bbox-polygon@^7.1.0":
+  version "7.1.0"
+  resolved "https://registry.yarnpkg.com/@turf/bbox-polygon/-/bbox-polygon-7.1.0.tgz#5034eefcae4e497f72763220c191cc2b436649fa"
+  integrity sha512-fvZB09ErCZOVlWVDop836hmpKaGUmfXnR9naMhS73A/8nn4M3hELbQtMv2R8gXj7UakXCuxS/i9erdpDFZ2O+g==
+  dependencies:
+    "@turf/helpers" "^7.1.0"
+    "@types/geojson" "^7946.0.10"
+    tslib "^2.6.2"
+
+"@turf/centroid@^7.1.0":
+  version "7.1.0"
+  resolved "https://registry.yarnpkg.com/@turf/centroid/-/centroid-7.1.0.tgz#7cd55ec0bab79b5fc0ef03a4870a8cbc75e6207f"
+  integrity sha512-1Y1b2l+ZB1CZ+ITjUCsGqC4/tSjwm/R4OUfDztVqyyCq/VvezkLmTNqvXTGXgfP0GXkpv68iCfxF5M7QdM5pJQ==
+  dependencies:
+    "@turf/helpers" "^7.1.0"
+    "@turf/meta" "^7.1.0"
+    "@types/geojson" "^7946.0.10"
+    tslib "^2.6.2"
+
+"@turf/combine@^7.1.0":
+  version "7.1.0"
+  resolved "https://registry.yarnpkg.com/@turf/combine/-/combine-7.1.0.tgz#8c2b9c77baee41275a912895f2068b2bfd7b3da2"
+  integrity sha512-Xl7bGKKjgzIq2T/IemS6qnIykyuxU6cMxKtz+qLeWJGoNww/BllwxXePSV+dWRPXZTFFj96KIhBXAW0aUjAQKQ==
+  dependencies:
+    "@turf/helpers" "^7.1.0"
+    "@turf/meta" "^7.1.0"
+    "@types/geojson" "^7946.0.10"
+    tslib "^2.6.2"
+
 "@turf/distance@^6.5.0":
   version "6.5.0"
   resolved "https://registry.yarnpkg.com/@turf/distance/-/distance-6.5.0.tgz#21f04d5f86e864d54e2abde16f35c15b4f36149a"

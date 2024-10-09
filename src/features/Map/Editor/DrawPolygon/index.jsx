@@ -1,30 +1,30 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Feature } from 'ol';
 import { Draw } from 'ol/interaction';
+import { Color, GeometryType } from 'context/MapProvider/helpers/constants';
 import { getLayer, /*readGeometry, writeFeatureObject, writeFeaturesObject, writeGeometryObject,*/ getInteraction } from 'utils/helpers/map';
 import union from '@turf/union';
 import UndoRedo from '../UndoRedo';
 import styles from '../Editor.module.scss';
-
+import { createDrawPolygonStyle, getEditedFeature } from '../helpers';
 
 export default function DrawPolygon({ map, active, onClick }) {
-   const name = DrawPolygon.interactionName;
+   const interactionRef = useRef(getInteraction(map, DrawPolygon.name));
    const [_active, setActive] = useState(false);
    const featuresSelected = useSelector(state => state.map.editor.featuresSelected);
+   const geomType = useSelector(state => state.geomEditor.geomType);
 
    useEffect(
       () => {
-         const interaction = getInteraction(map, name);
-
-         interaction.setActive(active === name);
-         setActive(active === name);
+         interactionRef.current.setActive(active === DrawPolygon.name);
+         setActive(active === DrawPolygon.name);
       },
-      [map, name, active]
+      [active]
    );
 
    function toggle() {
-      onClick(!_active ? name : null);
+      onClick(!_active ? DrawPolygon.name : null);
    }
 
    return (
@@ -37,50 +37,58 @@ export default function DrawPolygon({ map, active, onClick }) {
    );
 }
 
-DrawPolygon.interactionName = 'drawPolygon';
-
 DrawPolygon.addInteraction = map => {
-   if (getInteraction(map, DrawPolygon.interactionName) !== null) {
+   if (getInteraction(map, DrawPolygon.name) !== null) {
       return;
    }
 
-   const vectorLayer = getLayer(map, 'features');
-
    const interaction = new Draw({
-      type: 'Polygon'
+      type: GeometryType.Polygon,
+      style: createDrawPolygonStyle()
    });
 
    interaction.on('drawend', event => {
-      // const source = vectorLayer.getSource();
-      // const features = source.getFeatures();
-      // let newGeometry;
+      const editedFeature = getEditedFeature(map);
 
-      // if (features.length === 0) {
-      //    newGeometry = event.feature.getGeometry();
-      // } else {
-      //    const featureCollection = writeFeaturesObject(features);
-      //    const feature = writeFeatureObject(event.feature);
+      if (editedFeature === null) {
+         return;
+      }
 
-      //    featureCollection.features.push(feature);
-      //    const unionized = union(featureCollection);
-      //    newGeometry = readGeometry(unionized.geometry);
-      // }
-
-      // const existing = features[0];
-      // const existingGeometry = writeGeometryObject(existing?.getGeometry());
-
-      // if (features.length === 0) {
-      //    const newFeature = new Feature({ geometry: newGeometry });
-      //    source.addFeature(newFeature);
-      // } else {
-      //    existing.setGeometry(newGeometry);
-      // }
-
-      // const undoRedoInteraction = getInteraction(map, UndoRedo.interactionName);
-      // undoRedoInteraction.push('replaceGeometry', { before: existingGeometry, after: writeGeometryObject(newGeometry) });  
+      const newGeometry = event.feature.getGeometry();
+      editedFeature.setGeometry(newGeometry);
    });
 
-   interaction.set('_name', DrawPolygon.interactionName);
+   // interaction.on('drawend', event => {
+   //    // const source = vectorLayer.getSource();
+   //    // const features = source.getFeatures();
+   //    // let newGeometry;
+
+   //    // if (features.length === 0) {
+   //    //    newGeometry = event.feature.getGeometry();
+   //    // } else {
+   //    //    const featureCollection = writeFeaturesObject(features);
+   //    //    const feature = writeFeatureObject(event.feature);
+
+   //    //    featureCollection.features.push(feature);
+   //    //    const unionized = union(featureCollection);
+   //    //    newGeometry = readGeometry(unionized.geometry);
+   //    // }
+
+   //    // const existing = features[0];
+   //    // const existingGeometry = writeGeometryObject(existing?.getGeometry());
+
+   //    // if (features.length === 0) {
+   //    //    const newFeature = new Feature({ geometry: newGeometry });
+   //    //    source.addFeature(newFeature);
+   //    // } else {
+   //    //    existing.setGeometry(newGeometry);
+   //    // }
+
+   //    // const undoRedoInteraction = getInteraction(map, UndoRedo.interactionName);
+   //    // undoRedoInteraction.push('replaceGeometry', { before: existingGeometry, after: writeGeometryObject(newGeometry) });  
+   // });
+
+   interaction.set('_name', DrawPolygon.name);
    interaction.setActive(false);
 
    map.addInteraction(interaction);

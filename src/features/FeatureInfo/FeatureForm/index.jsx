@@ -1,22 +1,24 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useDispatch } from 'react-redux';
 import { useMap } from 'context/MapProvider';
 import { useDataset } from 'context/DatasetProvider';
+import { toggleEditor } from 'store/slices/geomEditorSlice';
 import { getProperties, roundCoordinates, transformCoordinates, zoomToFeature } from 'utils/helpers/map';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { BooleanSelect, DatePicker, Select, TextField } from 'components/Form';
+import { GeometryType } from 'context/MapProvider/helpers/constants';
 import { toDbModel } from '../helpers';
 import { Point } from 'ol/geom';
+import { addCrosshairCursor, removeCrosshairCursor } from './helpers';
 import environment from 'config/environment';
 import styles from '../FeatureInfo.module.scss';
-import { useDispatch } from 'react-redux';
-import { toggleEditor } from 'store/slices/mapSlice';
 
 const LAT_LON_REGEX = /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/;
 
 const GEOMETRY_TYPES = {
-   'Point': 'Punkt',
-   'LineString': 'Linje',
-   'Polygon': 'Polygon'
+   'Punkt': GeometryType.Point,
+   'Linje': GeometryType.LineString,
+   'Polygon': GeometryType.Polygon
 };
 
 export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
@@ -51,11 +53,11 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
          }
 
          map.on('click', getCoordinate);
-         map.getTargetElement().classList.add('selectCoordinate');
+         addCrosshairCursor(map);
 
          return () => {
             map.un('click', getCoordinate);
-            map.getTargetElement()?.classList.remove('selectCoordinate');
+            removeCrosshairCursor(map);
          }
       },
       [map, getCoordinate]
@@ -63,17 +65,34 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
 
    useEffect(
       () => {
-         dispatch(toggleEditor(geometryType !== 'Punkt'));
+         if (map === null) {
+            return;
+         }
+
+         dispatch(toggleEditor(geometryType !== GeometryType.Point ? geometryType : null));
+
+         if (geometryType !== GeometryType.Point) {
+            map.un('click', getCoordinate);
+            removeCrosshairCursor(map);
+         } else {
+            map.on('click', getCoordinate);
+            addCrosshairCursor(map)
+         }
       },
-      [geometryType, dispatch]
+      [map, getCoordinate, geometryType, dispatch]
    );
 
    const geometryTypeOptions = useMemo(
       () => {
-         return Object.values(GEOMETRY_TYPES).map(value => ({ value, label: value }));
+         return Object.entries(GEOMETRY_TYPES)
+            .map(entry => ({ value: entry[1], label: entry[0] }));
       },
       []
    );
+
+   function getGeometryType() {
+      
+   }
 
    function handleChange({ target: { name, value } }) {
       const prop = feature.get(name);
@@ -101,7 +120,7 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
       const geometryType = feature.getGeometry().getType();
 
       return {
-         _geometryType: GEOMETRY_TYPES[geometryType],
+         _geometryType: geometryType,
          coordinates: coordinates !== null ? `${coordinates[1]}, ${coordinates[0]}` : ''
       };
    }
@@ -109,12 +128,14 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
    function handleSave() {
       handleSubmit(() => {
          const payload = toDbModel(featureRef.current, feature);
+         dispatch(toggleEditor(null));
          onSave(payload);
       })();
    }
 
    function handleCancel() {
       feature.setProperties(featureRef.current.getProperties());
+      dispatch(toggleEditor(null));
       onCancel();
    }
 
@@ -236,30 +257,28 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
                   </div>
                </div>
                {
-                  coordinates && geometryType === 'Punkt' && (
+                  coordinates && geometryType === 'Point' && (
                      <div className={styles.row}>
                         <div className={styles.label}>Posisjon:</div>
-                        <div className={styles.value}>
-                           <div className={`${styles.value} ${styles.coordinates}`}>
-                              <Controller
-                                 control={control}
-                                 name="coordinates"
-                                 rules={{
-                                    validate: value => LAT_LON_REGEX.test(value.trim())
-                                 }}
-                                 render={({ field, fieldState: { error } }) => (
-                                    <TextField
-                                       {...field}
-                                       error={error}
-                                       errorMessage="Et gyldig koordinatpar må fylles ut"
-                                       onChange={event => {
-                                          field.onChange(event);
-                                          handleCoordinatesChange(event);
-                                       }}
-                                    />
-                                 )}
-                              />
-                           </div>
+                        <div className={`${styles.value} ${styles.coordinates}`}>
+                           <Controller
+                              control={control}
+                              name="coordinates"
+                              rules={{
+                                 validate: value => LAT_LON_REGEX.test(value.trim())
+                              }}
+                              render={({ field, fieldState: { error } }) => (
+                                 <TextField
+                                    {...field}
+                                    error={error}
+                                    errorMessage="Et gyldig koordinatpar må fylles ut"
+                                    onChange={event => {
+                                       field.onChange(event);
+                                       handleCoordinatesChange(event);
+                                    }}
+                                 />
+                              )}
+                           />
                         </div>
                      </div>
                   )

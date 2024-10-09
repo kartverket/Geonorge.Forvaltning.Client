@@ -1,25 +1,28 @@
-import { useEffect, useState, useCallback  } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { renderProperty } from 'utils/helpers/general';
 import { getProperties } from 'utils/helpers/map';
-import styles from '../FeatureInfo.module.scss';
 import { useUpdateTagMutation } from 'store/services/api';
 import { useLoaderData, useRevalidator } from 'react-router-dom';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useModal } from 'context/ModalProvider';
 import { modalType } from 'components/Modals';
-import environment from 'config/environment';
 import { updateDataObject } from 'store/slices/objectSlice';
+import { GeometryType } from 'context/MapProvider/helpers/constants';
+import environment from 'config/environment';
+import styles from '../FeatureInfo.module.scss';
 
 export default function Feature({ feature }) {
-
-   const dispatch = useDispatch();
-
+   const methods = useForm();
+   const { handleSubmit, setValue } = methods;
+   const [updateTag] = useUpdateTagMutation();
    const user = useSelector(state => state.app.user);
-
    const properties = getProperties(feature.getProperties());
-
-   const { setValue } = useForm();
+   const coordinates = feature.get('_coordinates');
+   const geomType = feature.getGeometry().getType();
+   const dispatch = useDispatch();
+   const revalidator = useRevalidator();
+   const { showModal } = useModal();
 
    const getTag = useCallback(
       event => {
@@ -28,50 +31,43 @@ export default function Feature({ feature }) {
          setValue('tag', tag);
          feature.set('_tag', tag);
          setTag(tag);
-
       },
       [feature, setValue]
    );
 
-   const coordinates = feature.get('_coordinates');
 
    let tagInfo = feature.get('_tag');
-   const [tag, setTag] = useState(tagInfo); 
+   const [tag, setTag] = useState(tagInfo);
 
    const dataset = useLoaderData();
 
    useEffect(
-      () => {       
-            setTag(tagInfo);
+      () => {
+         setTag(tagInfo);
       },
-      [tagInfo,dispatch]
+      [tagInfo, dispatch]
    );
 
-   const methods = useForm();
-   const { handleSubmit } = methods;
-   const [updateTag] = useUpdateTagMutation();
-   const revalidator = useRevalidator();
-   const { showModal } = useModal();
 
    let displayTag = false;
-   if(dataset.definition.Id == environment.TAG_DATASET) {
+   if (dataset.definition.Id == environment.TAG_DATASET) {
 
-      const countyGovernors = 
+      const countyGovernors =
          [
-         "974762994",
-         "974761645",
-         "974764067",
-         "974764687",
-         "974761319",
-         "974763230",
-         "967311014",
-         "974764350",
-         "974762501",
-         "974760665",
-         "921627009",
+            "974762994",
+            "974761645",
+            "974764067",
+            "974764687",
+            "974761319",
+            "974763230",
+            "967311014",
+            "974764350",
+            "974762501",
+            "974760665",
+            "921627009",
          ];
 
-      if(user?.organization == dataset.definition.Organization || countyGovernors.includes(user?.organization))
+      if (user?.organization == dataset.definition.Organization || countyGovernors.includes(user?.organization))
          displayTag = true;
    }
 
@@ -125,7 +121,7 @@ export default function Feature({ feature }) {
                ))
          }
          {
-            coordinates ?
+            geomType === GeometryType.Point && coordinates ?
                <div className={`${styles.row} ${styles.position}`}>
                   <div className={styles.label}>Posisjon:</div>
                   <div className={styles.value}>
@@ -135,18 +131,18 @@ export default function Feature({ feature }) {
                null
          }
          {
-            displayTag?
-            <FormProvider {...methods}>
-               <div className={`${styles.row} ${styles.position}`}>
-                  <div className={styles.label}>Prioritert:</div>
-                  <div className={styles.value}>
-                     <div className={styles.noInput}>
-                        <input type="radio" checked={tag == "Ja"} name="tag"  id="tagJa" value="Ja" onChange={() => handleChange('Ja')}></input>Ja
-                        <input type="radio" checked={tag == "Nei"}  name="tag"  id="tagNei" value="Nei" onChange={() => handleChange('Nei')}></input>Nei
+            displayTag ?
+               <FormProvider {...methods}>
+                  <div className={`${styles.row} ${styles.position}`}>
+                     <div className={styles.label}>Prioritert:</div>
+                     <div className={styles.value}>
+                        <div className={styles.noInput}>
+                           <input type="radio" checked={tag == "Ja"} name="tag" id="tagJa" value="Ja" onChange={() => handleChange('Ja')}></input>Ja
+                           <input type="radio" checked={tag == "Nei"} name="tag" id="tagNei" value="Nei" onChange={() => handleChange('Nei')}></input>Nei
+                        </div>
                      </div>
                   </div>
-               </div>
-               </FormProvider>:
+               </FormProvider> :
                null
          }
       </div>

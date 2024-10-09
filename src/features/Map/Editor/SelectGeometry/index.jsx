@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Select } from 'ol/interaction';
 import { getInteraction, getLayer } from 'utils/helpers/map';
 import { setFeaturesSelected } from 'store/slices/mapSlice';
@@ -6,21 +6,19 @@ import store from 'store';
 import styles from '../Editor.module.scss';
 
 export default function SelectGeometry({ map, active, onClick }) {
-   const name = SelectGeometry.interactionName;
+   const interactionRef = useRef(getInteraction(map, SelectGeometry.name));
    const [_active, setActive] = useState(false);
 
    useEffect(
       () => {
-         const interaction = getInteraction(map, name);
-
-         interaction.setActive(active === name);
-         setActive(active === name);
+         interactionRef.current.setActive(active === SelectGeometry.name);
+         setActive(active === SelectGeometry.name);
       },
-      [map, name, active]
+      [active]
    );
 
    function toggle() {
-      onClick(!_active ? name : null);
+      onClick(!_active ? SelectGeometry.name : null);
    }
 
    return (
@@ -32,10 +30,8 @@ export default function SelectGeometry({ map, active, onClick }) {
    );
 }
 
-SelectGeometry.interactionName = 'selectGeometry';
-
 SelectGeometry.addInteraction = map => {
-   if (getInteraction(map, SelectGeometry.interactionName) !== null) {
+   if (getInteraction(map, SelectGeometry.name) !== null) {
       return;
    }
 
@@ -49,7 +45,7 @@ SelectGeometry.addInteraction = map => {
       store.dispatch(setFeaturesSelected(event.selected.length > 0));
    });
 
-   interaction.set('_name', SelectGeometry.interactionName);
+   interaction.set('_name', SelectGeometry.name);
    interaction.setActive(false);
 
    map.addInteraction(interaction);

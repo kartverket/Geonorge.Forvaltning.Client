@@ -56,8 +56,18 @@
          background-size: 22px;
       }
 
-      &.modify {
+      &.lineString {
+         background: url('../../../assets/gfx/icon-line.svg') no-repeat center;
+         background-size: 22px;
+      }
+
+      &.modifyPolygon {
          background: url('../../../assets/gfx/icon-polygon-modify.svg') no-repeat center;
+         background-size: 22px;
+      }
+
+      &.modifyLineString {
+         background: url('../../../assets/gfx/icon-line-modify.svg') no-repeat center;
          background-size: 22px;
       }
 

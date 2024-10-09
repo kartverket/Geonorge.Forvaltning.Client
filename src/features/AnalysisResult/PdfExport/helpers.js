@@ -3,7 +3,7 @@ import GeoJSON from 'ol/format/GeoJSON';
 import VectorSource from 'ol/source/Vector';
 import { Vector as VectorLayer } from 'ol/layer';
 import { Style, Stroke } from 'ol/style';
-import { createFeatureStyle } from 'context/MapProvider/helpers/style';
+import { createPointFeatureStyle } from 'context/MapProvider/helpers/style';
 import { createTileLayer } from 'context/MapProvider/helpers/tileLayer';
 
 const IMAGE_WIDTH = 1200;
@@ -79,10 +79,10 @@ function createFeaturesLayer(start, destination, route) {
    const source = new VectorSource();
 
    const startFeature = reader.readFeature(start, { dataProjection: 'EPSG:4326', featureProjection: 'EPSG:3857' });
-   startFeature.setStyle(createFeatureStyle('#3767c7', '#3767c75e'));
+   startFeature.setStyle(createPointFeatureStyle({ color1: '#3767c7', color2: '#3767c75e' }));
 
    const destFeature = reader.readFeature(destination, { dataProjection: 'EPSG:4326', featureProjection: 'EPSG:3857' });
-   destFeature.setStyle(createFeatureStyle('#249446', '#2494465e'));
+   destFeature.setStyle(createPointFeatureStyle({ color1: '#249446', color2: '#2494465e' }));
 
    const routeFeature = reader.readFeature(route, { dataProjection: 'EPSG:4326', featureProjection: 'EPSG:3857' });
    routeFeature.setStyle(createRouteStyle());

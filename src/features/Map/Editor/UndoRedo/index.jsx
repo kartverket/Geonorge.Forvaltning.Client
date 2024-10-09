@@ -1,18 +1,18 @@
+import { useRef } from 'react';
 import { getLayer, getInteraction/*, getFeature, readGeometry*/ } from 'utils/helpers/map';
 import _UndoRedo from 'ol-ext/interaction/UndoRedo';
 import styles from '../Editor.module.scss';
+import { getEditedFeature } from '../helpers';
 
 export default function UndoRedo({ map }) {
-   const name = UndoRedo.interactionName;
+   const interactionRef = useRef(getInteraction(map, UndoRedo.name));
 
    function undo() {
-      const interaction = getInteraction(map, name);
-      interaction.undo();
+      interactionRef.current.undo();
    }
 
    function redo() {      
-      const interaction = getInteraction(map, name);
-      interaction.redo();
+      interactionRef.current.redo();
    }
 
    return (
@@ -23,25 +23,26 @@ export default function UndoRedo({ map }) {
    );
 }
 
-UndoRedo.interactionName = 'undoRedo';
-
 UndoRedo.addInteraction = map => {
-   if (getInteraction(map, UndoRedo.interactionName) !== null) {
+   if (getInteraction(map, UndoRedo.name) !== null) {
       return;
    }
 
    const vectorLayer = getLayer(map, 'features');
-   const interaction = new _UndoRedo({ layers: [vectorLayer] });
+
+   const interaction = new _UndoRedo({ 
+      layers: [vectorLayer] 
+   });
 
    addCustomUndoRedo(interaction, vectorLayer);
 
-   interaction.set('_name', UndoRedo.interactionName);
+   interaction.set('_name', UndoRedo.name);
    interaction.setActive(true);
 
    map.addInteraction(interaction);
 };
 
-function addCustomUndoRedo(interaction, vectorLayer) {
+function addCustomUndoRedo(interaction, map) {
    let _geometry;
 
    interaction.define(
@@ -56,8 +57,8 @@ function addCustomUndoRedo(interaction, vectorLayer) {
 
    interaction.on(['undo', 'redo'], event => {
       if (event.action.type === 'replaceGeometry') {
-         // const feature = getFeature(vectorLayer);
-         // feature.setGeometry(readGeometry(_geometry));
+         const feature = getEditedFeature(map);
+         //feature.setGeometry(readGeometry(_geometry));
       }
    });
 }

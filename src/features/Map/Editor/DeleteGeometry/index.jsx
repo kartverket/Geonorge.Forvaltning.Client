@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setFeaturesSelected } from 'store/slices/mapSlice';
 import { getInteraction, getLayer } from 'utils/helpers/map';
@@ -6,15 +7,14 @@ import SelectGeometry from '../SelectGeometry';
 import styles from '../Editor.module.scss';
 
 export default function DeleteGeometry({ map }) {
-   const name = DeleteGeometry.interactionName;
+   const interactionRef = useRef(getInteraction(map, DeleteGeometry.name));
    const dispatch = useDispatch();
    const featuresSelected = useSelector(state => state.map.editor.featuresSelected);
 
    function _delete() {
-      const interaction = getInteraction(map, name);
-      const selectInteraction = getInteraction(map, SelectGeometry.interactionName);
+      const selectInteraction = getInteraction(map, SelectGeometry.name);
 
-      interaction.delete(selectInteraction.getFeatures());
+      interactionRef.current.delete(selectInteraction.getFeatures());
       dispatch(setFeaturesSelected(false));
    }
 
@@ -23,20 +23,18 @@ export default function DeleteGeometry({ map }) {
    );
 }
 
-DeleteGeometry.interactionName = 'deleteGeometry';
-
 DeleteGeometry.addInteraction = map => {
-   if (getInteraction(map, DeleteGeometry.interactionName) !== null) {
+   if (getInteraction(map, DeleteGeometry.name) !== null) {
       return;
    }
 
    const vectorLayer = getLayer(map, 'features');
 
    const interaction = new Delete({
-      source: vectorLayer.getSource()
+      source: vectorLayer.getSource().getSource()
    });
 
-   interaction.set('_name', DeleteGeometry.interactionName);
+   interaction.set('_name', DeleteGeometry.name);
    interaction.setActive(false);
 
    map.addInteraction(interaction);
