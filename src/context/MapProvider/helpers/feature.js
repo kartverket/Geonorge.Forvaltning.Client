@@ -18,8 +18,8 @@ export function createFeaturesLayer(featureCollection) {
          const olFeature = format.readFeature(feature, { dataProjection: epsgCode, featureProjection: environment.MAP_EPSG });
          
          olFeature.setStyle(featureStyle);
-         olFeature.set('_visible', true);         
-         olFeature.set('_tag', feature?.tag);
+         olFeature.set('_visible', true);
+         olFeature.set('_tag', feature.properties._tag);
          olFeature.set('_featureType', 'default');
 
          if (feature.geometry?.type === GeometryType.Point) {

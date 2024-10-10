@@ -1,21 +1,30 @@
 import { useEffect, useRef, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { Select } from 'ol/interaction';
 import { getInteraction, getLayer } from 'utils/helpers/map';
 import { setFeaturesSelected } from 'store/slices/mapSlice';
+import { createSelectGeometryStyle } from '../helpers';
 import store from 'store';
 import styles from '../Editor.module.scss';
-import { createSelectGeometryStyle } from '../helpers';
 
 export default function SelectGeometry({ map, active, onClick }) {
    const interactionRef = useRef(getInteraction(map, SelectGeometry.name));
    const [_active, setActive] = useState(false);
+   const dispatch = useDispatch();
 
    useEffect(
       () => {
-         interactionRef.current.setActive(active === SelectGeometry.name);
-         setActive(active === SelectGeometry.name);
+         const isActive = active === SelectGeometry.name;
+
+         interactionRef.current.setActive(isActive);
+         setActive(isActive);
+
+         if (!isActive) {
+            interactionRef.current.getFeatures().clear();
+            dispatch(setFeaturesSelected(false));
+         }
       },
-      [active]
+      [active, dispatch]
    );
 
    function toggle() {

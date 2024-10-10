@@ -109,11 +109,8 @@ export default function Dataset() {
                      </div>
                      
                      <Legend />
-
                      <MapView />
-
                      <MapContextMenu />
-
                      <FeatureContextMenu />
                   </div>
 

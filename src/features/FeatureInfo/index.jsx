@@ -5,8 +5,8 @@ import { useMap } from 'context/MapProvider';
 import { useModal } from 'context/ModalProvider';
 import { selectFeature, toggleEditMode } from 'store/slices/mapSlice';
 import { createDataObject, deleteDataObjects, updateDataObject } from 'store/slices/objectSlice';
-import { getFeatureById, getLayer, getPropertyValue, zoomToFeature } from 'utils/helpers/map';
-import { createFeature, highlightFeature, removeFeatureFromMap, setNextAndPreviousFeatureId, toggleFeature } from 'context/MapProvider/helpers/feature';
+import { getFeatureById, getLayer, getProperties, getPropertyValue, zoomToFeature } from 'utils/helpers/map';
+import { addFeatureToMap, createFeature, highlightFeature, removeFeatureFromMap, setNextAndPreviousFeatureId, toggleFeature } from 'context/MapProvider/helpers/feature';
 import { useAddDatasetObjectMutation, useDeleteDatasetObjectsMutation, useUpdateDatasetObjectMutation } from 'store/services/api';
 import { deleteFeatures } from 'utils/helpers/general';
 import { updateFeature } from './helpers';
@@ -79,6 +79,7 @@ function FeatureInfo() {
          if (map !== null && createdDataObject !== null) {
             const feature = createFeature(createdDataObject);
 
+            addFeatureToMap(map, feature);
             highlightFeature(map, feature);
             startEditMode(feature);
             setExpanded(true);
@@ -116,7 +117,7 @@ function FeatureInfo() {
       [deletedDataObjects, selectedFeature, map, dispatch]
    );
 
-   async function addObject(payload) {
+   async function addObject(payload) {      
       try {
          const response = await add({
             payload,
@@ -125,20 +126,18 @@ function FeatureInfo() {
             ownerOrg: definition.Organization
          }).unwrap();
 
-         revalidator.revalidate();
+         revalidator.revalidate();                 
+         
+         const properties = getProperties(featureToEdit.clone.getProperties());
+         featureToEdit.original.setProperties(properties, true);
+         featureToEdit.original.setGeometry(featureToEdit.clone.getGeometry());        
+         featureToEdit.original.set('id', { name: 'ID', value: response.id });
 
-         featureToEdit.set('id', { name: 'ID', value: response.id });
-         setFeature(featureToEdit);
-
-         setNextAndPreviousFeatureId(map, featureToEdit);
-
-         setFeatureToEdit(prevFeature => {
-            prevFeature?.set('_editing', false);            
-            return null;
-         });
+         setFeature(featureToEdit.original);
+         setNextAndPreviousFeatureId(map, featureToEdit.original);
+         exitEditMode();
 
          dispatch(createDataObject(null));
-         dispatch(toggleEditMode(false));
          dispatch(selectFeature({ id: response.id, zoom: true }));
       } catch (error) {
          console.error(error);
@@ -165,13 +164,7 @@ function FeatureInfo() {
          revalidator.revalidate();
 
          exitEditMode();
-         // setFeatureToEdit(prevFeature => {
-         //    prevFeature?.set('_editing', false);            
-         //    return null;
-         // });
-
          dispatch(updateDataObject({ id, properties: payload }));
-         //dispatch(toggleEditMode(false));
       } catch (error) {
          console.error(error);
 
@@ -205,15 +198,10 @@ function FeatureInfo() {
 
          revalidator.revalidate();
 
-         removeFeatureFromMap(map, featureToEdit, 'features');
-
-         setFeatureToEdit(prevFeature => {
-            prevFeature?.set('_editing', false);            
-            return null;
-         });
+         removeFeatureFromMap(map, featureToEdit.original, 'features');
+         exitEditMode();
 
          dispatch(deleteDataObjects([id]));
-         dispatch(toggleEditMode(false));
       } catch (error) {
          console.error(error);
 
@@ -237,8 +225,6 @@ function FeatureInfo() {
    async function save(payload) {
       const featureId = featureToEdit.clone.get('id').value;
 
-      //exitEditMode();
-      
       if (payload === null) {
          exitEditMode();
       } else if (featureId === null) {

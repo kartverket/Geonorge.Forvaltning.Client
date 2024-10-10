@@ -16,12 +16,12 @@ export async function getDataset(id) {
 async function getDatasetData(metadata) {
    const table = metadata.TableName;
    const columns = metadata.ForvaltningsObjektPropertiesMetadata.map(metadata => metadata.ColumnName);
-   let useTag = false;
-   //console.log(metadata);
-   if(metadata.Id == environment.TAG_DATASET) {
-      useTag = true;
-   } 
-   const select = `id, ${columns.join(', ')}, geometry${useTag ? ", tag" : ''}`;
+   let select = `id, ${columns.join(', ')}, geometry`;
+
+   if (metadata.Id === environment.TAG_DATASET_ID) {
+      select += ', tag'
+   }
+
    const { data: objects, error } = await getData(table, select);
 
    if (error !== null) {

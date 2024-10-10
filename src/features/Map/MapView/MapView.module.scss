@@ -18,25 +18,11 @@
    }
 }
 
-.zoomToExtent {
-   top: 100px;
-   left: 6px;
-
-   button {
-      background: url(../../../assets/gfx/icon-extent.svg) no-repeat center;
-      font-size: 0 !important;
-      width: 36px !important;
-      height: 36px !important;
-      background-size: 24px;
-      cursor: pointer;
-      outline: 1px solid #ababab !important;
-
-      &:focus {
-         outline: none !important;
-      }
-
-      &:hover {
-         outline: 1px solid #555555 !important;
-      }
-   }
+.buttons {
+   display: flex;
+   flex-direction: column;
+   gap: 6px;
+   position: absolute;
+   top: 12px;
+   left: 12px;
 }

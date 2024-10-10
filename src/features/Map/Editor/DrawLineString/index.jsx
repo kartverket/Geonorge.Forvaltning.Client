@@ -1,16 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Feature } from 'ol';
 import { Draw } from 'ol/interaction';
-import { getLayer, /*readGeometry, writeFeatureObject, writeFeaturesObject, writeGeometryObject,*/ getInteraction, getFeatureById, writeFeatureObject, readGeometry, writeGeometryObject } from 'utils/helpers/map';
-import { Color, GeometryType } from 'context/MapProvider/helpers/constants';
-import { createLineStringFeatureStyle } from 'context/MapProvider/helpers/style';
-import union from '@turf/union';
+import { getInteraction, writeFeatureObject, readGeometry, writeGeometryObject } from 'utils/helpers/map';
+import { GeometryType } from 'context/MapProvider/helpers/constants';
+import { createDrawLineStringStyle, getEditedFeature } from '../helpers';
+import { featureCollection as createFeatureCollection } from '@turf/helpers';
+import combine from '@turf/combine';
 import UndoRedo from '../UndoRedo';
 import styles from '../Editor.module.scss';
-import { createDrawLineStringStyle, getEditedFeature } from '../helpers';
-import combine from '@turf/combine';
-import { featureCollection as createFeatureCollection } from '@turf/helpers';
 
 export default function DrawLineString({ map, active, onClick }) {
    const interactionRef = useRef(getInteraction(map, DrawLineString.name));
@@ -59,9 +56,9 @@ DrawLineString.addInteraction = map => {
       const existingGeometry = writeGeometryObject(editedFeature.getGeometry());
       let newGeometry;
 
-      if (existingGeometry.type === GeometryType.LineString || existingGeometry.type === GeometryType.MultiLineString) {
-         const featureA = writeFeatureObject(editedFeature, 'EPSG:3857', 'EPSG:4326', 6);
-         const featureB = writeFeatureObject(event.feature, 'EPSG:3857', 'EPSG:4326', 6);
+      if (existingGeometry !== null && (existingGeometry.type === GeometryType.LineString || existingGeometry.type === GeometryType.MultiLineString)) {
+         const featureA = writeFeatureObject(editedFeature, 'EPSG:3857', 'EPSG:4326');
+         const featureB = writeFeatureObject(event.feature, 'EPSG:3857', 'EPSG:4326');
          const featureCollection = createFeatureCollection([featureA, featureB]);
          const combined = combine(featureCollection);
 
@@ -70,7 +67,6 @@ DrawLineString.addInteraction = map => {
          newGeometry = event.feature.getGeometry();
       }
 
-      debugger
       editedFeature.setGeometry(newGeometry);
 
       const undoRedoInteraction = getInteraction(map, UndoRedo.name);

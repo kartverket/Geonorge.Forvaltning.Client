@@ -104,8 +104,7 @@ function createGeometryFromWkt(row, columnNames, options) {
       throw new Error('Geometrien er ikke et punkt');
    }
 
-   const geoJson = JSON.parse(writeGeoJson(geometry));
-
+   const geoJson = writeGeometryObject(geometry);
    geoJson.coordinates = roundCoordinates(geoJson.coordinates);
    
    return JSON.stringify(geoJson);

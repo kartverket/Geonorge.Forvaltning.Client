@@ -58,7 +58,6 @@ function addCustomUndoRedo(interaction, map) {
    interaction.on(['undo', 'redo'], event => {
       if (event.action.type === 'replaceGeometry') {
          const feature = getEditedFeature(map);
-         console.log(_geometry);
          feature.setGeometry(readGeometry(_geometry));
       }
    });

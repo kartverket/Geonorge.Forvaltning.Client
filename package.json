@@ -21,6 +21,7 @@
     "@turf/combine": "^7.1.0",
     "@turf/distance": "^6.5.0",
     "@turf/helpers": "^6.5.0",
+    "@turf/kinks": "^7.1.0",
     "@turf/union": "^7.1.0",
     "axios": "^1.7.4",
     "colors-generator": "^0.3.4",

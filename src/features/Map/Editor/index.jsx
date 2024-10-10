@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useMap } from 'context/MapProvider';
 import { GeometryType } from 'context/MapProvider/helpers/constants';
+import { getInteraction } from 'utils/helpers/map';
 import DeleteGeometry from './DeleteGeometry';
 import DrawPolygon from './DrawPolygon';
 import DrawPolygonHole from './DrawPolygonHole';
@@ -25,8 +26,11 @@ export default function Editor() {
          } else {
             setActive(null);
          }
+
+         const undoRedoInteraction = getInteraction(map, UndoRedo.name);
+         undoRedoInteraction.clear();
       },
-      [geomType]
+      [geomType, map]
    );
 
    function handleClick(name) {

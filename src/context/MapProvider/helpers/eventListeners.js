@@ -1,5 +1,5 @@
 import { createEmpty, extend } from 'ol/extent';
-import { getLayer, getVectorSource, roundCoordinates, transformCoordinates, writeGeometry, writeGeometryObject } from 'utils/helpers/map';
+import { getLayer, getVectorSource, roundCoordinates, transformCoordinates, writeGeometryObject } from 'utils/helpers/map';
 import { selectFeature, setFeatureContextMenuData, setMapContextMenuData, setFeaturesInExtent } from 'store/slices/mapSlice';
 import { inPlaceSort } from 'fast-sort';
 import { reproject } from 'reproject';

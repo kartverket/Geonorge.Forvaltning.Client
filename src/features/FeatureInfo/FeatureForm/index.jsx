@@ -3,12 +3,15 @@ import { useDispatch } from 'react-redux';
 import { useMap } from 'context/MapProvider';
 import { useDataset } from 'context/DatasetProvider';
 import { toggleEditor } from 'store/slices/geomEditorSlice';
-import { getProperties, roundCoordinates, transformCoordinates, zoomToFeature } from 'utils/helpers/map';
+import { getProperties, roundCoordinates, transformCoordinates, writeGeometryObject, zoomToFeature } from 'utils/helpers/map';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { BooleanSelect, DatePicker, Select, TextField } from 'components/Form';
 import { GeometryType } from 'context/MapProvider/helpers/constants';
 import { toDbModel } from '../helpers';
+import { useModal } from 'context/ModalProvider';
+import { modalType } from 'components/Modals';
 import { Point } from 'ol/geom';
+import kinks from '@turf/kinks';
 import { addCrosshairCursor, removeCrosshairCursor } from './helpers';
 import environment from 'config/environment';
 import styles from '../FeatureInfo.module.scss';
@@ -29,6 +32,7 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
    const geometryType = useWatch({ control, name: '_geometryType' });
    const properties = getProperties(feature.getProperties());
    const featureRef = useRef(feature.clone());
+   const { showModal } = useModal();
    const dispatch = useDispatch();
 
    const getCoordinate = useCallback(
@@ -91,7 +95,7 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
    );
 
    function getGeometryType() {
-      const geometryType = feature.getGeometry().getType();
+      const geometryType = feature.getGeometry()?.getType();
 
       switch (geometryType) {
          case GeometryType.Point:
@@ -137,7 +141,18 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
       };
    }
 
-   function handleSave() {
+   async function handleSave() {
+      if (!hasValidGeometry()) {
+         await showModal({
+            type: modalType.INFO,
+            variant: 'error',
+            title: 'Kan ikke lagre',
+            body: 'Objektet har en ugyldig eller manglende geometri'
+         });
+
+         return;
+      }
+
       handleSubmit(() => {
          const payload = toDbModel(featureRef.current, feature);
          dispatch(toggleEditor(null));
@@ -152,7 +167,25 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
    }
 
    function handleDelete() {
+      dispatch(toggleEditor(null));
       onDelete(properties.id.value);
+   }
+
+   function hasValidGeometry() {
+      const geometry = feature.getGeometry();
+
+      if (geometry === null) {
+         return false;
+      }
+
+      if (geometry.getType() === GeometryType.Polygon || geometry.getType() === GeometryType.MultiPolygon) {
+         const geometryObject = writeGeometryObject(geometry);
+         const selfIntersections = kinks(geometryObject);
+
+         return selfIntersections.features.length === 0;
+      }
+
+      return true;
    }
 
    function zoomToObject() {

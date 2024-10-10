@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getInteraction, getLayer, getVectorSource } from 'utils/helpers/map';
 import { GeometryType } from 'context/MapProvider/helpers/constants';
+import { createModifyGeometryStyle } from '../helpers';
 import ModifyFeature from 'ol-ext/interaction/ModifyFeature';
 import styles from '../Editor.module.scss';
-import { createModifyGeometryStyle, getEditedFeature } from '../helpers';
 
 export default function ModifyGeometry({ map, active, onClick }) {
    const interactionRef = useRef(getInteraction(map, ModifyGeometry.name));

@@ -1,12 +1,11 @@
 import { Color } from 'context/MapProvider/helpers/constants';
 import { Style, Circle as CircleStyle, Fill, Stroke } from 'ol/style';
-import { getLayer, getVectorSource } from 'utils/helpers/map';
+import { getLayer } from 'utils/helpers/map';
 import DrawPolygon from './DrawPolygon';
 import DrawPolygonHole from './DrawPolygonHole';
 import DrawLineString from './DrawLineString';
 import ModifyGeometry from './ModifyGeometry';
 import SelectGeometry from './SelectGeometry';
-import DeleteGeometry from './DeleteGeometry';
 import UndoRedo from './UndoRedo';
 
 export function addInteractions(map) {
@@ -15,7 +14,6 @@ export function addInteractions(map) {
    DrawPolygonHole.addInteraction(map);
    DrawLineString.addInteraction(map);
    ModifyGeometry.addInteraction(map);
-   DeleteGeometry.addInteraction(map);
    UndoRedo.addInteraction(map);
 }
 

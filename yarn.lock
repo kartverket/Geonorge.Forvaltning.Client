@@ -904,6 +904,15 @@
   dependencies:
     "@turf/helpers" "^6.5.0"
 
+"@turf/kinks@^7.1.0":
+  version "7.1.0"
+  resolved "https://registry.yarnpkg.com/@turf/kinks/-/kinks-7.1.0.tgz#9511cbf2b51443acb0c38236ff24f19e18275de9"
+  integrity sha512-KKLYUsyJPU17fODwA81mhHzFYGQYocdbk9NxDPCcdRHvxzM8t95lptkGx/2k/9rXBs1DK7NmyzI4m7zDO0DK7g==
+  dependencies:
+    "@turf/helpers" "^7.1.0"
+    "@types/geojson" "^7946.0.10"
+    tslib "^2.6.2"
+
 "@turf/meta@^7.1.0":
   version "7.1.0"
   resolved "https://registry.yarnpkg.com/@turf/meta/-/meta-7.1.0.tgz#b2af85afddd0ef08aeae8694a12370a4f06b6d13"

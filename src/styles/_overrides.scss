@@ -60,56 +60,5 @@ gn-button a:hover {
 }
 
 .ol-zoom {
-   top: 12px;   
-   left: 6px;
-   border-radius: 4px;
-
-   .ol-zoom-in,
-   .ol-zoom-out {
-      width: 30px;
-      height: 24px;
-      cursor: pointer;
-      font-family: 'Open Sans';
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 20px;
-      color: #555555;
-      outline: 1px solid #ababab;
-
-      &:focus {
-         outline: 1px solid #ababab;
-      }
-
-      &:hover {
-         outline: 1px solid #555555;
-      }
-   }
-
-   .ol-zoom-out {
-      padding-bottom: 4px;
-   }
-}
-
-.ol-zoom-extent {
-   top: 74px;
-   left: 6px;
-
-   button {
-      background: url(../assets/gfx/icon-extent.svg) no-repeat center #ffffff;
-      font-size: 0;
-      width: 30px;
-      height: 30px;
-      background-size: 24px;
-      cursor: pointer;
-      outline: 1px solid #ababab;
-
-      &:focus {
-         outline: 1px solid #ababab;
-      }
-
-      &:hover {
-         outline: 1px solid #555555;
-      }
-   }
+   display: none;
 }
