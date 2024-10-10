@@ -113,7 +113,7 @@ export function readGeoJsonFeature(feature) {
    return new GeoJSON().readFeature(feature);
 }
 
-export function readGeoJson(geometry, srcEpsg, destEpsg) {
+export function readGeometry(geometry, srcEpsg, destEpsg, precision = 0) {
    if (geometry === null) {
       return null;
    }
@@ -125,6 +125,10 @@ export function readGeoJson(geometry, srcEpsg, destEpsg) {
          dataProjection: srcEpsg,
          featureProjection: destEpsg
       };
+   }
+
+   if (precision > 0) {
+      options.decimals = precision;
    }
 
    return new GeoJSON().readGeometry(geometry, options);

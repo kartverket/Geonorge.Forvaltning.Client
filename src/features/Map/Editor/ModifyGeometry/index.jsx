@@ -39,13 +39,12 @@ ModifyGeometry.addInteraction = map => {
       return;
    }
 
-   const vectorLayer = getLayer(map, 'features');
+   const vectorLayer = getLayer(map, 'features-edit');
    const source = getVectorSource(vectorLayer);
    
    const interaction = new ModifyFeature({
       source,
-      style: createModifyGeometryStyle(),
-      filter: feature => feature.get('_editing') === true
+      style: createModifyGeometryStyle()
    });
 
    interaction.set('_name', ModifyGeometry.name);

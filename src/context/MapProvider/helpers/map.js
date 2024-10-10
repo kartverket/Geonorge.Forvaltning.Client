@@ -1,5 +1,5 @@
 import { Map, View } from 'ol';
-import { createRoutesFeaturesLayer, createFeaturesLayer } from './feature';
+import { createRoutesFeaturesLayer, createFeaturesLayer, createFeaturesEditLayer } from './feature';
 import { createTileLayer } from './tileLayer';
 import { toggleClusteredFeatures, handleMapClick, setFeatureIdsInExtent, handleContextMenu } from './eventListeners';
 import environment from 'config/environment';
@@ -14,7 +14,8 @@ export default async function createMap(featureCollection) {
       layers: [
          await createTileLayer(),
          createRoutesFeaturesLayer(),
-         featuresLayer
+         featuresLayer,
+         createFeaturesEditLayer()
       ]
    });
 

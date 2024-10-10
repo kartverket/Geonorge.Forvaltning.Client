@@ -91,7 +91,20 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
    );
 
    function getGeometryType() {
-      
+      const geometryType = feature.getGeometry().getType();
+
+      switch (geometryType) {
+         case GeometryType.Point:
+            return GeometryType.Point;
+         case GeometryType.LineString:
+         case GeometryType.MultiLineString:
+            return GeometryType.LineString;
+         case GeometryType.Polygon:
+         case GeometryType.MultiPolygon:
+            return GeometryType.Polygon;
+         default:
+            return GeometryType.Point;
+      }
    }
 
    function handleChange({ target: { name, value } }) {
@@ -117,10 +130,9 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
 
    function getDefaultValues() {
       const coordinates = feature.get('_coordinates') || null;
-      const geometryType = feature.getGeometry().getType();
 
       return {
-         _geometryType: geometryType,
+         _geometryType: getGeometryType(),
          coordinates: coordinates !== null ? `${coordinates[1]}, ${coordinates[0]}` : ''
       };
    }

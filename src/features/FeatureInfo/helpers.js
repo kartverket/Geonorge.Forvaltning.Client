@@ -1,5 +1,5 @@
 import { diff } from 'deep-object-diff';
-import { getFeatureById, getProperties, readGeoJson, writeGeometry } from 'utils/helpers/map';
+import { getFeatureById, getProperties, readGeometry, writeGeometry } from 'utils/helpers/map';
 import { reproject } from 'reproject';
 import WKT from 'ol/format/WKT';
 import environment from 'config/environment';
@@ -22,7 +22,7 @@ export function updateFeature({ id, properties }, map) {
             const geometry = JSON.parse(entry[1]);
             const transformed = reproject(geometry, DATASET_EPSG, environment.MAP_EPSG);
 
-            feature.setGeometry(readGeoJson(transformed));
+            feature.setGeometry(readGeometry(transformed));
             feature.set('_coordinates', geometry.coordinates);
          } else {
             const prop = feature.get(entry[0]);

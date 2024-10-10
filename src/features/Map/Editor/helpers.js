@@ -100,11 +100,32 @@ export function createDrawPolygonHoleStyle() {
    ];
 }
 
-export function getEditedFeature(map) {
-   const vectorLayer = getLayer(map, 'features');
-   const vectorSource = getVectorSource(vectorLayer);
+export function createSelectGeometryStyle() {
+   return [
+      new Style({
+         stroke: new Stroke({
+            color: Color.SELECTED_FEATURE_COLOR,
+            width: 3
+         }),
+         zIndex: 2
+      }),
+      new Style({
+         stroke: new Stroke({
+            color: '#ffffff',
+            width: 8
+         })
+      }),
+      new Style({
+         fill: new Fill({
+            color: `${Color.SELECTED_FEATURE_COLOR}5e`
+         })
+      })
+   ];
+}
 
-   return vectorSource
-      .getFeatures()
-      .find(feature => feature.get('_editing') === true) || null;
+export function getEditedFeature(map) {
+   const vectorLayer = getLayer(map, 'features-edit');
+   const vectorSource = vectorLayer.getSource();
+
+   return vectorSource.getFeatures()[0] || null;
 }

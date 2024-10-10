@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Feature } from 'ol';
 import { Draw } from 'ol/interaction';
-import { getLayer, /*readGeometry, writeFeatureObject, writeFeaturesObject, writeGeometryObject,*/ getInteraction, getFeatureById, writeFeatureObject, readGeoJson } from 'utils/helpers/map';
+import { getLayer, /*readGeometry, writeFeatureObject, writeFeaturesObject, writeGeometryObject,*/ getInteraction, getFeatureById, writeFeatureObject, readGeometry, writeGeometryObject } from 'utils/helpers/map';
 import { Color, GeometryType } from 'context/MapProvider/helpers/constants';
 import { createLineStringFeatureStyle } from 'context/MapProvider/helpers/style';
 import union from '@turf/union';
@@ -49,14 +49,6 @@ DrawLineString.addInteraction = map => {
       style: createDrawLineStringStyle()
    });
 
-   // interaction.on('drawstart', () => {
-   //    const editedFeature = getEditedFeature(map);
-
-   //    if (editedFeature !== null) {
-   //       editedFeature.setGeometry(null);
-   //    }
-   // });
-
    interaction.on('drawend', event => {
       const editedFeature = getEditedFeature(map);
 
@@ -64,32 +56,29 @@ DrawLineString.addInteraction = map => {
          return;
       }
 
-      // const undoRedoInteraction = getInteraction(map, UndoRedo.name);
-      // undoRedoInteraction.push('replaceGeometry', { before: existingGeometry, after: writeGeometryObject(newGeometry) });
+      const existingGeometry = writeGeometryObject(editedFeature.getGeometry());
+      let newGeometry;
 
-      const newGeometry = event.feature.getGeometry();
-      const a = writeFeatureObject(event.feature, 'EPSG:3857', 'EPSG:4326', 6);
-      const b = writeFeatureObject(editedFeature, 'EPSG:3857', 'EPSG:4326', 6);
+      if (existingGeometry.type === GeometryType.LineString || existingGeometry.type === GeometryType.MultiLineString) {
+         const featureA = writeFeatureObject(editedFeature, 'EPSG:3857', 'EPSG:4326', 6);
+         const featureB = writeFeatureObject(event.feature, 'EPSG:3857', 'EPSG:4326', 6);
+         const featureCollection = createFeatureCollection([featureA, featureB]);
+         const combined = combine(featureCollection);
+
+         newGeometry = readGeometry(combined.features[0].geometry, 'EPSG:4326', 'EPSG:3857');
+      } else {
+         newGeometry = event.feature.getGeometry();
+      }
 
       debugger
-      const featureCollection = createFeatureCollection([
-         a,
-         b
-      ])
+      editedFeature.setGeometry(newGeometry);
 
-      const combined = combine(featureCollection);
-      const g = readGeoJson(combined.features[0].geometry, 'EPSG:4326', 'EPSG:3857');
-
-      editedFeature.setGeometry(g);
+      const undoRedoInteraction = getInteraction(map, UndoRedo.name);
+      undoRedoInteraction.push('replaceGeometry', { before: existingGeometry, after: writeGeometryObject(newGeometry) });
    });
 
-// interaction.on('drawend', event => {
-//    // const undoRedoInteraction = getInteraction(map, UndoRedo.interactionName);
-//    // undoRedoInteraction.push('replaceGeometry', { before: existingGeometry, after: writeGeometryObject(newGeometry) });  
-// });
+   interaction.set('_name', DrawLineString.name);
+   interaction.setActive(false);
 
-interaction.set('_name', DrawLineString.name);
-interaction.setActive(false);
-
-map.addInteraction(interaction);
+   map.addInteraction(interaction);
 };

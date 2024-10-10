@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRevalidator } from 'react-router-dom';
 import { useMap } from 'context/MapProvider';
 import { useModal } from 'context/ModalProvider';
 import { selectFeature, toggleEditMode } from 'store/slices/mapSlice';
 import { createDataObject, deleteDataObjects, updateDataObject } from 'store/slices/objectSlice';
-import { getFeatureById, getPropertyValue, zoomToFeature } from 'utils/helpers/map';
-import { addFeatureToMap, createFeature, highlightFeature, removeFeatureFromMap, setNextAndPreviousFeatureId } from 'context/MapProvider/helpers/feature';
+import { getFeatureById, getLayer, getPropertyValue, zoomToFeature } from 'utils/helpers/map';
+import { createFeature, highlightFeature, removeFeatureFromMap, setNextAndPreviousFeatureId, toggleFeature } from 'context/MapProvider/helpers/feature';
 import { useAddDatasetObjectMutation, useDeleteDatasetObjectsMutation, useUpdateDatasetObjectMutation } from 'store/services/api';
 import { deleteFeatures } from 'utils/helpers/general';
 import { updateFeature } from './helpers';
@@ -35,6 +35,30 @@ function FeatureInfo() {
    const user = useSelector(state => state.app.user);
    const dispatch = useDispatch();
 
+   const startEditMode = useCallback(
+      feature => {
+         const clone = feature.clone();
+         const vectorLayer = getLayer(map, 'features-edit');
+         const vectorSource = vectorLayer.getSource();
+         
+         vectorSource.addFeature(clone);         
+         setFeatureToEdit({ original: feature, clone });
+         toggleFeature(feature);
+         dispatch(toggleEditMode(true));
+      },
+      [map, dispatch]
+   );
+
+   function exitEditMode() {
+      const vectorLayer = getLayer(map, 'features-edit');
+      const vectorSource = vectorLayer.getSource();
+      
+      vectorSource.clear();      
+      toggleFeature(featureToEdit.original);
+      setFeatureToEdit(null);
+      dispatch(toggleEditMode(false));
+   }
+
    useEffect(
       () => {
          if (map !== null && selectedFeature !== null) {
@@ -55,20 +79,12 @@ function FeatureInfo() {
          if (map !== null && createdDataObject !== null) {
             const feature = createFeature(createdDataObject);
 
-            addFeatureToMap(map, feature, 'features');
             highlightFeature(map, feature);
-
-            setFeatureToEdit(prevFeature => {
-               prevFeature?.set('_editing', false);
-               feature.set('_editing', true);               
-               return feature;
-            });
-
-            dispatch(toggleEditMode(true));
+            startEditMode(feature);
             setExpanded(true);
          }
       },
-      [createdDataObject, map, dispatch]
+      [createdDataObject, map, startEditMode]
    );
 
    useEffect(
@@ -148,13 +164,14 @@ function FeatureInfo() {
 
          revalidator.revalidate();
 
-         setFeatureToEdit(prevFeature => {
-            prevFeature?.set('_editing', false);            
-            return null;
-         });
+         exitEditMode();
+         // setFeatureToEdit(prevFeature => {
+         //    prevFeature?.set('_editing', false);            
+         //    return null;
+         // });
 
          dispatch(updateDataObject({ id, properties: payload }));
-         dispatch(toggleEditMode(false));
+         //dispatch(toggleEditMode(false));
       } catch (error) {
          console.error(error);
 
@@ -214,25 +231,16 @@ function FeatureInfo() {
    }
 
    function edit() {
-      setFeatureToEdit(prevFeature => {
-         prevFeature?.set('_editing', false);
-         feature.set('_editing', true);         
-         return feature;
-      });
-
-      dispatch(toggleEditMode(true));
+      startEditMode(feature);
    }
 
    async function save(payload) {
-      const featureId = featureToEdit.get('id').value;
+      const featureId = featureToEdit.clone.get('id').value;
 
+      //exitEditMode();
+      
       if (payload === null) {
-         setFeatureToEdit(prevFeature => {
-            prevFeature?.set('_editing', false);
-            return null;
-         });
-
-         dispatch(toggleEditMode(false));
+         exitEditMode();
       } else if (featureId === null) {
          await addObject(payload);
       } else {
@@ -240,20 +248,14 @@ function FeatureInfo() {
       }
    }
 
-   function cancel() {
-      const isNewObject = featureToEdit.get('id').value === null;
+   function cancel() {      
+      const isNewObject = featureToEdit.clone.get('id').value === null;
 
       if (isNewObject) {
          dispatch(createDataObject(null));
-         removeFeatureFromMap(map, featureToEdit);
       }
 
-      setFeatureToEdit(prevFeature => {
-         prevFeature?.set('_editing', false);
-         return null;
-      });
-
-      dispatch(toggleEditMode(false));
+      exitEditMode();
    }
 
    function toggleExpanded() {
@@ -334,7 +336,7 @@ function FeatureInfo() {
                            <Feature feature={feature} />
                         </> :
                         <FeatureForm
-                           feature={featureToEdit}
+                           feature={featureToEdit.clone}
                            metadata={metadata}
                            onSave={save}
                            onCancel={cancel}

@@ -28,10 +28,10 @@ DeleteGeometry.addInteraction = map => {
       return;
    }
 
-   const vectorLayer = getLayer(map, 'features');
+   const vectorLayer = getLayer(map, 'features-edit');
 
    const interaction = new Delete({
-      source: vectorLayer.getSource().getSource()
+      source: vectorLayer.getSource()
    });
 
    interaction.set('_name', DeleteGeometry.name);

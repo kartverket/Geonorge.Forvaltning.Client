@@ -74,6 +74,7 @@ export function createFeatureStyle(geomType, options) {
       case GeometryType.MultiLineString:
          return createLineStringFeatureStyle(options);
       case GeometryType.Polygon:
+      case GeometryType.MultiPolygon:
          return createPolygonFeatureStyle(options);
       default:
          return createPointFeatureStyle(options);

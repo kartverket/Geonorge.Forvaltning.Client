@@ -3,11 +3,10 @@ import { Vector as VectorLayer } from 'ol/layer';
 import { GeoJSON } from 'ol/format';
 import { Point } from 'ol/geom';
 import { GeometryType } from './constants';
-import { getEpsgCode, getLayer, getVectorSource, readGeoJsonFeature } from 'utils/helpers/map';
+import { getEpsgCode, getLayer, getVectorSource, readGeoJsonFeature, writeGeometryObject } from 'utils/helpers/map';
 import { clusterStyle, featureStyle } from './style';
+import getCentroid from '@turf/centroid';
 import environment from 'config/environment';
-import bboxPolygon from '@turf/bbox-polygon';
-import centroid from '@turf/centroid';
 
 export function createFeaturesLayer(featureCollection) {
    const vectorSource = new VectorSource();
@@ -37,22 +36,21 @@ export function createFeaturesLayer(featureCollection) {
       distance: 35,
       geometryFunction: feature => {
          const geometry = feature.getGeometry();
-         const type = geometry?.getType();
 
-         switch (type) {
-            case GeometryType.Point:
-               return geometry;
-            case GeometryType.LineString:
-               return new Point(geometry.getCoordinateAt(0.5));
-            case GeometryType.MultiLineString:
-               const polygon = bboxPolygon(geometry.getExtent());
-               const center = centroid(polygon);
-               return new Point(center.geometry.coordinates);
-            case GeometryType.Polygon:
-               return geometry.getInteriorPoint();
-            default:
-               return null;
+         if (geometry === null) {
+            return null;
          }
+
+         const geometryType = geometry.getType();
+
+         if (geometryType === GeometryType.Point) {
+            return geometry;
+         }
+
+         const geometryObject = writeGeometryObject(feature.getGeometry());
+         const centroid = getCentroid(geometryObject);
+
+         return new Point(centroid.geometry.coordinates)
       },
    });
 
@@ -66,6 +64,19 @@ export function createFeaturesLayer(featureCollection) {
    vectorLayer.set('id', 'features');
    vectorLayer.set('_isCluster', true);
    vectorLayer.set('_disabledSource', vectorSource);
+
+   return vectorLayer;
+}
+
+export function createFeaturesEditLayer() {
+   const vectorSource = new VectorSource();
+
+   const vectorLayer = new VectorLayer({
+      source: vectorSource,
+      style: featureStyle
+   });
+
+   vectorLayer.set('id', 'features-edit');
 
    return vectorLayer;
 }

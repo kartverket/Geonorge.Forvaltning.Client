@@ -37,7 +37,7 @@ DrawPolygonHole.addInteraction = map => {
       return;
    }
 
-   const vectorLayer = getLayer(map, 'features');
+   const vectorLayer = getLayer(map, 'features-edit');
 
    const interaction = new DrawHole({
       layers: [vectorLayer],

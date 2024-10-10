@@ -1,19 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Feature } from 'ol';
 import { Draw } from 'ol/interaction';
-import { Color, GeometryType } from 'context/MapProvider/helpers/constants';
-import { getLayer, /*readGeometry, writeFeatureObject, writeFeaturesObject, writeGeometryObject,*/ getInteraction } from 'utils/helpers/map';
-import union from '@turf/union';
+import { GeometryType } from 'context/MapProvider/helpers/constants';
+import { getInteraction, readGeometry, writeFeatureObject } from 'utils/helpers/map';
+import { createDrawPolygonStyle, getEditedFeature } from '../helpers';
+import { featureCollection as createFeatureCollection } from '@turf/helpers';
+import getUnion from '@turf/union';
 import UndoRedo from '../UndoRedo';
 import styles from '../Editor.module.scss';
-import { createDrawPolygonStyle, getEditedFeature } from '../helpers';
 
 export default function DrawPolygon({ map, active, onClick }) {
    const interactionRef = useRef(getInteraction(map, DrawPolygon.name));
    const [_active, setActive] = useState(false);
    const featuresSelected = useSelector(state => state.map.editor.featuresSelected);
-   const geomType = useSelector(state => state.geomEditor.geomType);
 
    useEffect(
       () => {
@@ -55,7 +54,19 @@ DrawPolygon.addInteraction = map => {
       }
 
       const newGeometry = event.feature.getGeometry();
-      editedFeature.setGeometry(newGeometry);
+      const existingGeomType = editedFeature.getGeometry().getType();
+
+      if (existingGeomType === GeometryType.Polygon || existingGeomType === GeometryType.MultiPolygon) {
+         const featureA = writeFeatureObject(editedFeature, 'EPSG:3857', 'EPSG:4326');
+         const featureB = writeFeatureObject(event.feature, 'EPSG:3857', 'EPSG:4326');
+         const featureCollection = createFeatureCollection([featureA, featureB]);
+         const union = getUnion(featureCollection);
+         const unionGeometry = readGeometry(union.geometry, 'EPSG:4326', 'EPSG:3857');
+
+         editedFeature.setGeometry(unionGeometry);
+      } else {
+         editedFeature.setGeometry(newGeometry);
+      }
    });
 
    // interaction.on('drawend', event => {

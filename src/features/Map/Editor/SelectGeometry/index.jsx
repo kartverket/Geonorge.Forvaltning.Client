@@ -4,6 +4,7 @@ import { getInteraction, getLayer } from 'utils/helpers/map';
 import { setFeaturesSelected } from 'store/slices/mapSlice';
 import store from 'store';
 import styles from '../Editor.module.scss';
+import { createSelectGeometryStyle } from '../helpers';
 
 export default function SelectGeometry({ map, active, onClick }) {
    const interactionRef = useRef(getInteraction(map, SelectGeometry.name));
@@ -35,10 +36,11 @@ SelectGeometry.addInteraction = map => {
       return;
    }
 
-   const vectorLayer = getLayer(map, 'features');
+   const vectorLayer = getLayer(map, 'features-edit');
 
    const interaction = new Select({
-      layers: [vectorLayer]
+      layers: [vectorLayer],
+      style: createSelectGeometryStyle()
    });
 
    interaction.on('select', event => {

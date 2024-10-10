@@ -1,10 +1,11 @@
 import { createEmpty, extend } from 'ol/extent';
-import { getLayer, getVectorSource, roundCoordinates, transformCoordinates } from 'utils/helpers/map';
+import { getLayer, getVectorSource, roundCoordinates, transformCoordinates, writeGeometry, writeGeometryObject } from 'utils/helpers/map';
 import { selectFeature, setFeatureContextMenuData, setMapContextMenuData, setFeaturesInExtent } from 'store/slices/mapSlice';
 import { inPlaceSort } from 'fast-sort';
 import { reproject } from 'reproject';
 import { point as createPoint } from '@turf/helpers';
 import getDistance from '@turf/distance';
+import getCentroid from '@turf/centroid';
 import store from 'store';
 import environment from 'config/environment';
 
@@ -96,7 +97,9 @@ export function setFeatureIdsInExtent(map) {
    const features = [];
 
    source.forEachFeatureInExtent(extent, feature => {
-      const distance = getDistance(centerPoint, feature.get('_coordinates'), { units: 'meters' });
+      const geometry = writeGeometryObject(feature.getGeometry(), 'EPSG:3857', 'EPSG:4326');
+      const centroid = getCentroid(geometry);
+      const distance = getDistance(centerPoint, centroid, { units: 'meters' });
 
       features.push({
          id: feature.get('id').value,
