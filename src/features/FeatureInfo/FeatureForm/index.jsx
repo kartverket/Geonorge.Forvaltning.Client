@@ -95,7 +95,7 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
    );
 
    function getGeometryType() {
-      const geometryType = feature.getGeometry()?.getType();
+      const geometryType = feature.getGeometry()?.getType() || feature.get('_geomType');
 
       switch (geometryType) {
          case GeometryType.Point:

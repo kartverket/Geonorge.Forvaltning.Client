@@ -52,7 +52,7 @@ function FeatureInfo() {
    function exitEditMode() {
       const vectorLayer = getLayer(map, 'features-edit');
       const vectorSource = vectorLayer.getSource();
-      
+
       vectorSource.clear();      
       toggleFeature(featureToEdit.original);
       setFeatureToEdit(null);
@@ -77,7 +77,8 @@ function FeatureInfo() {
    useEffect(
       () => {
          if (map !== null && createdDataObject !== null) {
-            const feature = createFeature(createdDataObject);
+            const feature = createFeature(createdDataObject.geoJson);
+            feature.set('_geomType', createdDataObject.type);
 
             addFeatureToMap(map, feature);
             highlightFeature(map, feature);
@@ -239,6 +240,7 @@ function FeatureInfo() {
 
       if (isNewObject) {
          dispatch(createDataObject(null));
+         removeFeatureFromMap(map, featureToEdit.original);
       }
 
       exitEditMode();
