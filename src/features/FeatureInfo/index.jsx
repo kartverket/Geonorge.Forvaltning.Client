@@ -124,7 +124,8 @@ function FeatureInfo() {
             payload,
             table: definition.TableName,
             tableId: definition.Id,
-            ownerOrg: definition.Organization
+            ownerOrg: definition.Organization,
+            definition: definition
          }).unwrap();
 
          revalidator.revalidate();                 
@@ -159,7 +160,8 @@ function FeatureInfo() {
             payload,
             table: definition.TableName,
             tableId: definition.Id,
-            ownerOrg: definition.Organization
+            ownerOrg: definition.Organization,
+            definition: definition
          }).unwrap();
 
          revalidator.revalidate();
