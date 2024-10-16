@@ -82,6 +82,6 @@ function getPropsToUpdate(original, updated) {
 
    updatedProps = getProperties(updated.getProperties());
    updatedProps._geometry = format.writeGeometry(updated.getGeometry());
-
-   return diff(origProps, updatedProps);
+   return updatedProps; //update all properties
+   //return diff(origProps, updatedProps);
 }
