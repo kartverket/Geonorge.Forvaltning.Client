@@ -218,7 +218,24 @@ function FeatureInfo() {
    }
 
    function canEdit() {
-      return user !== null && (definition.Viewers === null || !definition.Viewers.includes(user.organization));
+      return user !== null && (definition.Viewers === null || !definition.Viewers.includes(user.organization) || hasPropertyAccess(feature, definition));
+   }
+
+   function hasPropertyAccess(feature, definition) 
+   {
+      var accessGranted = false;
+      definition.ForvaltningsObjektPropertiesMetadata.forEach((property) => {
+         var inputName = feature.get([property.ColumnName]).name;
+         var inputValue = feature.get([property.ColumnName]).value;
+         property.AccessByProperties.forEach((access) => {
+            if (property.Name == inputName && access.Value === inputValue) {
+               accessGranted = true;
+               return accessGranted;
+            }         
+         });
+      });
+      
+      return accessGranted;
    }
 
    function edit() {
