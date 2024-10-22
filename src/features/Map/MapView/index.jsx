@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useParams } from 'react-router-dom';
-import { ZoomToExtent } from 'ol/control';
 import { useMap } from 'context/MapProvider';
 import { selectFeature } from 'store/slices/mapSlice';
 import { getFeatureById, getLayer, getVectorSource, hasFeatures, zoomToFeature } from 'utils/helpers/map';
@@ -9,6 +8,8 @@ import { highlightFeature, setNextAndPreviousFeatureId } from 'context/MapProvid
 import { FeatureTooltip } from '..';
 import baseMap from 'config/map/baseMap';
 import styles from './MapView.module.scss';
+import Editor from '../Editor';
+import { Zoom, ZoomToExtent } from 'components/Map';
 
 export default function MapView() {
    const { map } = useMap();
@@ -65,8 +66,6 @@ export default function MapView() {
             extent = baseMap.extent;
          }
 
-         map.addControl(new ZoomToExtent({ extent, tipLabel: 'Zoom til kartets utstrekning' }));
-
          if (!isNaN(objId)) {
             dispatch(selectFeature({ id: parseInt(objId), zoom: true }));
          } else {
@@ -93,6 +92,19 @@ export default function MapView() {
          <div ref={mapElementRef} className={styles.map}></div>
 
          <FeatureTooltip />
+
+         <div className={styles.buttons}>
+            <Zoom map={map} />
+            <ZoomToExtent map={map} layerName="features" />
+         </div>
+
+         {
+            map !== null && (
+               <div className={styles.editor}>
+                  <Editor />
+               </div>
+            )
+         }
       </div>
    );
 }

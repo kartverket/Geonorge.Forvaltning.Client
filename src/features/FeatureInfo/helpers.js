@@ -1,7 +1,7 @@
 import { diff } from 'deep-object-diff';
-import { getFeatureById, getProperties, readGeoJson } from 'utils/helpers/map';
+import { getFeatureById, getProperties, readGeometry, writeGeometry } from 'utils/helpers/map';
 import { reproject } from 'reproject';
-import { point as createPoint } from '@turf/helpers';
+import WKT from 'ol/format/WKT';
 import environment from 'config/environment';
 
 const DATASET_EPSG = `EPSG:${environment.DATASET_SRID}`;
@@ -22,7 +22,7 @@ export function updateFeature({ id, properties }, map) {
             const geometry = JSON.parse(entry[1]);
             const transformed = reproject(geometry, DATASET_EPSG, environment.MAP_EPSG);
 
-            feature.setGeometry(readGeoJson(transformed));
+            feature.setGeometry(readGeometry(transformed));
             feature.set('_coordinates', geometry.coordinates);
          } else {
             const prop = feature.get(entry[0]);
@@ -44,10 +44,10 @@ export function toDbModel(original, updated) {
       return null;
    }
 
-   if ('_coordinates' in toUpdate) {
-      const feature = createPoint(updated.get('_coordinates'));
-      toUpdate.geometry = { value: JSON.stringify(feature.geometry) };
-      delete toUpdate._coordinates;
+   if ('_geometry' in toUpdate) {
+      const geometry = writeGeometry(updated.getGeometry(), 'EPSG:3857', 'EPSG:4326', 6);
+      toUpdate.geometry = { value: geometry };
+      delete toUpdate._geometry;
    }
 
    const payload = {};
@@ -64,10 +64,11 @@ export function toDbModel(original, updated) {
 
 function getPropsToUpdate(original, updated) {
    let updatedProps;
+   const format = new WKT();
 
    if (updated.get('id').value === null) {
       updatedProps = getProperties(updated.getProperties());
-      updatedProps._coordinates = updated.get('_coordinates');
+      updatedProps._geometry = format.writeGeometry(updated.getGeometry());
 
       return updatedProps;
    }
@@ -76,11 +77,11 @@ function getPropsToUpdate(original, updated) {
 
    if (original !== null) {
       origProps = getProperties(original.getProperties());
-      origProps._coordinates = original.get('_coordinates');
+      origProps._geometry = format.writeGeometry(original.getGeometry());
    }
 
    updatedProps = getProperties(updated.getProperties());
-   updatedProps._coordinates = updated.get('_coordinates');
-
-   return diff(origProps, updatedProps);
+   updatedProps._geometry = format.writeGeometry(updated.getGeometry());
+   return updatedProps; //update all properties
+   //return diff(origProps, updatedProps);
 }

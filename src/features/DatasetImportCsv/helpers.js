@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import WKT from 'ol/format/WKT';
 import { Point } from 'ol/geom';
 import { isUndefined, orderBy } from 'lodash';
-import { roundCoordinates, writeGeoJson } from 'utils/helpers/map';
+import { roundCoordinates, writeGeometryObject } from 'utils/helpers/map';
 import environment from 'config/environment';
 
 const WKT_REGEX = /^POINT\s?\(-?\d+(\.\d+)?\s-?\d+(\.\d+)?\)$/;
@@ -75,7 +75,7 @@ function createGeometryFromXY(row, columnNames, options) {
       geometry.transform(options.srcProjection, options.destProjection);
    }
 
-   const geoJson = JSON.parse(writeGeoJson(geometry));
+   const geoJson = writeGeometryObject(geometry);
 
    geoJson.coordinates = roundCoordinates(geoJson.coordinates);
    
@@ -104,8 +104,7 @@ function createGeometryFromWkt(row, columnNames, options) {
       throw new Error('Geometrien er ikke et punkt');
    }
 
-   const geoJson = JSON.parse(writeGeoJson(geometry));
-
+   const geoJson = writeGeometryObject(geometry);
    geoJson.coordinates = roundCoordinates(geoJson.coordinates);
    
    return JSON.stringify(geoJson);

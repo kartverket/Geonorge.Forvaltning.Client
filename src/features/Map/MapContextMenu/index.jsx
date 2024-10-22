@@ -6,6 +6,7 @@ import { createDataObject } from 'store/slices/objectSlice';
 import { createFeatureGeoJson } from 'context/DatasetProvider/helpers';
 import { ControlledMenu, MenuItem } from '@szhsin/react-menu';
 import { point as createPoint } from '@turf/helpers';
+import { GeometryType } from 'context/MapProvider/helpers/constants';
 import styles from './MapContextMenu.module.scss';
 
 export default function MapContextMenu() {
@@ -21,7 +22,7 @@ export default function MapContextMenu() {
          if (map === null || definition.Viewers !== null && definition.Viewers.includes(user?.organization)) {
             return;
          }
-         
+
          setOpen(menuData !== null);
 
          if (menuData !== null) {
@@ -31,24 +32,26 @@ export default function MapContextMenu() {
       [menuData, map, definition.Viewers, user?.organization]
    );
 
-   function addObject() {
+   function addPoint() {
       const geoJson = createFeatureGeoJson(metadata);
       const point = createPoint(menuData.coordinates);
 
       geoJson.geometry = point.geometry;
       geoJson.properties._coordinates = menuData.lonLat;
 
-      dispatch(createDataObject(geoJson));
+      dispatch(createDataObject({ geoJson, type: GeometryType.Point }));
    }
 
-   function renderPosition() {
-      if (menuData === null) {
-         return null;
-      }
+   function addLineString() {
+      const geoJson = createFeatureGeoJson(metadata);
 
-      const [lon, lat] = menuData.lonLat;
+      dispatch(createDataObject({ geoJson, type: GeometryType.LineString }));
+   }
 
-      return `${lat}, ${lon}`;
+   function addPolygon() {
+      const geoJson = createFeatureGeoJson(metadata);
+
+      dispatch(createDataObject({ geoJson, type: GeometryType.Polygon }));
    }
 
    return (
@@ -60,9 +63,15 @@ export default function MapContextMenu() {
          viewScroll="close"
          className={styles.contextMenu}
       >
-         <li className={styles.position}>{renderPosition()}</li>
-         <MenuItem onClick={addObject}>
-            <span className={styles.addObject}>Nytt objekt</span>
+         <li className={styles.header}>Legg til:</li>
+         <MenuItem onClick={addPoint}>
+            <span className={`${styles.addButton} ${styles.addPoint}`}>Punkt</span>
+         </MenuItem>
+         <MenuItem onClick={addLineString}>
+            <span className={`${styles.addButton} ${styles.addLineString}`}>Linje</span>
+         </MenuItem>
+         <MenuItem onClick={addPolygon}>
+            <span className={`${styles.addButton} ${styles.addPolygon}`}>Polygon</span>
          </MenuItem>
       </ControlledMenu>
    );

@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRevalidator } from 'react-router-dom';
 import { useMap } from 'context/MapProvider';
 import { useModal } from 'context/ModalProvider';
 import { selectFeature, toggleEditMode } from 'store/slices/mapSlice';
 import { createDataObject, deleteDataObjects, updateDataObject } from 'store/slices/objectSlice';
-import { getFeatureById, getPropertyValue, zoomToFeature } from 'utils/helpers/map';
-import { addFeatureToMap, createFeature, highlightFeature, removeFeatureFromMap, setNextAndPreviousFeatureId } from 'context/MapProvider/helpers/feature';
+import { getFeatureById, getLayer, getProperties, getPropertyValue, zoomToFeature } from 'utils/helpers/map';
+import { addFeatureToMap, createFeature, highlightFeature, removeFeatureFromMap, setNextAndPreviousFeatureId, toggleFeature } from 'context/MapProvider/helpers/feature';
 import { useAddDatasetObjectMutation, useDeleteDatasetObjectsMutation, useUpdateDatasetObjectMutation } from 'store/services/api';
 import { deleteFeatures } from 'utils/helpers/general';
 import { updateFeature } from './helpers';
@@ -35,6 +35,30 @@ function FeatureInfo() {
    const user = useSelector(state => state.app.user);
    const dispatch = useDispatch();
 
+   const startEditMode = useCallback(
+      feature => {
+         const clone = feature.clone();
+         const vectorLayer = getLayer(map, 'features-edit');
+         const vectorSource = vectorLayer.getSource();
+         
+         vectorSource.addFeature(clone);         
+         setFeatureToEdit({ original: feature, clone });
+         toggleFeature(feature);
+         dispatch(toggleEditMode(true));
+      },
+      [map, dispatch]
+   );
+
+   function exitEditMode() {
+      const vectorLayer = getLayer(map, 'features-edit');
+      const vectorSource = vectorLayer.getSource();
+
+      vectorSource.clear();      
+      toggleFeature(featureToEdit.original);
+      setFeatureToEdit(null);
+      dispatch(toggleEditMode(false));
+   }
+
    useEffect(
       () => {
          if (map !== null && selectedFeature !== null) {
@@ -53,16 +77,16 @@ function FeatureInfo() {
    useEffect(
       () => {
          if (map !== null && createdDataObject !== null) {
-            const feature = createFeature(createdDataObject);
+            const feature = createFeature(createdDataObject.geoJson);
+            feature.set('_geomType', createdDataObject.type);
 
-            addFeatureToMap(map, feature, 'features');
+            addFeatureToMap(map, feature);
             highlightFeature(map, feature);
-            setFeatureToEdit(feature);
-            dispatch(toggleEditMode(true));
+            startEditMode(feature);
             setExpanded(true);
          }
       },
-      [createdDataObject, map, dispatch]
+      [createdDataObject, map, startEditMode]
    );
 
    useEffect(
@@ -94,25 +118,28 @@ function FeatureInfo() {
       [deletedDataObjects, selectedFeature, map, dispatch]
    );
 
-   async function addObject(payload) {
+   async function addObject(payload) {      
       try {
          const response = await add({
             payload,
             table: definition.TableName,
             tableId: definition.Id,
-            ownerOrg: definition.Organization
+            ownerOrg: definition.Organization,
+            definition: definition
          }).unwrap();
 
-         revalidator.revalidate();
+         revalidator.revalidate();                 
+         
+         const properties = getProperties(featureToEdit.clone.getProperties());
+         featureToEdit.original.setProperties(properties, true);
+         featureToEdit.original.setGeometry(featureToEdit.clone.getGeometry());        
+         featureToEdit.original.set('id', { name: 'ID', value: response.id });
 
-         featureToEdit.set('id', { name: 'ID', value: response.id });
-         setFeature(featureToEdit);
-
-         setNextAndPreviousFeatureId(map, featureToEdit);
-         setFeatureToEdit(null);
+         setFeature(featureToEdit.original);
+         setNextAndPreviousFeatureId(map, featureToEdit.original);
+         exitEditMode();
 
          dispatch(createDataObject(null));
-         dispatch(toggleEditMode(false));
          dispatch(selectFeature({ id: response.id, zoom: true }));
       } catch (error) {
          console.error(error);
@@ -133,15 +160,14 @@ function FeatureInfo() {
             payload,
             table: definition.TableName,
             tableId: definition.Id,
-            ownerOrg: definition.Organization
+            ownerOrg: definition.Organization,
+            definition: definition
          }).unwrap();
 
          revalidator.revalidate();
 
-         setFeatureToEdit(null);
-
+         exitEditMode();
          dispatch(updateDataObject({ id, properties: payload }));
-         dispatch(toggleEditMode(false));
       } catch (error) {
          console.error(error);
 
@@ -175,11 +201,10 @@ function FeatureInfo() {
 
          revalidator.revalidate();
 
-         removeFeatureFromMap(map, featureToEdit, 'features');
-         setFeatureToEdit(null);
+         removeFeatureFromMap(map, featureToEdit.original, 'features');
+         exitEditMode();
 
          dispatch(deleteDataObjects([id]));
-         dispatch(toggleEditMode(false));
       } catch (error) {
          console.error(error);
 
@@ -193,20 +218,35 @@ function FeatureInfo() {
    }
 
    function canEdit() {
-      return user !== null && (definition.Viewers === null || !definition.Viewers.includes(user.organization));
+      return user !== null && (definition.Viewers === null || !definition.Viewers.includes(user.organization) || hasPropertyAccess(feature, definition));
+   }
+
+   function hasPropertyAccess(feature, definition) 
+   {
+      var accessGranted = false;
+      definition.ForvaltningsObjektPropertiesMetadata.forEach((property) => {
+         var inputName = feature.get([property.ColumnName]).name;
+         var inputValue = feature.get([property.ColumnName]).value;
+         property.AccessByProperties.forEach((access) => {
+            if (property.Name == inputName && access.Value === inputValue) {
+               accessGranted = true;
+               return accessGranted;
+            }         
+         });
+      });
+      
+      return accessGranted;
    }
 
    function edit() {
-      setFeatureToEdit(feature);
-      dispatch(toggleEditMode(true));
+      startEditMode(feature);
    }
 
    async function save(payload) {
-      const featureId = featureToEdit.get('id').value;
-      
+      const featureId = featureToEdit.clone.get('id').value;
+
       if (payload === null) {
-         setFeatureToEdit(null);
-         dispatch(toggleEditMode(false));
+         exitEditMode();
       } else if (featureId === null) {
          await addObject(payload);
       } else {
@@ -214,16 +254,15 @@ function FeatureInfo() {
       }
    }
 
-   function cancel() {
-      const isNewObject = featureToEdit.get('id').value === null;
+   function cancel() {      
+      const isNewObject = featureToEdit.clone.get('id').value === null;
 
       if (isNewObject) {
          dispatch(createDataObject(null));
-         removeFeatureFromMap(map, featureToEdit);
+         removeFeatureFromMap(map, featureToEdit.original);
       }
 
-      setFeatureToEdit(null);
-      dispatch(toggleEditMode(false));
+      exitEditMode();
    }
 
    function toggleExpanded() {
@@ -304,7 +343,7 @@ function FeatureInfo() {
                            <Feature feature={feature} />
                         </> :
                         <FeatureForm
-                           feature={featureToEdit}
+                           feature={featureToEdit.clone}
                            metadata={metadata}
                            onSave={save}
                            onCancel={cancel}
@@ -322,7 +361,7 @@ function FeatureInfo() {
                         >
                         </button>
                      </gn-button>
-                     
+
                      <gn-button>
                         <button
                            onClick={() => goToNextFeature()}

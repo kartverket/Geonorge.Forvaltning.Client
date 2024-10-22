@@ -1,23 +1,39 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useDispatch } from 'react-redux';
 import { useMap } from 'context/MapProvider';
 import { useDataset } from 'context/DatasetProvider';
-import { getProperties, roundCoordinates, transformCoordinates, zoomToFeature } from 'utils/helpers/map';
+import { toggleEditor } from 'store/slices/geomEditorSlice';
+import { getProperties, roundCoordinates, transformCoordinates, writeGeometryObject, zoomToFeature } from 'utils/helpers/map';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { BooleanSelect, DatePicker, Select, TextField } from 'components/Form';
+import { GeometryType } from 'context/MapProvider/helpers/constants';
 import { toDbModel } from '../helpers';
+import { useModal } from 'context/ModalProvider';
+import { modalType } from 'components/Modals';
 import { Point } from 'ol/geom';
+import kinks from '@turf/kinks';
+import { addCrosshairCursor, removeCrosshairCursor } from './helpers';
 import environment from 'config/environment';
 import styles from '../FeatureInfo.module.scss';
 
 const LAT_LON_REGEX = /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/;
+
+const GEOMETRY_TYPES = {
+   'Punkt': GeometryType.Point,
+   'Linje': GeometryType.LineString,
+   'Polygon': GeometryType.Polygon
+};
 
 export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
    const { map } = useMap();
    const { allowedValues } = useDataset();
    const { control, setValue, handleSubmit } = useForm({ defaultValues: getDefaultValues() });
    const coordinates = useWatch({ control, name: 'coordinates' });
+   const geometryType = useWatch({ control, name: '_geometryType' });
    const properties = getProperties(feature.getProperties());
    const featureRef = useRef(feature.clone());
+   const { showModal } = useModal();
+   const dispatch = useDispatch();
 
    const getCoordinate = useCallback(
       event => {
@@ -41,15 +57,59 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
          }
 
          map.on('click', getCoordinate);
-         map.getTargetElement().classList.add('selectCoordinate');
+         addCrosshairCursor(map);
 
          return () => {
             map.un('click', getCoordinate);
-            map.getTargetElement()?.classList.remove('selectCoordinate');
+            removeCrosshairCursor(map);
          }
       },
       [map, getCoordinate]
    );
+
+   useEffect(
+      () => {
+         if (map === null) {
+            return;
+         }
+
+         dispatch(toggleEditor(geometryType !== GeometryType.Point ? geometryType : null));
+
+         if (geometryType !== GeometryType.Point) {
+            map.un('click', getCoordinate);
+            removeCrosshairCursor(map);
+         } else {
+            map.on('click', getCoordinate);
+            addCrosshairCursor(map)
+         }
+      },
+      [map, getCoordinate, geometryType, dispatch]
+   );
+
+   const geometryTypeOptions = useMemo(
+      () => {
+         return Object.entries(GEOMETRY_TYPES)
+            .map(entry => ({ value: entry[1], label: entry[0] }));
+      },
+      []
+   );
+
+   function getGeometryType() {
+      const geometryType = feature.getGeometry()?.getType() || feature.get('_geomType');
+
+      switch (geometryType) {
+         case GeometryType.Point:
+            return GeometryType.Point;
+         case GeometryType.LineString:
+         case GeometryType.MultiLineString:
+            return GeometryType.LineString;
+         case GeometryType.Polygon:
+         case GeometryType.MultiPolygon:
+            return GeometryType.Polygon;
+         default:
+            return GeometryType.Point;
+      }
+   }
 
    function handleChange({ target: { name, value } }) {
       const prop = feature.get(name);
@@ -76,24 +136,56 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
       const coordinates = feature.get('_coordinates') || null;
 
       return {
+         _geometryType: getGeometryType(),
          coordinates: coordinates !== null ? `${coordinates[1]}, ${coordinates[0]}` : ''
       };
    }
 
-   function handleSave() {
+   async function handleSave() {
+      if (!hasValidGeometry()) {
+         await showModal({
+            type: modalType.INFO,
+            variant: 'error',
+            title: 'Kan ikke lagre',
+            body: 'Objektet har en ugyldig eller manglende geometri'
+         });
+
+         return;
+      }
+
       handleSubmit(() => {
          const payload = toDbModel(featureRef.current, feature);
+         dispatch(toggleEditor(null));
          onSave(payload);
       })();
    }
 
    function handleCancel() {
       feature.setProperties(featureRef.current.getProperties());
+      dispatch(toggleEditor(null));
       onCancel();
    }
 
    function handleDelete() {
+      dispatch(toggleEditor(null));
       onDelete(properties.id.value);
+   }
+
+   function hasValidGeometry() {
+      const geometry = feature.getGeometry();
+
+      if (geometry === null) {
+         return false;
+      }
+
+      if (geometry.getType() === GeometryType.Polygon || geometry.getType() === GeometryType.MultiPolygon) {
+         const geometryObject = writeGeometryObject(geometry);
+         const selfIntersections = kinks(geometryObject);
+
+         return selfIntersections.features.length === 0;
+      }
+
+      return true;
    }
 
    function zoomToObject() {
@@ -193,34 +285,48 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
                         </div>
                      ))
                }
+               <div className={styles.row}>
+                  <div className={styles.label}>Geometri:</div>
+                  <div className={styles.value}>
+                     <Controller
+                        control={control}
+                        name="_geometryType"
+                        render={({ field }) => (
+                           <Select
+                              {...field}
+                              options={geometryTypeOptions}
+                              allowEmpty={false}
+                           />
+                        )}
+                     />
+                  </div>
+               </div>
                {
-                  coordinates ?
+                  coordinates && geometryType === 'Point' && (
                      <div className={styles.row}>
                         <div className={styles.label}>Posisjon:</div>
-                        <div className={styles.value}>
-                           <div className={`${styles.value} ${styles.coordinates}`}>
-                              <Controller
-                                 control={control}
-                                 name="coordinates"
-                                 rules={{
-                                    validate: value => LAT_LON_REGEX.test(value.trim())
-                                 }}
-                                 render={({ field, fieldState: { error } }) => (
-                                    <TextField
-                                       {...field}
-                                       error={error}
-                                       errorMessage="Et gyldig koordinatpar må fylles ut"
-                                       onChange={event => {
-                                          field.onChange(event);
-                                          handleCoordinatesChange(event);
-                                       }}
-                                    />
-                                 )}
-                              />
-                           </div>
+                        <div className={`${styles.value} ${styles.coordinates}`}>
+                           <Controller
+                              control={control}
+                              name="coordinates"
+                              rules={{
+                                 validate: value => LAT_LON_REGEX.test(value.trim())
+                              }}
+                              render={({ field, fieldState: { error } }) => (
+                                 <TextField
+                                    {...field}
+                                    error={error}
+                                    errorMessage="Et gyldig koordinatpar må fylles ut"
+                                    onChange={event => {
+                                       field.onChange(event);
+                                       handleCoordinatesChange(event);
+                                    }}
+                                 />
+                              )}
+                           />
                         </div>
-                     </div> :
-                     null
+                     </div>
+                  )
                }
             </div>
 
@@ -234,7 +340,7 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
                   <gn-button>
                      <button onClick={handleCancel}>Avbryt</button>
                   </gn-button>
-                  
+
                   <gn-button color="primary">
                      <button onClick={handleSave} disabled={coordinates === null}>Lagre</button>
                   </gn-button>

@@ -105,8 +105,8 @@ export const api = createApi({
          }
       }),
       addDatasetObject: builder.mutation({
-         queryFn: async ({ payload, table, ownerOrg }) => {
-            addCommonProperties(payload, ownerOrg);
+         queryFn: async ({ payload, table, ownerOrg, definition }) => {
+            addCommonProperties(payload, ownerOrg, definition);
 
             const { data, error } = await addDatasetObject(payload, table);
 
@@ -138,8 +138,8 @@ export const api = createApi({
          invalidatesTags: (result, error, arg) => [{ type: 'Dataset', id: arg.tableId }]
       }),
       updateDatasetObject: builder.mutation({
-         queryFn: async ({ id, payload, table, ownerOrg }) => {
-            addCommonProperties(payload, ownerOrg);
+         queryFn: async ({ id, payload, table, ownerOrg, definition }) => {
+            addCommonProperties(payload, ownerOrg, definition);
 
             const { data, error } = await updateDatasetObject(id, payload, table);
 

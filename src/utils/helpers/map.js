@@ -44,14 +44,14 @@ export function hasFeatures(map, layerName = 'features', withGeom = true) {
    if (withGeom) {
       return source.getFeatures().some(feature => feature.getGeometry() !== null);
    }
-   
+
    return source.getFeatures().length > 0;
 }
 
 export function getFeatureById(map, id, featureType = 'default', layerName = 'features') {
    const layer = getLayer(map, layerName);
    const source = getVectorSource(layer);
-   
+
    return source.getFeatures()
       .find(feature => feature.get('id')?.value === id && feature.get('_featureType') === featureType);
 }
@@ -100,7 +100,7 @@ export function zoomToFeature(map, feature, zoom) {
 
 export function zoomToGeometry(map, geometry, zoom = 15) {
    const view = map.getView();
-   
+
    view.fit(geometry, { padding: [50, 50, 50, 50] });
    view.setZoom(zoom)
 }
@@ -113,7 +113,7 @@ export function readGeoJsonFeature(feature) {
    return new GeoJSON().readFeature(feature);
 }
 
-export function readGeoJson(geometry, srcEpsg, destEpsg) {
+export function readGeometry(geometry, srcEpsg, destEpsg, precision = 0) {
    if (geometry === null) {
       return null;
    }
@@ -127,24 +127,20 @@ export function readGeoJson(geometry, srcEpsg, destEpsg) {
       };
    }
 
+   if (precision > 0) {
+      options.decimals = precision;
+   }
+
    return new GeoJSON().readGeometry(geometry, options);
 }
 
-export function writeGeoJsonFeature(feature) {
+export function writeFeatureObject(feature, srcEpsg, destEpsg, precision = 0) {
    if (feature === null) {
       return null;
    }
 
-   return new GeoJSON().writeFeatureObject(feature);
-}
-
-export function writeGeoJson(geometry, srcEpsg, destEpsg) {
-   if (geometry === null) {
-      return null;
-   }
-
    let options = {};
-      
+
    if (srcEpsg && destEpsg) {
       options = {
          dataProjection: destEpsg,
@@ -152,7 +148,38 @@ export function writeGeoJson(geometry, srcEpsg, destEpsg) {
       };
    }
 
-   return new GeoJSON().writeGeometry(geometry, options);
+   if (precision > 0) {
+      options.decimals = precision;
+   }
+
+   return new GeoJSON().writeFeatureObject(feature, options);
+}
+
+export function writeGeometryObject(geometry, srcEpsg, destEpsg, precision = 0) {
+   if (geometry === null) {
+      return null;
+   }
+
+   let options = {};
+
+   if (srcEpsg && destEpsg) {
+      options = {
+         dataProjection: destEpsg,
+         featureProjection: srcEpsg
+      };
+   }
+
+   if (precision > 0) {
+      options.decimals = precision;
+   }
+
+   return new GeoJSON().writeGeometryObject(geometry, options);
+}
+
+export function writeGeometry(geometry, srcEpsg, destEpsg, precision = 0) {
+   const geometryObject = writeGeometryObject(geometry, srcEpsg, destEpsg, precision);
+
+   return JSON.stringify(geometryObject);
 }
 
 export function transformCoordinates(srcEpsg, destEpsg, coordinates) {
@@ -164,13 +191,20 @@ export function transformCoordinates(srcEpsg, destEpsg, coordinates) {
       return [transformed.x, transformed.y];
    } catch (error) {
       console.error(error);
-      return null;  
+      return null;
    }
 }
 
 export function roundCoordinates(coordinates) {
    return coordinates
       .map(coordinate => Math.round((coordinate + Number.EPSILON) * 1000000) / 1000000);
+}
+
+export function getInteraction(map, name) {
+   return map
+      .getInteractions()
+      .getArray()
+      .find(interaction => interaction.get('_name') === name) || null;
 }
 
 function getCrsName(geoJson) {

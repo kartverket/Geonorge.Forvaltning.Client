@@ -8,7 +8,10 @@ const environment = {
    'SUPABASE_MAX_ROWS': 1000,
    'DATASET_SRID': 4326,
    'MAP_EPSG': 'EPSG:3857',
-   'TAG_DATASET': import.meta.env.VITE_TAG_DATASET  
+   'TAG_DATASET_ID': parseInt(import.meta.env.VITE_TAG_DATASET_ID),
+   'COUNTY_GOVERNORS': import.meta.env.VITE_COUNTY_GOVERNORS
+      .split(',')
+      .map(orgNo => orgNo.trim())
 };
 
 export default environment;

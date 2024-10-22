@@ -1,116 +1,59 @@
-import { useEffect, useState, useCallback  } from 'react';
+import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { renderProperty } from 'utils/helpers/general';
 import { getProperties } from 'utils/helpers/map';
-import styles from '../FeatureInfo.module.scss';
 import { useUpdateTagMutation } from 'store/services/api';
-import { useLoaderData, useRevalidator } from 'react-router-dom';
-import { FormProvider, useForm } from 'react-hook-form';
+import { useLoaderData } from 'react-router-dom';
 import { useModal } from 'context/ModalProvider';
 import { modalType } from 'components/Modals';
-import environment from 'config/environment';
 import { updateDataObject } from 'store/slices/objectSlice';
+import { GeometryType } from 'context/MapProvider/helpers/constants';
+import environment from 'config/environment';
+import styles from '../FeatureInfo.module.scss';
 
 export default function Feature({ feature }) {
-
-   const dispatch = useDispatch();
-
-   const user = useSelector(state => state.app.user);
-
-   const properties = getProperties(feature.getProperties());
-
-   const { setValue } = useForm();
-
-   const getTag = useCallback(
-      event => {
-         const tag = event.tag;
-
-         setValue('tag', tag);
-         feature.set('_tag', tag);
-         setTag(tag);
-
-      },
-      [feature, setValue]
-   );
-
-   const coordinates = feature.get('_coordinates');
-
-   let tagInfo = feature.get('_tag');
-   const [tag, setTag] = useState(tagInfo); 
-
    const dataset = useLoaderData();
-
-   useEffect(
-      () => {       
-            setTag(tagInfo);
-      },
-      [tagInfo,dispatch]
-   );
-
-   const methods = useForm();
-   const { handleSubmit } = methods;
+   const [tag, setTag] = useState(feature.get('_tag'));
    const [updateTag] = useUpdateTagMutation();
-   const revalidator = useRevalidator();
+   const user = useSelector(state => state.app.user);
+   const properties = getProperties(feature.getProperties());
+   const coordinates = feature.get('_coordinates');
+   const geomType = feature.getGeometry().getType();
+   const dispatch = useDispatch();
    const { showModal } = useModal();
 
-   let displayTag = false;
-   if(dataset.definition.Id == environment.TAG_DATASET) {
-
-      const countyGovernors = 
-         [
-         "974762994",
-         "974761645",
-         "974764067",
-         "974764687",
-         "974761319",
-         "974763230",
-         "967311014",
-         "974764350",
-         "974762501",
-         "974760665",
-         "921627009",
-         ];
-
-      if(user?.organization == dataset.definition.Organization || countyGovernors.includes(user?.organization))
-         displayTag = true;
-   }
-
-   function handleChange(value) {
-
+   async function handleChange(event) {
+      const value = event.target.value;
       setTag(value);
-      tagInfo = value;
-      handleSubmit(async () => {
 
-         try {
-            await updateTag({ datasetId: environment.TAG_DATASET, id: properties.id.value, tag: value }).unwrap();
+      try {
+         await updateTag({ datasetId: environment.TAG_DATASET_ID, id: properties.id.value, tag: value }).unwrap();
+         dispatch(updateDataObject({ id: properties.id.value, properties: { tag: value } }));
 
-            revalidator.revalidate();
+         await showModal({
+            type: modalType.INFO,
+            variant: 'success',
+            title: 'Prioritet oppdatert',
+            body: 'Prioritet ble oppdatert.'
+         });
 
-            const payload = { tag: value };
+      } catch (error) {
+         console.error(error);
 
-            dispatch(updateDataObject({ id: properties.id.value, properties: payload }));
-
-            await showModal({
-               type: modalType.INFO,
-               variant: 'success',
-               title: 'Prioritet oppdatert',
-               body: 'Prioritet ble oppdatert.'
-            });
-
-            getTag({ tag: value });
-
-         } catch (error) {
-            console.error(error);
-
-            await showModal({
-               type: modalType.INFO,
-               variant: 'error',
-               title: 'Feil',
-               body: 'Prioritet kunne ikke oppdateres.'
-            });
-         }
-      })();
+         await showModal({
+            type: modalType.INFO,
+            variant: 'error',
+            title: 'Feil',
+            body: 'Prioritet kunne ikke oppdateres.'
+         });
+      }
    }
+
+   function shouldDisplayTag() {
+      return dataset.definition.Id === environment.TAG_DATASET_ID &&
+         (user?.organization == dataset.definition.Organization || environment.COUNTY_GOVERNORS.includes(user?.organization));
+   }
+
    return (
       <div className={styles.properties}>
          {
@@ -125,8 +68,8 @@ export default function Feature({ feature }) {
                ))
          }
          {
-            coordinates ?
-               <div className={`${styles.row} ${styles.position}`}>
+            geomType === GeometryType.Point && coordinates ?
+               <div className={styles.row}>
                   <div className={styles.label}>Posisjon:</div>
                   <div className={styles.value}>
                      <div className={styles.noInput}>{coordinates[1].toFixed(6)}, {coordinates[0].toFixed(6)}</div>
@@ -135,21 +78,43 @@ export default function Feature({ feature }) {
                null
          }
          {
-            displayTag?
-            <FormProvider {...methods}>
-               <div className={`${styles.row} ${styles.position}`}>
+            shouldDisplayTag() && (
+               <div className={`${styles.row} ${styles.prioritized}`}>
                   <div className={styles.label}>Prioritert:</div>
                   <div className={styles.value}>
-                     <div className={styles.noInput}>
-                        <input type="radio" checked={tag == "Ja"} name="tag"  id="tagJa" value="Ja" onChange={() => handleChange('Ja')}></input>Ja
-                        <input type="radio" checked={tag == "Nei"}  name="tag"  id="tagNei" value="Nei" onChange={() => handleChange('Nei')}></input>Nei
+                     <div>
+                        <gn-input>
+                           <input
+                              type="radio"
+                              id="tagJa"
+                              name="tag"
+                              value="Ja"
+                              checked={tag === 'Ja'}
+                              onChange={handleChange}
+                           />
+                        </gn-input>
+
+                        <label htmlFor="tagJa">Ja</label>
+                     </div>
+
+                     <div>
+                        <gn-input>
+                           <input
+                              type="radio"
+                              id="tagNei"
+                              name="tag"
+                              value="Nei"
+                              checked={tag === 'Nei'}
+                              onChange={handleChange}
+                           />
+                        </gn-input>
+
+                        <label htmlFor="tagNei">Nei</label>
                      </div>
                   </div>
                </div>
-               </FormProvider>:
-               null
+            )
          }
       </div>
    );
-
 }

@@ -6,22 +6,35 @@
    min-width: 180px;
 }
 
-.position {
+li.header {
    padding: 10px 12px;
    border-bottom: 1px solid #e5e5e5;
    line-height: 24px;
 }
 
-.addObject {
+.addButton {
    display: flex;
    align-items: center;
 
    &::before {
       content: "";
-      background: url(../../../assets/gfx/icon-add.svg) no-repeat center;
       width: 20px;
       height: 22px;
-      background-size: 17px;
       margin-right: 6px;
    }
+}
+
+.addPoint::before {
+   background: url(../../../assets/gfx/icon-point.svg) no-repeat center;
+   background-size: 25px;
+}
+
+.addLineString::before {
+   background: url(../../../assets/gfx/icon-line.svg) no-repeat center;
+   background-size: 17px;
+}
+
+.addPolygon::before {
+   background: url(../../../assets/gfx/icon-polygon.svg) no-repeat center;
+   background-size: 20px;
 }
