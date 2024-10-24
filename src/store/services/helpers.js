@@ -7,7 +7,7 @@ function addCommonProperties(data, ownerOrg, definition) {
    if (user !== null) {
       data['owner_org'] = ownerOrg;
       data['contributor_org'] = getContributors(definition, data);
-      data['viewer_org'] = definition.Viewers;      ;
+      data['viewer_org'] = definition?.Viewers;      ;
       data['editor'] = user.email;
    }
 
@@ -15,8 +15,7 @@ function addCommonProperties(data, ownerOrg, definition) {
 }
 
 function getContributors(definition, data) {
-
-   let contributors = definition.Contributors;
+   let contributors = definition?.Contributors;
 
    if (contributors === null) {
       let contributorByProperty = [];
