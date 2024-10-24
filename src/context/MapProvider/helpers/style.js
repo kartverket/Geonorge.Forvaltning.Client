@@ -21,27 +21,12 @@ export function clusterStyle(feature) {
 
 export function featureStyle(feature) {
    const geomType = feature.getGeometry().getType();
-
-   if (feature.get('_visible') === false) {
-      return null;
-   }
-
-   if (feature.get('_selected') === true) {
-      return createFeatureStyle(geomType, { color1: Color.SELECTED_FEATURE_COLOR, color2: `${Color.SELECTED_FEATURE_COLOR}5e` });
-   }
-
-   if (feature.get('_featureType') === 'analysis') {
-      return createFeatureStyle(geomType, { color1: Color.ANALYSIS_FEATURE_COLOR, color2: `${Color.ANALYSIS_FEATURE_COLOR}5e` });
-   }
-
    const styling = store.getState().map.styling;
-
-   if (styling === null) {
-      return createFeatureStyle(geomType, { color1: Color.DEFAULT_FEATURE_COLOR, color2: `${Color.DEFAULT_FEATURE_COLOR}5e` })
-   }
-
+   
    const tag = feature.get('_tag');
-   const property = feature.getProperties()[styling.property];
+   let property = null;
+   if(styling !== null) 
+      property = feature.getProperties()[styling.property];
    const value = property?.value !== undefined ? property.value : tag;
 
    let color;
@@ -63,7 +48,23 @@ export function featureStyle(feature) {
       color: textColor
    };
 
-   return createFeatureStyle(geomType, color, `${color}5e`, text);
+   if (feature.get('_visible') === false) {
+      return null;
+   }
+
+   if (feature.get('_selected') === true) {
+      return createFeatureStyle(geomType, { color1: Color.SELECTED_FEATURE_COLOR, color2: `${Color.SELECTED_FEATURE_COLOR}5e` });
+   }
+
+   if (feature.get('_featureType') === 'analysis') {
+      return createFeatureStyle(geomType, { color1: Color.ANALYSIS_FEATURE_COLOR, color2: `${Color.ANALYSIS_FEATURE_COLOR}5e` });
+   }
+
+   if (styling === null) {
+      return createFeatureStyle(geomType, { color1: Color.DEFAULT_FEATURE_COLOR, color2: `${Color.DEFAULT_FEATURE_COLOR}5e` })
+   }
+
+   return createFeatureStyle(geomType, { color1:color, color2:`${color}5e`, text:text});
 }
 
 export function createFeatureStyle(geomType, options) {
