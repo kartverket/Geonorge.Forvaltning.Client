@@ -33,7 +33,7 @@ export function featureStyle(feature) {
    let textValue;
    let textColor;
 
-   if (!isNil(value)) {
+   if (!isNil(value) && styling !== null && styling.legend !== null) {
       color = styling.legend[value];
       textValue = value[0].toUpperCase();
       textColor = '#000000';
