@@ -1,36 +1,63 @@
 .zoomControl {
-   display: flex;
-   flex-direction: column;
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
 
-   button {
-      width: 36px;
-      height: 30px;
-      padding: 0;
-      background-size: 14px;
-      background-color: #ffffff;
-      cursor: pointer;
-      transition: 0.2s;
-   
-      &:not(:disabled):hover {
-         background-color: #f1f1f1 !important;
-      }
-   
-      &:not(:disabled):active {
-         background-color: #dbdbdb !important;
-      }
-   }
+    button {
+        width: 30px;
+        height: 24px;
+        padding: 0;
+        border: 1px solid #c4c4c4;
+        background-size: 14px;
+        background-color: #ffffff;
+        transition: 0.2s;
+        cursor: pointer;
+
+        &:not(:disabled):hover {
+            background-color: #f1f1f1;
+        }
+
+        &:not(:disabled):active {
+            background-color: #dbdbdb;
+        }
+
+        &:not(:disabled):hover,
+        &:not(:disabled):active {
+            border-color: #555555;
+        }
+    }
 }
 
 .zoomIn {
-   background: url('../../../assets/gfx/icon-plus.svg') no-repeat center;
-   border-radius: 4px 4px 0 0;
-   border: 1px solid #c4c4c4;
-   border-bottom: 0 none;
+    background: url('../../../assets/gfx/icon-plus.svg') no-repeat center;
+    border-radius: 4px 4px 0 0;
+    border-bottom: 0 none !important;
+
+    &:not(:disabled):hover + div,
+    &:not(:disabled):active + div {
+        background-color: #555555;
+    }
 }
 
 .zoomOut {
-   background: url('../../../assets/gfx/icon-minus.svg') no-repeat center;
-   border-radius: 0 0 4px 4px;
-   border: 1px solid #c4c4c4;
-   border-top: 0 none;
+    background: url('../../../assets/gfx/icon-minus.svg') no-repeat center;
+    border-radius: 0 0 4px 4px;
+    border-top: 0 none !important;
+
+    &:not(:disabled):hover + div,
+    &:not(:disabled):active + div {
+        background-color: #555555;
+    }
+}
+
+.divider {
+    height: 1px;
+    width: 100%;
+    background-color: #c4c4c4;
+    transition: 0.2s;
+
+    &:has(+ .zoomOut:not(:disabled):hover),
+    &:has(+ .zoomOut:not(:disabled):active) {
+        background-color: #555555;
+    }
 }

@@ -34,6 +34,7 @@ export default function Zoom({ map, className = '' }) {
    return (
       <div className={`${styles.zoomControl} ${className}`}>
          <button className={styles.zoomIn} onClick={zoomIn} title="Zoom inn"></button>
+         <div className={styles.divider}></div>
          <button className={styles.zoomOut} onClick={zoomOut} title="Zoom ut"></button>
       </div>
    );
