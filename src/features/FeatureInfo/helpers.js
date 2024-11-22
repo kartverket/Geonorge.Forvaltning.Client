@@ -1,4 +1,3 @@
-import { diff } from 'deep-object-diff';
 import { getFeatureById, getProperties, readGeometry, writeGeometry } from 'utils/helpers/map';
 import { reproject } from 'reproject';
 import WKT from 'ol/format/WKT';
@@ -82,6 +81,6 @@ function getPropsToUpdate(original, updated) {
 
    updatedProps = getProperties(updated.getProperties());
    updatedProps._geometry = format.writeGeometry(updated.getGeometry());
-   return updatedProps; //update all properties
-   //return diff(origProps, updatedProps);
+
+   return updatedProps;
 }
