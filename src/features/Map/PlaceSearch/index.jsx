@@ -1,49 +1,25 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { useMap } from 'context/MapProvider';
+import { useDataset } from 'context/DatasetProvider';
+import { selectFeature } from 'store/slices/mapSlice';
 import { zoomToGeoJsonFeature } from 'utils/helpers/map';
 import { customTheme, customStyles } from 'config/react-select';
+import { getSearchResult } from './helpers';
+import axios from 'axios';
 import useDebounce from 'hooks/useDebounce'
 import AsyncSelect from 'react-select/async';
-import axios from 'axios';
 import environment from 'config/environment';
 import styles from './PlaceSearch.module.scss';
-import { useDataset } from 'context/DatasetProvider';
-import getCentroid from '@turf/centroid';
-import levenSort from 'leven-sort';
 
 const MAP_CRS = 3857;
 
 export default function PlaceSearch() {
     const { map } = useMap();
-    const { objects } = useDataset();    
+    const { objects } = useDataset();
     const [inputValue, setInputValue] = useState('');
     const [value, setValue] = useState(null);
-
-    const features = useMemo(
-        () => {
-            return objects.map(object => {
-                let geometry = object.geometry;
-
-                if (geometry.type !== 'Point') {
-                    const centroid = getCentroid(geometry);
-                    geometry = centroid.geometry;
-                }
-
-                return {
-                    type: 'Feature',
-                    id: object.id,
-                    geometry,
-                    properties: {
-                        'name': object['c_1'],
-                        'objectType': 'Objekt',
-                        'municipality': null,
-                        'county': null
-                    }
-                };
-            })
-        },
-        [objects]
-    );
+    const dispatch = useDispatch();
 
     const loadOptions = useDebounce(
         (query, callback) => {
@@ -54,18 +30,8 @@ export default function PlaceSearch() {
 
                 axios.get(url)
                     .then(response => {
-                        
-                        const c = features.filter(feature => feature.properties.name.toLowerCase().startsWith(_query))
-                        const _features = response.data.features.concat(c); 
-                        const m = _features.map(f => f.properties);
-                        const b = levenSort(m, _query, ['name'])      
-                                                      
-                        debugger
-                        // const sorted = levenSort(m, sourceFirst, 'name')
-                        // debugger
-                        // console.log(sorted);
-                        // callback(sorted);
-                        callback([])
+                        const result = getSearchResult(response, objects, _query);
+                        callback(result);
                     })
                     .catch(() => {
                         callback([]);
@@ -78,9 +44,13 @@ export default function PlaceSearch() {
     );
 
     function handleChange(value) {
-        debugger
         setValue(null);
-        zoomToGeoJsonFeature(map, value, 14);
+
+        if (value.properties.objectType === 'Forvaltningsobjekt') {
+            dispatch(selectFeature({ id: value.id, zoom: true, featureType: 'default' }));
+        } else {
+            zoomToGeoJsonFeature(map, value, 14);
+        }
     }
 
     return (
@@ -91,7 +61,7 @@ export default function PlaceSearch() {
             inputValue={inputValue}
             onInputChange={setInputValue}
             onChange={handleChange}
-            cacheOptions
+            //cacheOptions
             getOptionValue={option => option.id}
             getOptionLabel={option => option.properties.name}
             formatOptionLabel={({ properties }) => (
