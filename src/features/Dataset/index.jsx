@@ -78,11 +78,6 @@ export default function Dataset() {
                 </heading-text>
 
                 <div className={styles.actionButtons}>
-                    <button
-                        onClick={toggleFullscreen}
-                        title={!fullscreen ? 'Aktiver fullskjerm' : 'Deaktiver fullskjerm'}
-                        className={styles.fullscreenButton}
-                    ></button>
                     {
                         showAdminMenu() ?
                             <Menu
@@ -131,12 +126,18 @@ export default function Dataset() {
                             </div>
 
                             <Legend />
-                            <MapView 
+                            <MapView
                                 fullscreen={fullscreen}
-                                tableExpanded={tableExpanded} 
+                                tableExpanded={tableExpanded}
                             />
                             <MapContextMenu />
                             <FeatureContextMenu />
+
+                            <button
+                                onClick={toggleFullscreen}
+                                title={!fullscreen ? 'Aktiver fullskjerm' : 'Deaktiver fullskjerm'}
+                                className={styles.fullscreenButton}
+                            ></button>
                         </div>
 
                         <AnalysisResult />
