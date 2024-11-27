@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useRevalidator } from 'react-router-dom';
 import { useMap } from 'context/MapProvider';
 import { useModal } from 'context/ModalProvider';
+import { useSignalR } from 'context/SignalRProvider';
 import { selectFeature, toggleEditMode } from 'store/slices/mapSlice';
 import { createDataObject, deleteDataObjects, updateDataObject } from 'store/slices/objectSlice';
 import { getFeatureById, getLayer, getProperties, getPropertyValue, zoomToFeature } from 'utils/helpers/map';
@@ -16,11 +17,13 @@ import { isNil } from 'lodash';
 import FeatureForm from './FeatureForm';
 import Feature from './Feature';
 import styles from './FeatureInfo.module.scss';
+import { messageType } from 'config/messageHandlers';
 
 function FeatureInfo() {
-    const { definition, metadata, analysableDatasetIds } = useDataset();
+    const { datasetInfo, definition, metadata, analysableDatasetIds } = useDataset();
     const { map, setAnalysisResult } = useMap();
     const { showModal } = useModal();
+    const { connectionId, send } = useSignalR();
     const [expanded, setExpanded] = useState(false);
     const [feature, setFeature] = useState(null);
     const [featureToEdit, setFeatureToEdit] = useState(null);
@@ -45,8 +48,16 @@ function FeatureInfo() {
             setFeatureToEdit({ original: feature, clone });
             toggleFeature(feature);
             dispatch(toggleEditMode(true));
+
+            send(messageType.SendMessage, {
+                connectionId,
+                username: user.email,
+                coordinate: [],
+                datasetId: datasetInfo.id,
+                objectId: feature.get('id').value
+            })
         },
-        [map, dispatch]
+        [map, dispatch, connectionId, datasetInfo.id, send, user]
     );
 
     function exitEditMode() {

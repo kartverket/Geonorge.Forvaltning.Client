@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useParams } from 'react-router-dom';
 import { useMap } from 'context/MapProvider';
+import { useSignalR } from 'context/SignalRProvider';
 import { selectFeature } from 'store/slices/mapSlice';
 import { getFeatureById, getLayer, getVectorSource, hasFeatures, zoomToFeature } from 'utils/helpers/map';
 import { highlightFeature, setNextAndPreviousFeatureId } from 'context/MapProvider/helpers/feature';
@@ -10,9 +11,16 @@ import { Zoom, ZoomToExtent } from 'components/Map';
 import baseMap from 'config/map/baseMap';
 import Editor from '../Editor';
 import styles from './MapView.module.scss';
+import { throttle } from 'lodash';
+import store from 'store';
+import { messageType } from 'config/messageHandlers';
+import { containsXY } from 'ol/extent';
+import { useDataset } from 'context/DatasetProvider';
 
 export default function MapView({ tableExpanded }) {
     const { map } = useMap();
+    const { datasetInfo } = useDataset();
+    const { send } = useSignalR();
     const { id, objId } = useParams();
     const location = useLocation();
     const mapElementRef = useRef(null);
@@ -88,24 +96,55 @@ export default function MapView({ tableExpanded }) {
         [map, dispatch, objId]
     );
 
-    return (
-        <div className={styles.mapContainer}>
-            <div ref={mapElementRef} className={`${styles.map} ${fullscreen && !tableExpanded ? styles.fullscreen : ''}`}></div>
-
-            <FeatureTooltip />
-
-            <div className={styles.buttons}>
-                <Zoom map={map} />
-                <ZoomToExtent map={map} layerName="features" />
-            </div>
-
-            {
-                map !== null && (
-                    <div className={styles.editor}>
-                        <Editor />
-                    </div>
-                )
+    useEffect(
+        () => {
+            if (map === null) {
+                return;
             }
-        </div>
+
+            const pointerMoved = throttle(event => {
+                const state = store.getState();
+                const connectionId = state.app.connectionId;
+                const username = state.app.user.email;
+                const selectedFeature = state.map.selectedFeature;
+                const editMode = state.map.editMode;
+
+                send(messageType.SendMessage, {
+                    connectionId,
+                    username,
+                    coordinate: event.coordinate,
+                    datasetId: datasetInfo.id,
+                    objectId: editMode ? selectedFeature.id : null
+                });
+            }, 250);
+
+            map.on('pointermove', pointerMoved);
+
+            return () => map.un('pointermove', pointerMoved);
+        },
+        [map, send, datasetInfo.id]
+    );
+
+    return (
+        <>
+            <div className={styles.mapContainer}>
+                <div ref={mapElementRef} className={`${styles.map} ${fullscreen && !tableExpanded ? styles.fullscreen : ''}`}></div>
+
+                <FeatureTooltip />
+
+                <div className={styles.buttons}>
+                    <Zoom map={map} />
+                    <ZoomToExtent map={map} layerName="features" />
+                </div>
+
+                {
+                    map !== null && (
+                        <div className={styles.editor}>
+                            <Editor />
+                        </div>
+                    )
+                }
+            </div>
+        </>
     );
 }

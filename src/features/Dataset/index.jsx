@@ -12,7 +12,10 @@ import { toGeoJson } from './export';
 import MapProvider from 'context/MapProvider';
 import DatasetProvider from 'context/DatasetProvider';
 import DatasetTable from './DatasetTable';
+import SignalRProvider from 'context/SignalRProvider';
+import messageHandlers from 'config/messageHandlers';
 import styles from './Dataset.module.scss';
+import Cursors from './Cursors';
 
 export default function Dataset() {
     const dataset = useLoaderData();
@@ -22,6 +25,8 @@ export default function Dataset() {
     const navigate = useNavigate();
     const [tableExpanded, setTableExpanded] = useState(false);
     const user = useSelector(state => state.app.user);
+    // const selectedFeature = useSelector(state => state.map.selectedFeature);
+    // const editMode = useSelector(state => state.map.editMode);
     const fullscreen = useSelector(state => state.app.fullscreen);
     const { showModal } = useModal();
     const dispatch = useDispatch();
@@ -115,51 +120,55 @@ export default function Dataset() {
                 </div>
             </div>
 
-            <DatasetProvider dataset={dataset}>
-                <MapProvider>
-                    <div className={styles.mapContainer}>
-                        <FeatureInfo />
+            <SignalRProvider messageHandlers={messageHandlers}>
+                <DatasetProvider dataset={dataset}>
+                    <MapProvider>
+                        <div className={styles.mapContainer}>
+                            <FeatureInfo />
 
-                        <div className={styles.mapView}>
-                            <div className={styles.placeSearch}>
-                                <PlaceSearch />
+                            <div className={styles.mapView}>
+                                <div className={styles.placeSearch}>
+                                    <PlaceSearch />
+                                </div>
+
+                                <Legend />
+                                <MapView
+                                    fullscreen={fullscreen}
+                                    tableExpanded={tableExpanded}
+                                />
+                                <MapContextMenu />
+                                <FeatureContextMenu />
+
+                                <button
+                                    onClick={toggleFullscreen}
+                                    title={!fullscreen ? 'Aktiver fullskjerm' : 'Deaktiver fullskjerm'}
+                                    className={styles.fullscreenButton}
+                                ></button>
+
+                                <Cursors />
                             </div>
 
-                            <Legend />
-                            <MapView
-                                fullscreen={fullscreen}
-                                tableExpanded={tableExpanded}
-                            />
-                            <MapContextMenu />
-                            <FeatureContextMenu />
-
-                            <button
-                                onClick={toggleFullscreen}
-                                title={!fullscreen ? 'Aktiver fullskjerm' : 'Deaktiver fullskjerm'}
-                                className={styles.fullscreenButton}
-                            ></button>
+                            <AnalysisResult />
                         </div>
 
-                        <AnalysisResult />
-                    </div>
+                        <div className={`${styles.tableContainer} ${tableExpanded ? styles.expanded : ''}`}>
+                            <div className={styles.expandTable}>
+                                <gn-button>
+                                    <button
+                                        onClick={() => setTableExpanded(!tableExpanded)}
+                                    >
+                                        {!tableExpanded ? 'Åpne' : 'Lukk'} tabellvisning
+                                    </button>
+                                </gn-button>
+                            </div>
 
-                    <div className={`${styles.tableContainer} ${tableExpanded ? styles.expanded : ''}`}>
-                        <div className={styles.expandTable}>
-                            <gn-button>
-                                <button
-                                    onClick={() => setTableExpanded(!tableExpanded)}
-                                >
-                                    {!tableExpanded ? 'Åpne' : 'Lukk'} tabellvisning
-                                </button>
-                            </gn-button>
+                            <div className={styles.table}>
+                                <DatasetTable />
+                            </div>
                         </div>
-
-                        <div className={styles.table}>
-                            <DatasetTable />
-                        </div>
-                    </div>
-                </MapProvider>
-            </DatasetProvider>
+                    </MapProvider>
+                </DatasetProvider>
+            </SignalRProvider>
         </div>
     );
 }

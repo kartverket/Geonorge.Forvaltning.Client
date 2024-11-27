@@ -1,0 +1,15 @@
+.cursor {
+    display: flex;
+    align-items: baseline;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.username {
+    border: 1px solid #ffffff;
+    border-radius: 4px;
+    padding: 3px 6px;
+    color: #ffffff;
+    font-size: 13px;
+}
