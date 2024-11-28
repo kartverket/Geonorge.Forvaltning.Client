@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useParams } from 'react-router-dom';
+import { useDataset } from 'context/DatasetProvider';
 import { useMap } from 'context/MapProvider';
 import { useSignalR } from 'context/SignalRProvider';
 import { selectFeature } from 'store/slices/mapSlice';
@@ -8,14 +9,12 @@ import { getFeatureById, getLayer, getVectorSource, hasFeatures, zoomToFeature }
 import { highlightFeature, setNextAndPreviousFeatureId } from 'context/MapProvider/helpers/feature';
 import { FeatureTooltip } from '..';
 import { Zoom, ZoomToExtent } from 'components/Map';
+import { messageType } from 'config/messageHandlers';
+import { throttle } from 'lodash';
 import baseMap from 'config/map/baseMap';
 import Editor from '../Editor';
 import styles from './MapView.module.scss';
-import { throttle } from 'lodash';
 import store from 'store';
-import { messageType } from 'config/messageHandlers';
-import { containsXY } from 'ol/extent';
-import { useDataset } from 'context/DatasetProvider';
 
 export default function MapView({ tableExpanded }) {
     const { map } = useMap();

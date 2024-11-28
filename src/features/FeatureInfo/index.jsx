@@ -13,11 +13,11 @@ import { deleteFeatures } from 'utils/helpers/general';
 import { updateFeature } from './helpers';
 import { modalType } from 'components/Modals';
 import { useDataset } from 'context/DatasetProvider';
+import { messageType } from 'config/messageHandlers';
 import { isNil } from 'lodash';
 import FeatureForm from './FeatureForm';
 import Feature from './Feature';
 import styles from './FeatureInfo.module.scss';
-import { messageType } from 'config/messageHandlers';
 
 function FeatureInfo() {
     const { datasetInfo, definition, metadata, analysableDatasetIds } = useDataset();
@@ -49,15 +49,15 @@ function FeatureInfo() {
             toggleFeature(feature);
             dispatch(toggleEditMode(true));
 
-            send(messageType.SendMessage, {
-                connectionId,
-                username: user.email,
-                coordinate: [],
-                datasetId: datasetInfo.id,
-                objectId: feature.get('id').value
-            })
+            // send(messageType.SendMessage, {
+            //     connectionId,
+            //     username: user.email,
+            //     coordinate: [],
+            //     datasetId: datasetInfo.id,
+            //     objectId: feature.get('id').value
+            // })
         },
-        [map, dispatch, connectionId, datasetInfo.id, send, user]
+        [map, dispatch, /*connectionId, datasetInfo.id, send, user*/]
     );
 
     function exitEditMode() {
@@ -106,7 +106,7 @@ function FeatureInfo() {
                 const updated = updateFeature(updatedDataObject, map);
 
                 if (updated !== null && feature !== null && updatedDataObject.id === getPropertyValue(feature, 'id')) {
-                    setFeature(updated);
+                    setFeature(updated);               
                 }
             }
         },
@@ -179,6 +179,8 @@ function FeatureInfo() {
 
             exitEditMode();
             dispatch(updateDataObject({ id, properties: payload }));
+
+            await send(messageType.SendObjectUpdated, { connectionId, objectId: id, datasetId: definition.Id, properties: payload });
         } catch (error) {
             console.error(error);
 
@@ -229,7 +231,8 @@ function FeatureInfo() {
     }
 
     function canEdit() {
-        return user !== null && (definition.Viewers === null || !definition.Viewers.includes(user.organization) || hasPropertyAccess(feature, definition));
+        return user !== null && 
+            (definition.Viewers === null || !definition.Viewers.includes(user.organization) || hasPropertyAccess(feature, definition));
     }
 
     function hasPropertyAccess(feature, definition) {
@@ -345,7 +348,10 @@ function FeatureInfo() {
                                                 null
                                         }
                                     </div>
-                                    <Feature feature={feature} />
+                                    
+                                    <Feature 
+                                        feature={feature} 
+                                    />
                                 </> :
                                 <FeatureForm
                                     feature={featureToEdit.clone}

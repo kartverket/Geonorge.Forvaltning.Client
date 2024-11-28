@@ -54,7 +54,6 @@ export default function SignalRProvider({ messageHandlers, children }) {
 
     const send = useCallback(
         async (method, message) => {
-            console.log(connectionId);
             await connection.send(method, connectionId, message);
         },
         [connection, connectionId]

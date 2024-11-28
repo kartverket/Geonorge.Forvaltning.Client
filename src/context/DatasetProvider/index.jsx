@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useRef } from 'react';
+import { createContext, useContext, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useGetAnalysableDatasetIdsQuery } from 'store/services/api';
 import { createFeatureCollectionGeoJson, getAllowedValuesForUser } from './helpers';
@@ -41,7 +41,17 @@ export default function DatasetProvider({ dataset, children }) {
     );
 
     return (
-        <DatasetContext.Provider value={{ objects, definition: dataset.definition, metadata, featureCollection, allowedValues, analysableDatasetIds, datasetInfo }}>
+        <DatasetContext.Provider
+            value={{
+                objects,
+                definition: dataset.definition,
+                metadata,
+                featureCollection,
+                allowedValues,
+                analysableDatasetIds,
+                datasetInfo
+            }}
+        >
             {children}
         </DatasetContext.Provider>
     );

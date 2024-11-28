@@ -17,8 +17,9 @@ import messageHandlers from 'config/messageHandlers';
 import styles from './Dataset.module.scss';
 import Cursors from './Cursors';
 
-export default function Dataset() {
-    const dataset = useLoaderData();
+
+
+export default function Dataset({ dataset }) {
     useBreadcrumbs(dataset.definition);
 
     const { id } = useParams();

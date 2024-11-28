@@ -9,7 +9,7 @@ export default function DefaultLayout({ children }) {
    const user = useSelector(state => state.app.user);
 
    return (
-      <>
+      <div className={styles.layout}>
          <div className={`${styles.top} default-layout-top`}>
             <Breadcrumbs />
             {
@@ -31,6 +31,6 @@ export default function DefaultLayout({ children }) {
          </div>
 
          {children}
-      </>
-   )
+      </div>
+   );
 }
