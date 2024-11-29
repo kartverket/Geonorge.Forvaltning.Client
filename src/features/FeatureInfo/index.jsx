@@ -6,7 +6,7 @@ import { useModal } from 'context/ModalProvider';
 import { useSignalR } from 'context/SignalRProvider';
 import { selectFeature, toggleEditMode } from 'store/slices/mapSlice';
 import { createDataObject, deleteDataObjects, updateDataObject } from 'store/slices/objectSlice';
-import { getFeatureById, getLayer, getProperties, getPropertyValue, zoomToFeature } from 'utils/helpers/map';
+import { getFeatureById, getLayer, getProperties, getPropertyValue, writeFeatureObject, zoomToFeature } from 'utils/helpers/map';
 import { addFeatureToMap, createFeature, highlightFeature, removeFeatureFromMap, setNextAndPreviousFeatureId, toggleFeature } from 'context/MapProvider/helpers/feature';
 import { useAddDatasetObjectMutation, useDeleteDatasetObjectsMutation, useUpdateDatasetObjectMutation } from 'store/services/api';
 import { deleteFeatures } from 'utils/helpers/general';
@@ -152,6 +152,8 @@ function FeatureInfo() {
 
             dispatch(createDataObject(null));
             dispatch(selectFeature({ id: response.id, zoom: true }));
+
+            await send(messageType.SendObjectCreated, { datasetId: definition.Id, object: response });
         } catch (error) {
             console.error(error);
 
@@ -180,7 +182,7 @@ function FeatureInfo() {
             exitEditMode();
             dispatch(updateDataObject({ id, properties: payload }));
 
-            await send(messageType.SendObjectUpdated, { connectionId, objectId: id, datasetId: definition.Id, properties: payload });
+            await send(messageType.SendObjectUpdated, { objectId: id, datasetId: definition.Id, properties: payload });
         } catch (error) {
             console.error(error);
 

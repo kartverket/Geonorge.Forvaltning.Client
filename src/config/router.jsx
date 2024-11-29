@@ -1,9 +1,9 @@
 import { createBrowserRouter, redirect } from 'react-router-dom';
 import { getDataset, getDatasetDefinition, getDatasetDefinitions } from 'store/services/loaders';
-import { ErrorBoundary, Home, Login, NotFound, DatasetAccessControl, DatasetDefinitions, DatasetImportCsv, DatasetImportGeoJson, DatasetNew } from 'features';
+import { ErrorBoundary, Home, Login, NotFound, DatasetAccessControl, DatasetDefinitions, DatasetImportCsv, DatasetNew } from 'features';
 import App from 'App';
 import DefaultLayout from 'components/DefaultLayout';
-import { Dataset } from 'pages';
+import { Dataset, DatasetImportGeoJson } from 'pages';
 
 const router = createBrowserRouter([
     {
@@ -50,30 +50,17 @@ const router = createBrowserRouter([
                 children: [
                     {
                         index: true,
-                        element: (
-                            <DefaultLayout>
-                                <Dataset />
-                            </DefaultLayout>
-                        ),
+                        element: <Dataset />,
                         errorElement: <ErrorBoundary />
                     },
                     {
                         path: 'objekt/:objId',
-                        element: (
-                            <DefaultLayout>
-                                <Dataset />
-                            </DefaultLayout>
-                        ),
+                        element: <Dataset />,
                         errorElement: <ErrorBoundary />
                     },
                     {
-                        element: (
-                            <DefaultLayout>
-                                <DatasetImportGeoJson />
-                            </DefaultLayout>
-                        ),
+                        element: <DatasetImportGeoJson />,
                         path: 'import/geojson',
-                        loader: getDatasetDefinition,
                         handle: {
                             pageName: () => 'Importer GeoJSON'
                         },

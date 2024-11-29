@@ -221,6 +221,7 @@ export const api = createApi({
 
 export const {
    useGetDatasetDefinitionsQuery,
+   useGetDatasetDefinitionQuery,
    useGetDatasetQuery,
    useGetAnalysableDatasetIdsQuery,
    useAddDatasetMutation,

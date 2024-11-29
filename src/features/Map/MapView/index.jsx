@@ -103,14 +103,10 @@ export default function MapView({ tableExpanded }) {
 
             const pointerMoved = throttle(event => {
                 const state = store.getState();
-                const connectionId = state.app.connectionId;
-                const username = state.app.user.email;
                 const selectedFeature = state.map.selectedFeature;
                 const editMode = state.map.editMode;
 
-                send(messageType.SendMessage, {
-                    connectionId,
-                    username,
+                send(messageType.SendCursorMoved, {
                     coordinate: event.coordinate,
                     datasetId: datasetInfo.id,
                     objectId: editMode ? selectedFeature.id : null

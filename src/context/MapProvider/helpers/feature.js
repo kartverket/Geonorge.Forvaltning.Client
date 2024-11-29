@@ -14,20 +14,7 @@ export function createFeaturesLayer(featureCollection) {
     const epsgCode = getEpsgCode(featureCollection);
 
     const features = featureCollection.features
-        .map(feature => {
-            const olFeature = format.readFeature(feature, { dataProjection: epsgCode, featureProjection: environment.MAP_EPSG });
-
-            olFeature.setStyle(featureStyle);
-            olFeature.set('_visible', true);
-            olFeature.set('_tag', feature.properties._tag);
-            olFeature.set('_featureType', 'default');
-
-            if (feature.geometry?.type === GeometryType.Point) {
-                olFeature.set('_coordinates', feature.geometry?.coordinates);
-            }
-
-            return olFeature;
-        });
+        .map(feature => createFeature(feature, epsgCode, format));
 
     vectorSource.addFeatures(features);
 
@@ -91,12 +78,18 @@ export function createRoutesFeaturesLayer() {
     return vectorLayer;
 }
 
-export function createFeature(geoJson) {
-    const feature = readGeoJsonFeature(geoJson);
+export function createFeature(geoJson, epsgCode = null, format = new GeoJSON()) {
+    let options = epsgCode !== null ? { dataProjection: epsgCode, featureProjection: environment.MAP_EPSG } : {};
+    const feature = format.readFeature(geoJson, options);
 
     feature.setStyle(featureStyle);
     feature.set('_visible', true);
+    feature.set('_tag', geoJson.properties._tag);
     feature.set('_featureType', 'default');
+
+    if (!geoJson.properties._coordinates && geoJson.geometry?.type === GeometryType.Point) {
+        feature.set('_coordinates', geoJson.geometry?.coordinates);
+    }
 
     return feature;
 }

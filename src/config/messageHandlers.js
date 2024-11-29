@@ -1,20 +1,35 @@
 import store from 'store';
 import { api } from 'store/services/api';
-import { setConnectedUsers } from 'store/slices/appSlice';
-import { updateDataObject } from 'store/slices/objectSlice';
-
+import { removeConnectedUser, setConnectedUsers } from 'store/slices/appSlice';
+import { createRemoteDataObject, updateDataObject } from 'store/slices/objectSlice';
 
 export const messageType = {
-    ReceiveMessage: 'ReceiveMessage',
+    ReceiveCursorMoved: 'ReceiveCursorMoved',
+    ReceiveObjectCreated: 'ReceiveObjectCreated',
     ReceiveObjectUpdated: 'ReceiveObjectUpdated',
-    SendMessage: 'SendMessage',
-    SendObjectUpdated: 'SendObjectUpdated'
+    ReceiveObjectsDeleted: 'ReceiveObjectsDeleted',
+    ReceiveUserDisconnected: 'ReceiveUserDisconnected',
+    SendCursorMoved: 'SendCursorMoved',
+    SendObjectCreated: 'SendObjectCreated',
+    SendObjectUpdated: 'SendObjectUpdated',
+    SendObjectsDeleted: 'SendObjectsDeleted',
 };
 
 const messageHandlers = new Map();
 
-messageHandlers.set(messageType.ReceiveMessage, message => {
+messageHandlers.set(messageType.ReceiveCursorMoved, message => {
     store.dispatch(setConnectedUsers(message));
+});
+
+messageHandlers.set(messageType.ReceiveUserDisconnected, message => {
+    store.dispatch(removeConnectedUser(message));
+});
+
+messageHandlers.set(messageType.ReceiveObjectCreated, message => {
+    const { datasetId } = message;
+    
+    store.dispatch(createRemoteDataObject(message.object));
+    store.dispatch(api.util.invalidateTags([{ type: 'Dataset', id: datasetId }]));
 });
 
 messageHandlers.set(messageType.ReceiveObjectUpdated, message => {
@@ -23,5 +38,13 @@ messageHandlers.set(messageType.ReceiveObjectUpdated, message => {
     store.dispatch(updateDataObject({ id, properties }));
     store.dispatch(api.util.invalidateTags([{ type: 'Dataset', id: datasetId }]));
 });
+
+messageHandlers.set(messageType.ReceiveObjectsDeleted, message => {
+    const { objectId: id, datasetId, properties } = message;
+
+    store.dispatch(updateDataObject({ id, properties }));
+    store.dispatch(api.util.invalidateTags([{ type: 'Dataset', id: datasetId }]));
+});
+
 
 export default messageHandlers;
