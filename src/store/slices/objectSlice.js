@@ -1,10 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
+    initializedDataObject: null,
     createdDataObject: null,
-    createdDataObjectRemote: null,
     updatedDataObject: null,
     deletedDataObjects: [],
+    editedDataObjects: [],
     showObjectsInExtent: false
 };
 
@@ -12,16 +13,16 @@ export const objectSlice = createSlice({
     name: 'object',
     initialState,
     reducers: {
+        initializeDataObject: (state, action) => {
+            return {
+                ...state,
+                initializedDataObject: action.payload
+            };
+        },
         createDataObject: (state, action) => {
             return {
                 ...state,
                 createdDataObject: action.payload
-            };
-        },
-        createRemoteDataObject: (state, action) => {
-            return {
-                ...state,
-                createdDataObjectRemote: action.payload
             };
         },
         updateDataObject: (state, action) => {
@@ -36,6 +37,12 @@ export const objectSlice = createSlice({
                 deletedDataObjects: action.payload
             };
         },
+        setEditedDataObjects: (state, action) => {
+            return {
+                ...state,
+                editedDataObjects: action.payload
+            };
+        },
         setShowObjectsInExtent: (state, action) => {
             return {
                 ...state,
@@ -45,6 +52,13 @@ export const objectSlice = createSlice({
     }
 });
 
-export const { createDataObject, createRemoteDataObject, updateDataObject, deleteDataObjects, setShowObjectsInExtent } = objectSlice.actions;
+export const {
+    initializeDataObject,
+    createDataObject,
+    updateDataObject,
+    deleteDataObjects,
+    setEditedDataObjects,
+    setShowObjectsInExtent
+} = objectSlice.actions;
 
 export default objectSlice.reducer;

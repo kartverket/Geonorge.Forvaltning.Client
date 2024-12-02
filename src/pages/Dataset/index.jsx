@@ -2,7 +2,8 @@ import { useDispatch } from 'react-redux';
 import { useBlocker, useParams } from 'react-router-dom';
 import { useGetDatasetQuery } from 'store/services/api';
 import { useSignalR } from 'context/SignalRProvider';
-import { setConnectedUsers, toggleFullscreen } from 'store/slices/appSlice';
+import { toggleFullscreen } from 'store/slices/appSlice';
+import { setPointerPositions } from 'store/slices/mapSlice';
 import { messageType } from 'config/messageHandlers';
 import { DefaultLayout } from 'components';
 import { Dataset as DatasetFeature } from 'features';
@@ -16,7 +17,7 @@ export default function Dataset() {
     useBlocker(({ currentLocation, nextLocation }) => {
         if (currentLocation.pathname !== nextLocation.pathname) {
             dispatch(toggleFullscreen(false));
-            dispatch(setConnectedUsers(null));            
+            dispatch(setPointerPositions(null));            
             send(messageType.SendCursorMoved, {});
         }
 

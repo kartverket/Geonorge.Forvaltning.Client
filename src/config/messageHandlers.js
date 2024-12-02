@@ -1,15 +1,18 @@
 import store from 'store';
 import { api } from 'store/services/api';
-import { removeConnectedUser, setConnectedUsers } from 'store/slices/appSlice';
-import { createRemoteDataObject, updateDataObject } from 'store/slices/objectSlice';
+import { removePointerPositions, setPointerPositions } from 'store/slices/mapSlice';
+import { createDataObject, updateDataObject, deleteDataObjects, setEditedDataObjects } from 'store/slices/objectSlice';
 
 export const messageType = {
-    ReceiveCursorMoved: 'ReceiveCursorMoved',
+    ReceivePointerMoved: 'ReceivePointerMoved',
+    ReceiveObjectEdited: 'ReceiveObjectEdited',
+    ReceiveObjectsEdited: 'ReceiveObjectsEdited',
     ReceiveObjectCreated: 'ReceiveObjectCreated',
     ReceiveObjectUpdated: 'ReceiveObjectUpdated',
     ReceiveObjectsDeleted: 'ReceiveObjectsDeleted',
     ReceiveUserDisconnected: 'ReceiveUserDisconnected',
-    SendCursorMoved: 'SendCursorMoved',
+    SendPointerMoved: 'SendPointerMoved',
+    SendObjectEdited: 'SendObjectEdited',
     SendObjectCreated: 'SendObjectCreated',
     SendObjectUpdated: 'SendObjectUpdated',
     SendObjectsDeleted: 'SendObjectsDeleted',
@@ -17,18 +20,26 @@ export const messageType = {
 
 const messageHandlers = new Map();
 
-messageHandlers.set(messageType.ReceiveCursorMoved, message => {
-    store.dispatch(setConnectedUsers(message));
+messageHandlers.set(messageType.ReceivePointerMoved, message => {
+    store.dispatch(setPointerPositions(message));
 });
 
 messageHandlers.set(messageType.ReceiveUserDisconnected, message => {
-    store.dispatch(removeConnectedUser(message));
+    store.dispatch(removePointerPositions(message));
+});
+
+messageHandlers.set(messageType.ReceiveObjectEdited, message => {
+    store.dispatch(setEditedDataObjects([message]));
+});
+
+messageHandlers.set(messageType.ReceiveObjectsEdited, message => {
+    store.dispatch(setEditedDataObjects(message));
 });
 
 messageHandlers.set(messageType.ReceiveObjectCreated, message => {
-    const { datasetId } = message;
-    
-    store.dispatch(createRemoteDataObject(message.object));
+    const { datasetId, object } = message;
+
+    store.dispatch(createDataObject({ datasetId, object }));
     store.dispatch(api.util.invalidateTags([{ type: 'Dataset', id: datasetId }]));
 });
 
@@ -40,11 +51,10 @@ messageHandlers.set(messageType.ReceiveObjectUpdated, message => {
 });
 
 messageHandlers.set(messageType.ReceiveObjectsDeleted, message => {
-    const { objectId: id, datasetId, properties } = message;
+    const { datasetId, ids } = message;
 
-    store.dispatch(updateDataObject({ id, properties }));
+    store.dispatch(deleteDataObjects({ datasetId, ids }));
     store.dispatch(api.util.invalidateTags([{ type: 'Dataset', id: datasetId }]));
 });
-
 
 export default messageHandlers;

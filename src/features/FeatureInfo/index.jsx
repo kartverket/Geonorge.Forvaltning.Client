@@ -1,26 +1,27 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useRevalidator } from 'react-router-dom';
 import { useMap } from 'context/MapProvider';
 import { useModal } from 'context/ModalProvider';
 import { useSignalR } from 'context/SignalRProvider';
 import { selectFeature, toggleEditMode } from 'store/slices/mapSlice';
-import { createDataObject, deleteDataObjects, updateDataObject } from 'store/slices/objectSlice';
-import { getFeatureById, getLayer, getProperties, getPropertyValue, writeFeatureObject, zoomToFeature } from 'utils/helpers/map';
+import { initializeDataObject, deleteDataObjects, updateDataObject } from 'store/slices/objectSlice';
+import { getFeatureById, getLayer, getProperties, getPropertyValue, zoomToFeature } from 'utils/helpers/map';
 import { addFeatureToMap, createFeature, highlightFeature, removeFeatureFromMap, setNextAndPreviousFeatureId, toggleFeature } from 'context/MapProvider/helpers/feature';
 import { useAddDatasetObjectMutation, useDeleteDatasetObjectsMutation, useUpdateDatasetObjectMutation } from 'store/services/api';
 import { deleteFeatures } from 'utils/helpers/general';
 import { updateFeature } from './helpers';
 import { modalType } from 'components/Modals';
 import { useDataset } from 'context/DatasetProvider';
+import { createFeatureGeoJson } from 'context/DatasetProvider/helpers';
 import { messageType } from 'config/messageHandlers';
 import { isNil } from 'lodash';
+import environment from 'config/environment';
 import FeatureForm from './FeatureForm';
 import Feature from './Feature';
 import styles from './FeatureInfo.module.scss';
 
 function FeatureInfo() {
-    const { datasetInfo, definition, metadata, analysableDatasetIds } = useDataset();
+    const { definition, metadata, analysableDatasetIds } = useDataset();
     const { map, setAnalysisResult } = useMap();
     const { showModal } = useModal();
     const { connectionId, send } = useSignalR();
@@ -30,11 +31,12 @@ function FeatureInfo() {
     const [add] = useAddDatasetObjectMutation();
     const [update] = useUpdateDatasetObjectMutation();
     const [_delete] = useDeleteDatasetObjectsMutation();
-    const revalidator = useRevalidator();
     const selectedFeature = useSelector(state => state.map.selectedFeature);
+    const initializedDataObject = useSelector(state => state.object.initializedDataObject);
     const createdDataObject = useSelector(state => state.object.createdDataObject);
     const updatedDataObject = useSelector(state => state.object.updatedDataObject);
     const deletedDataObjects = useSelector(state => state.object.deletedDataObjects);
+    const editedDataObjects = useSelector(state => state.object.editedDataObjects);
     const user = useSelector(state => state.app.user);
     const dispatch = useDispatch();
 
@@ -49,15 +51,12 @@ function FeatureInfo() {
             toggleFeature(feature);
             dispatch(toggleEditMode(true));
 
-            // send(messageType.SendMessage, {
-            //     connectionId,
-            //     username: user.email,
-            //     coordinate: [],
-            //     datasetId: datasetInfo.id,
-            //     objectId: feature.get('id').value
-            // })
+            send(messageType.SendObjectEdited, {
+                datasetId: definition.Id,
+                objectId: feature.get('id').value
+            });
         },
-        [map, dispatch, /*connectionId, datasetInfo.id, send, user*/]
+        [map, dispatch, send, definition.Id]
     );
 
     function exitEditMode() {
@@ -68,6 +67,10 @@ function FeatureInfo() {
         toggleFeature(featureToEdit.original);
         setFeatureToEdit(null);
         dispatch(toggleEditMode(false));
+
+        send(messageType.SendObjectEdited, {
+            datasetId: definition.Id
+        });
     }
 
     useEffect(
@@ -75,8 +78,10 @@ function FeatureInfo() {
             if (map !== null && selectedFeature !== null) {
                 const _feature = getFeatureById(map, selectedFeature.id, selectedFeature.featureType);
 
-                setFeature(_feature);
-                setExpanded(true);
+                if (_feature !== null) {
+                    setFeature(_feature);
+                    setExpanded(true);
+                }
             } else {
                 setFeature(null);
                 setExpanded(false);
@@ -87,27 +92,46 @@ function FeatureInfo() {
 
     useEffect(
         () => {
-            if (map !== null && createdDataObject !== null) {
-                const feature = createFeature(createdDataObject.geoJson);
-                feature.set('_geomType', createdDataObject.type);
-
-                addFeatureToMap(map, feature);
-                highlightFeature(map, feature);
-                startEditMode(feature);
-                setExpanded(true);
+            if (map === null || initializedDataObject === null) {
+                return;
             }
+
+            const feature = createFeature(initializedDataObject.geoJson);
+            feature.set('_geomType', initializedDataObject.type);
+
+            addFeatureToMap(map, feature);
+            highlightFeature(map, feature);
+            startEditMode(feature);
+            setExpanded(true);
         },
-        [createdDataObject, map, startEditMode]
+        [initializedDataObject, map, startEditMode]
     );
 
     useEffect(
         () => {
-            if (map !== null && updatedDataObject !== null) {
-                const updated = updateFeature(updatedDataObject, map);
+            if (map === null || createdDataObject === null ||
+                createdDataObject.datasetId !== definition.Id) {
+                return;
+            }
 
-                if (updated !== null && feature !== null && updatedDataObject.id === getPropertyValue(feature, 'id')) {
-                    setFeature(updated);               
-                }
+            const geoJson = createFeatureGeoJson(metadata, createdDataObject.object);
+            const feature = createFeature(geoJson, `EPSG:${environment.DATASET_SRID}`);
+
+            addFeatureToMap(map, feature);
+        },
+        [createdDataObject, definition.Id, metadata, map]
+    );
+
+    useEffect(
+        () => {
+            if (map === null || updatedDataObject === null) {
+                return;
+            }
+
+            const updated = updateFeature(updatedDataObject, map);
+
+            if (updated !== null && feature !== null && updatedDataObject.id === getPropertyValue(feature, 'id')) {
+                setFeature(updated);
             }
         },
         [updatedDataObject, map, feature]
@@ -115,18 +139,36 @@ function FeatureInfo() {
 
     useEffect(
         () => {
-            if (map === null || !deletedDataObjects.length) {
+            if (map === null || deletedDataObjects === null ||
+                deletedDataObjects.datasetId !== definition.Id || !deletedDataObjects.ids.length) {
                 return;
             }
 
-            deleteFeatures(deletedDataObjects, map);
+            deleteFeatures(deletedDataObjects.ids, map);
 
-            if (selectedFeature !== null && deletedDataObjects.includes(selectedFeature.id)) {
-                dispatch(deleteDataObjects([]));
+            if (selectedFeature !== null && deletedDataObjects.ids.includes(selectedFeature.id)) {
+                dispatch(deleteDataObjects(null));
                 dispatch(selectFeature(null));
             }
         },
-        [deletedDataObjects, selectedFeature, map, dispatch]
+        [deletedDataObjects, definition.Id, selectedFeature, map, dispatch]
+    );
+
+    const remoteEditor = useMemo(
+        () => {
+            if (editedDataObjects.length === 0) {
+                return null;
+            }
+
+            const featureId = feature.get('id').value;
+            const dataObject = editedDataObjects
+                .find(dataObject => dataObject.objectId === featureId && dataObject.connectionId !== connectionId);
+
+            return dataObject !== undefined ?
+                { username: dataObject.username, color: dataObject.color } :
+                null;
+        },
+        [editedDataObjects, feature, connectionId]
     );
 
     async function addObject(payload) {
@@ -139,8 +181,6 @@ function FeatureInfo() {
                 definition: definition
             }).unwrap();
 
-            revalidator.revalidate();
-
             const properties = getProperties(featureToEdit.clone.getProperties());
             featureToEdit.original.setProperties(properties, true);
             featureToEdit.original.setGeometry(featureToEdit.clone.getGeometry());
@@ -150,7 +190,7 @@ function FeatureInfo() {
             setNextAndPreviousFeatureId(map, featureToEdit.original);
             exitEditMode();
 
-            dispatch(createDataObject(null));
+            dispatch(initializeDataObject(null));
             dispatch(selectFeature({ id: response.id, zoom: true }));
 
             await send(messageType.SendObjectCreated, { datasetId: definition.Id, object: response });
@@ -176,8 +216,6 @@ function FeatureInfo() {
                 ownerOrg: definition.Organization,
                 definition: definition
             }).unwrap();
-
-            revalidator.revalidate();
 
             exitEditMode();
             dispatch(updateDataObject({ id, properties: payload }));
@@ -214,12 +252,12 @@ function FeatureInfo() {
                 tableId: definition.Id
             }).unwrap();
 
-            revalidator.revalidate();
-
             removeFeatureFromMap(map, featureToEdit.original, 'features');
             exitEditMode();
 
-            dispatch(deleteDataObjects([id]));
+            dispatch(deleteDataObjects({ datasetId: definition.Id, ids: [id] }));
+
+            await send(messageType.SendObjectsDeleted, { datasetId: definition.Id, ids: [id] });
         } catch (error) {
             console.error(error);
 
@@ -233,7 +271,7 @@ function FeatureInfo() {
     }
 
     function canEdit() {
-        return user !== null && 
+        return user !== null && remoteEditor === null &&
             (definition.Viewers === null || !definition.Viewers.includes(user.organization) || hasPropertyAccess(feature, definition));
     }
 
@@ -268,7 +306,7 @@ function FeatureInfo() {
         const isNewObject = featureToEdit.clone.get('id').value === null;
 
         if (isNewObject) {
-            dispatch(createDataObject(null));
+            dispatch(initializeDataObject(null));
             removeFeatureFromMap(map, featureToEdit.original);
         }
 
@@ -346,14 +384,23 @@ function FeatureInfo() {
                                                             </gn-button>
                                                         )
                                                     }
+                                                    {
+                                                        remoteEditor !== null && (
+                                                            <div
+                                                                title={`Objektet redigeres av ${remoteEditor.username}`}
+                                                                className={styles.busyEdit}
+                                                                style={{ backgroundColor: remoteEditor.color }}
+                                                            >
+                                                                {remoteEditor.username}
+                                                            </div>
+                                                        )
+                                                    }
                                                 </div> :
                                                 null
                                         }
                                     </div>
-                                    
-                                    <Feature 
-                                        feature={feature} 
-                                    />
+
+                                    <Feature feature={feature} />
                                 </> :
                                 <FeatureForm
                                     feature={featureToEdit.clone}

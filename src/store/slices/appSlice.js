@@ -3,8 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
     user: null,
     fullscreen: false,
-    breadcrumbs: [],
-    connectedUsers: {}
+    breadcrumbs: []
 };
 
 export const appSlice = createSlice({
@@ -15,31 +14,6 @@ export const appSlice = createSlice({
             return {
                 ...state,
                 user: action.payload
-            };
-        },
-        setConnectedUsers: (state, action) => {
-            if (action.payload === null) {
-                return {
-                    ...state,
-                    connectedUsers: initialState.connectedUsers
-                };
-            }
-
-            return {
-                ...state,
-                connectedUsers: {
-                    ...state.connectedUsers,
-                    [action.payload.connectionId]: action.payload
-                }
-            };
-        },
-        removeConnectedUser: (state, action) => {
-            const connectedUsers = { ...state.connectedUsers };
-            delete connectedUsers[action.payload];
-
-            return {
-                ...state,
-                connectedUsers
             };
         },
         toggleFullscreen: (state, action) => {
@@ -57,6 +31,6 @@ export const appSlice = createSlice({
     }
 });
 
-export const { setUser, setConnectedUsers, removeConnectedUser, toggleFullscreen, setBreadcrumbs } = appSlice.actions;
+export const { setUser, toggleFullscreen, setBreadcrumbs } = appSlice.actions;
 
 export default appSlice.reducer;

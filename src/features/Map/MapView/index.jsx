@@ -14,7 +14,6 @@ import { throttle } from 'lodash';
 import baseMap from 'config/map/baseMap';
 import Editor from '../Editor';
 import styles from './MapView.module.scss';
-import store from 'store';
 
 export default function MapView({ tableExpanded }) {
     const { map } = useMap();
@@ -39,6 +38,11 @@ export default function MapView({ tableExpanded }) {
             }
 
             const feature = getFeatureById(map, selectedFeature.id, selectedFeature.featureType);
+
+            if (feature === null) {
+                history.replaceState(null, document.title, `/datasett/${id}`);
+                return;
+            }
 
             setNextAndPreviousFeatureId(map, feature);
             highlightFeature(map, feature);
@@ -102,16 +106,8 @@ export default function MapView({ tableExpanded }) {
             }
 
             const pointerMoved = throttle(event => {
-                const state = store.getState();
-                const selectedFeature = state.map.selectedFeature;
-                const editMode = state.map.editMode;
-
-                send(messageType.SendCursorMoved, {
-                    coordinate: event.coordinate,
-                    datasetId: datasetInfo.id,
-                    objectId: editMode ? selectedFeature.id : null
-                });
-            }, 250);
+                send(messageType.SendPointerMoved, { datasetId: datasetInfo.id, coordinate: event.coordinate });
+            }, 150);
 
             map.on('pointermove', pointerMoved);
 
