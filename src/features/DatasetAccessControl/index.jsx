@@ -1,29 +1,26 @@
 import { useCallback, useState } from 'react';
-import { useLoaderData } from 'react-router-dom';
 import { useBreadcrumbs } from 'features/Breadcrumbs';
 import { isValidOrgNo } from './helpers';
 import { useForm, FormProvider, Controller, useFieldArray, useWatch } from 'react-hook-form';
 import { Tags } from 'components/Form';
 import { fromDbModel, toDbModel } from './mapper';
-import { useSetDatasetAccessMutation } from 'store/services/api';
+import { useLazyGetOrganizationNameQuery, useSetDatasetAccessMutation } from 'store/services/api';
 import { useModal } from 'context/ModalProvider';
 import { modalType } from 'components/Modals';
 import { formatOrgNo } from 'utils/helpers/general';
-import { getOrganizationName } from 'store/services/loaders';
-import Spinner from 'components/Spinner';
+import { Spinner } from 'components';
 import DatasetAccessProperty from './DatasetAccessProperty';
 import styles from './DatasetAccessControl.module.scss';
 
-export default function DatasetAccessControl() {
-   const dataset = useLoaderData();
+export default function DatasetAccessControl({ dataset }) {
    useBreadcrumbs(dataset);
-
    const methods = useForm({ values: fromDbModel(dataset) });
    const { control, handleSubmit, register } = methods;
    const { fields, append, remove } = useFieldArray({ control, name: 'accessByProperties' });
    const metadata = dataset.ForvaltningsObjektPropertiesMetadata;
    const [loading, setLoading] = useState(false);
    const [setDatasetAccess] = useSetDatasetAccessMutation();
+   const [getOrganizationName] = useLazyGetOrganizationNameQuery();
    const { showModal } = useModal();
    const accessControlType = useWatch({ control, name: 'accessControlType' });
 
@@ -67,7 +64,7 @@ export default function DatasetAccessControl() {
    const formatTag = useCallback(
       async tag => {
          const formatted = formatOrgNo(tag);
-         const orgName = await getOrganizationName(tag);
+         const orgName = await getOrganizationName(tag).unwrap();
 
          return orgName !== null ?
             <>
@@ -75,7 +72,7 @@ export default function DatasetAccessControl() {
             </> :
             formatted;
       },
-      []
+      [getOrganizationName]
    );
 
    return (

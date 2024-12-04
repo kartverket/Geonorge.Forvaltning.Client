@@ -3,16 +3,17 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { Select, Tags, TextField } from 'components/Form';
 import { isValidOrgNo } from '../helpers';
 import { formatOrgNo } from 'utils/helpers/general';
-import { getOrganizationName } from 'store/services/loaders';
+import { useLazyGetOrganizationNameQuery } from 'store/services/api';
 import styles from '../DatasetAccessControl.module.scss';
 
 export default function DatasetAccessPropertyValue({ valueIndex, propertyIndex, property }) {
    const { control } = useFormContext();
+   const [getOrganizationName] = useLazyGetOrganizationNameQuery();
 
    const formatTag = useCallback(
       async tag => {
          const formatted = formatOrgNo(tag);
-         const orgName = await getOrganizationName(tag);
+         const orgName = await getOrganizationName(tag).unwrap();
 
          return orgName !== null ?
             <>
@@ -20,7 +21,7 @@ export default function DatasetAccessPropertyValue({ valueIndex, propertyIndex, 
             </> :
             formatted;
       },
-      []
+      [getOrganizationName]
    );
 
    return (

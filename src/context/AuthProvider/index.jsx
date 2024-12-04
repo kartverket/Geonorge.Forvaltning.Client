@@ -2,82 +2,83 @@ import { createContext, useState, useEffect, useCallback, useContext } from 'rea
 import { useDispatch } from 'react-redux';
 import { useNavigate } from "react-router-dom";
 import { setUser } from 'store/slices/appSlice';
+import { useLazyGetOrganizationNameQuery } from 'store/services/api';
 import supabase from 'store/services/supabase/client';
 import environment from 'config/environment';
-import { getOrganizationName } from 'store/services/loaders';
 
 export default function AuthProvider({ children }) {
-   const [session, setSession] = useState();
-   const navigate = useNavigate();
-   const dispatch = useDispatch();
+    const [session, setSession] = useState();
+    const [getOrganizationName] = useLazyGetOrganizationNameQuery();
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
 
-   const signIn = useCallback(
-      async () => {
-         await supabase.auth.signInWithOAuth({
-            provider: 'keycloak',
-            options: {
-               scopes: 'openid',
-               redirectTo: environment.AUTH_REDIRECT_TO
+    const signIn = useCallback(
+        async () => {
+            await supabase.auth.signInWithOAuth({
+                provider: 'keycloak',
+                options: {
+                    scopes: 'openid',
+                    redirectTo: environment.AUTH_REDIRECT_TO
+                }
+            });
+        },
+        []
+    );
+
+    const fetchUser = useCallback(
+        async session => {
+            const { data } = await supabase
+                .from('users')
+                .select('organization, role')
+                .single();
+
+            let organizationName = null;
+
+            if (data.organization) {
+                organizationName = await getOrganizationName(data.organization).unwrap();
             }
-         });
-      },
-      []
-   );
 
-   const fetchUser = useCallback(
-      async session => {
-         const { data } = await supabase
-            .from('users')
-            .select('organization, role')
-            .single();
+            const { name, email } = session.user.user_metadata;
 
-         let organizationName = null;
+            dispatch(setUser({ name, email, organization: data.organization, organizationName }));
+        },
+        [dispatch, getOrganizationName]
+    );
 
-         if (data.organization) {
-            organizationName = await getOrganizationName(data.organization);            
-         }
-         
-         const { name, email } = session.user.user_metadata;
+    async function signOut() {
+        await supabase.auth.signOut();
+        navigate('/logg-inn', { replace: true });
+    }
 
-         dispatch(setUser({ name, email, organization: data.organization, organizationName }));
-      },
-      [dispatch]
-   );
+    useEffect(
+        () => {
+            history.replaceState('', document.title, window.location.pathname + window.location.search);
 
-   async function signOut() {
-      await supabase.auth.signOut();
-      navigate('/logg-inn', { replace: true });
-   }
+            supabase.auth.getSession()
+                .then(({ data: { session } }) => {
+                    setSession(session);
+                });
 
-   useEffect(
-      () => {
-         history.replaceState('', document.title, window.location.pathname + window.location.search);
+            const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+                setSession(session);
 
-         supabase.auth.getSession()
-            .then(({ data: { session } }) => {
-               setSession(session);
+                if (session !== null) {
+                    fetchUser(session);
+                } else {
+                    dispatch(setUser(null));
+                }
             });
 
-         const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
-            setSession(session);
+            return () => subscription.unsubscribe();
+        },
+        [dispatch, fetchUser]
+    );
 
-            if (session !== null) {
-               fetchUser(session);
-            } else {
-               dispatch(setUser(null));
-            }
-         });
-
-         return () => subscription.unsubscribe();
-      },
-      [dispatch, fetchUser]
-   );
-
-   return (
-      <AuthContext.Provider value={{ session, signIn, signOut }}>         
-         {children}
-      </AuthContext.Provider>
-   );
+    return (
+        <AuthContext.Provider value={{ session, signIn, signOut }}>
+            {children}
+        </AuthContext.Provider>
+    );
 }
 
 export const AuthContext = createContext({});

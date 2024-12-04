@@ -8,7 +8,7 @@ const DATASET_EPSG = `EPSG:${environment.DATASET_SRID}`;
 export function updateFeature({ id, properties }, map) {
    const feature = getFeatureById(map, id);
 
-   if (!feature) {
+   if (feature === null) {
       return null;
    }
 

@@ -31,6 +31,12 @@
     align-items: center;
     justify-content: space-between;
 
+    > div {
+        display: flex;
+        align-items: center;
+        gap: 36px;
+    }
+
     heading-text {
         margin-top: 32px;
 

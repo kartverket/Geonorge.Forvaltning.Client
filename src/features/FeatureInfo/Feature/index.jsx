@@ -3,8 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { renderProperty } from 'utils/helpers/general';
 import { getProperties } from 'utils/helpers/map';
 import { useUpdateTagMutation } from 'store/services/api';
-import { useLoaderData } from 'react-router-dom';
 import { useModal } from 'context/ModalProvider';
+import { useDataset } from 'context/DatasetProvider';
 import { modalType } from 'components/Modals';
 import { updateDataObject } from 'store/slices/objectSlice';
 import { GeometryType } from 'context/MapProvider/helpers/constants';
@@ -12,7 +12,7 @@ import environment from 'config/environment';
 import styles from '../FeatureInfo.module.scss';
 
 export default function Feature({ feature }) {
-    const dataset = useLoaderData();
+    const dataset = useDataset();
     const [tag, setTag] = useState(feature.get('_tag'));
     const [updateTag] = useUpdateTagMutation();
     const user = useSelector(state => state.app.user);
@@ -24,8 +24,7 @@ export default function Feature({ feature }) {
 
     useEffect(
         () => {
-            const _tag = feature.get('_tag');
-            setTag(_tag);
+            setTag(feature.get('_tag'));
         },
         [feature]
     );

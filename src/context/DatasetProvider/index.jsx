@@ -41,7 +41,17 @@ export default function DatasetProvider({ dataset, children }) {
     );
 
     return (
-        <DatasetContext.Provider value={{ objects, definition: dataset.definition, metadata, featureCollection, allowedValues, analysableDatasetIds, datasetInfo }}>
+        <DatasetContext.Provider
+            value={{
+                objects,
+                definition: dataset.definition,
+                metadata,
+                featureCollection,
+                allowedValues,
+                analysableDatasetIds,
+                datasetInfo
+            }}
+        >
             {children}
         </DatasetContext.Provider>
     );
