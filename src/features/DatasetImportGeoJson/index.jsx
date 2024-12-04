@@ -12,7 +12,7 @@ import { isNil } from 'lodash';
 import gjv from 'geojson-validation';
 import Files from 'react-files';
 import projections from 'config/map/projections.json';
-import Spinner from 'components/Spinner';
+import { Spinner } from 'components';
 import styles from './DatasetImportGeoJson.module.scss';
 
 export default function DatasetImportGeoJson({ dataset }) {

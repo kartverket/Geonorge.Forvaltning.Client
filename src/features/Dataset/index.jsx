@@ -18,15 +18,11 @@ import Editors from './Editors';
 
 export default function Dataset({ dataset }) {
     useBreadcrumbs(dataset.definition);
-
     const { id } = useParams();
     const navigate = useNavigate();
     const [tableExpanded, setTableExpanded] = useState(false);
     const user = useSelector(state => state.app.user);
-    // const selectedFeature = useSelector(state => state.map.selectedFeature);
-    // const editMode = useSelector(state => state.map.editMode);
     const fullscreen = useSelector(state => state.app.fullscreen);
-
     const { showModal } = useModal();
     const dispatch = useDispatch();
 

@@ -1,9 +1,8 @@
 import { createBrowserRouter, redirect } from 'react-router-dom';
-import { getDataset, getDatasetDefinition, getDatasetDefinitions } from 'store/services/loaders';
-import { ErrorBoundary, Home, Login, NotFound, DatasetAccessControl, DatasetDefinitions, DatasetImportCsv, DatasetNew } from 'features';
+import { ErrorBoundary, Login, NotFound } from 'features';
+import { Dataset, DatasetAccessControl, DatasetDefinitions, DatasetImportCsv, DatasetImportGeoJson, DatasetNew, Home } from 'pages';
+import { signedIn } from 'store/services/supabase/client';
 import App from 'App';
-import DefaultLayout from 'components/DefaultLayout';
-import { Dataset, DatasetImportGeoJson } from 'pages';
 
 const router = createBrowserRouter([
     {
@@ -16,27 +15,14 @@ const router = createBrowserRouter([
             {
                 index: true,
                 path: '/',
-                element: (
-                    <DefaultLayout>
-                        <Home />
-                    </DefaultLayout>
-                ),
-                loader: () => {
-                    const error = catchLoginError();
-
-                    return error === null ?
-                        getDatasetDefinitions() :
-                        redirect(`/logg-inn?error=${error}`);
-                },
+                element: <Home />,
+                loader: authGuard,
                 errorElement: <ErrorBoundary />,
             },
             {
                 path: '/datasett/nytt',
-                element: (
-                    <DefaultLayout>
-                        <DatasetNew />
-                    </DefaultLayout>
-                ),
+                element: <DatasetNew />,
+                loader: authGuard,
                 handle: {
                     pageName: () => 'Legg til datasett'
                 },
@@ -44,6 +30,7 @@ const router = createBrowserRouter([
             },
             {
                 path: '/datasett/:id',
+                loader: authGuard,
                 handle: {
                     pageName: data => data.Name
                 },
@@ -67,39 +54,24 @@ const router = createBrowserRouter([
                         errorElement: <ErrorBoundary />
                     },
                     {
-                        element: (
-                            <DefaultLayout>
-                                <DatasetImportCsv />
-                            </DefaultLayout>
-                        ),
+                        element: <DatasetImportCsv />,
                         path: 'import/csv',
-                        loader: getDatasetDefinition,
                         handle: {
                             pageName: () => 'Importer CSV'
                         },
                         errorElement: <ErrorBoundary />
                     },
                     {
-                        element: (
-                            <DefaultLayout>
-                                <DatasetDefinitions />
-                            </DefaultLayout>
-                        ),
+                        element: <DatasetDefinitions />,
                         path: 'definisjoner',
-                        loader: getDatasetDefinition,
                         handle: {
                             pageName: () => 'Definisjoner'
                         },
                         errorElement: <ErrorBoundary />
                     },
                     {
-                        element: (
-                            <DefaultLayout>
-                                <DatasetAccessControl />
-                            </DefaultLayout>
-                        ),
+                        element: <DatasetAccessControl />,
                         path: 'tilganger',
-                        loader: getDatasetDefinition,
                         handle: {
                             pageName: () => 'Tilganger'
                         },
@@ -123,8 +95,17 @@ const router = createBrowserRouter([
     }
 ]);
 
-function catchLoginError() {
-    return new URLSearchParams(location.search).get('error_description');
+async function authGuard() {
+    if (await signedIn()) {
+        return true;
+    }
+
+    const error = new URLSearchParams(location.search).get('error_description');
+    const url = error !== null ?
+        `/logg-inn?error=${error}` :
+        '/logg-inn';
+
+    return redirect(url);
 }
 
 export default router;

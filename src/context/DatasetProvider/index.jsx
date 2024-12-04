@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useRef, useState } from 'react';
+import { createContext, useContext, useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { useGetAnalysableDatasetIdsQuery } from 'store/services/api';
 import { createFeatureCollectionGeoJson, getAllowedValuesForUser } from './helpers';

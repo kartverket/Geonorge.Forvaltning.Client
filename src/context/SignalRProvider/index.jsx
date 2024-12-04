@@ -49,7 +49,7 @@ export default function SignalRProvider({ messageHandlers, children }) {
 
             connect();
         },
-        [connection, dispatch]
+        [connection, dispatch, messageHandlers]
     );
 
     const send = useCallback(

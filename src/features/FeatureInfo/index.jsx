@@ -19,6 +19,7 @@ import environment from 'config/environment';
 import FeatureForm from './FeatureForm';
 import Feature from './Feature';
 import styles from './FeatureInfo.module.scss';
+import { RemoteEditor } from 'components';
 
 function FeatureInfo() {
     const { definition, metadata, analysableDatasetIds } = useDataset();
@@ -156,7 +157,7 @@ function FeatureInfo() {
 
     const remoteEditor = useMemo(
         () => {
-            if (editedDataObjects.length === 0) {
+            if (feature === null || editedDataObjects.length === 0) {
                 return null;
             }
 
@@ -371,6 +372,14 @@ function FeatureInfo() {
                                             featureToEdit === null && feature?.get('_featureType') === 'default' ?
                                                 <div className={styles.right}>
                                                     {
+                                                        remoteEditor !== null && (
+                                                            <RemoteEditor
+                                                                editor={remoteEditor}
+                                                                className={styles.remoteEditor}
+                                                            />
+                                                        )
+                                                    }
+                                                    {
                                                         analysableDatasetIds.length > 0 ?
                                                             <gn-button>
                                                                 <button onClick={analyze} className={styles.analysis}>Analyse</button>
@@ -382,17 +391,6 @@ function FeatureInfo() {
                                                             <gn-button>
                                                                 <button onClick={edit} className={styles.edit}>Rediger</button>
                                                             </gn-button>
-                                                        )
-                                                    }
-                                                    {
-                                                        remoteEditor !== null && (
-                                                            <div
-                                                                title={`Objektet redigeres av ${remoteEditor.username}`}
-                                                                className={styles.busyEdit}
-                                                                style={{ backgroundColor: remoteEditor.color }}
-                                                            >
-                                                                {remoteEditor.username}
-                                                            </div>
                                                         )
                                                     }
                                                 </div> :

@@ -18,7 +18,7 @@ export default function Dataset() {
         if (currentLocation.pathname !== nextLocation.pathname) {
             dispatch(toggleFullscreen(false));
             dispatch(setPointerPositions(null));            
-            send(messageType.SendCursorMoved, {});
+            send(messageType.SendPointerMoved, {});
         }
 
         return false;

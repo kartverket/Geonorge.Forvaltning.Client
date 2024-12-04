@@ -2,7 +2,6 @@ import { useMemo, useRef, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectFeature } from 'store/slices/mapSlice';
 import { deleteDataObjects, setShowObjectsInExtent, updateDataObject } from 'store/slices/objectSlice';
-import { useRevalidator } from 'react-router-dom';
 import { Table, Header, HeaderRow, Body, HeaderCell, Row, Cell } from '@table-library/react-table-library/table';
 import { useTheme } from '@table-library/react-table-library/theme';
 import { usePagination } from '@table-library/react-table-library/pagination';
@@ -23,19 +22,18 @@ import { BooleanSelect, DatePicker, Select, TextField } from 'components/Form';
 import useDebounceValue from 'hooks/useDebouceValue';
 import ReactPaginate from 'react-paginate';
 import useFilters from './Filters/useFilters';
+import { RemoteEditor } from 'components';
 import Filters from './Filters';
 import styles from './DatasetTable.module.scss';
+
 
 export default function DatasetTable() {
     const { objects, definition, metadata, allowedValues } = useDataset();
     const { connectionId, send } = useSignalR();
     const { map } = useMap();
-    const user = useSelector(state => state.app.user);
     const [editMode, setEditMode] = useState(false);
     const [update] = useUpdateDatasetObjectMutation();
     const [_delete] = useDeleteDatasetObjectsMutation();
-    const revalidator = useRevalidator();
-    const dispatch = useDispatch();
     const { showModal } = useModal();
     const [selectedRows, setSelectedRows] = useState({ ids: [] });
     const [showOnlyInExtent, setShowOnlyInExtent] = useState(false);
@@ -43,7 +41,17 @@ export default function DatasetTable() {
     const visibleTableRowsRef = useRef([]);
     const theme = useTheme(tableTheme);
     const { data, setFilters } = useFilters(objects, metadata);
-    const updatedDataObject = useSelector(state => state.object.updatedDataObject);
+    const user = useSelector(state => state.app.user);
+    const _editedDataObjects = useSelector(state => state.object.editedDataObjects);
+    const dispatch = useDispatch();
+
+    const editedDataObjects = useMemo(
+        () => {
+            return _editedDataObjects
+                .filter(object => object.connectionId !== connectionId && object.datasetId === definition.Id);
+        },
+        [_editedDataObjects, connectionId, definition.Id]
+    );    
 
     useEffect(
         () => {
@@ -120,6 +128,10 @@ export default function DatasetTable() {
         return user !== null && (definition.Viewers === null || !definition.Viewers.includes(user.organization));
     }
 
+    function canEditObject(objectId) {
+        return !editedDataObjects.some(dataObject => dataObject.objectId === objectId);
+    }
+
     function renderFormControl(name, value, dataType, objectId) {
         if (dataType === 'bool') {
             return (
@@ -167,6 +179,18 @@ export default function DatasetTable() {
         );
     }
 
+    function renderRemoteEditor(objectId) {
+        if (editedDataObjects.length === 0) {
+            return null;
+        }
+
+        const dataObject = editedDataObjects.find(dataObject => dataObject.objectId === objectId);
+
+        return dataObject ?
+            <RemoteEditor editor={dataObject} className={styles.remoteEditor} /> :
+            null;
+    }
+
     async function handleUpdate(event, objectId) {
         const { name, value } = event.target;
         const payload = { [name]: value };
@@ -197,7 +221,12 @@ export default function DatasetTable() {
     }
 
     async function deleteRows() {
-        const toDelete = select.state.ids.filter(id => visibleTableRowsRef.current.includes(id));
+        const editedObjectIds = editedDataObjects
+            .map(dataObject => dataObject.objectId);
+
+        const toDelete = select.state.ids
+            .filter(id => visibleTableRowsRef.current.includes(id) && !editedObjectIds.includes(id));
+
         const count = toDelete.length;
 
         if (count === 0) {
@@ -223,8 +252,9 @@ export default function DatasetTable() {
             }).unwrap();
 
             setSelectedRows({ ids: [] });
-            revalidator.revalidate();
             dispatch(deleteDataObjects(toDelete));
+
+            await send(messageType.SendObjectsDeleted, { datasetId: definition.Id, ids: toDelete });
         } catch (error) {
             console.error(error);
 
@@ -322,12 +352,15 @@ export default function DatasetTable() {
                                                             className={`${styles.tableRow}`}
                                                             onClick={handleRowClick}
                                                         >
-                                                            <Cell>{item.id}</Cell>
+                                                            <Cell className={styles.idCell}>
+                                                                {item.id}
+                                                                {renderRemoteEditor(item.id)}
+                                                            </Cell>
                                                             {
                                                                 metadata.map(data => (
                                                                     <Cell key={data.ColumnName}>
                                                                         {
-                                                                            !editMode ?
+                                                                            !editMode || !canEditObject(item.id) ?
                                                                                 renderProperty({ value: item[data.ColumnName], dataType: data.DataType }) :
                                                                                 renderFormControl(data.ColumnName, item[data.ColumnName], data.DataType, item.id)
                                                                         }
@@ -336,7 +369,7 @@ export default function DatasetTable() {
                                                             }
                                                             <Cell stiff className={styles.checkboxCell}>
                                                                 {
-                                                                    editMode ?
+                                                                    editMode && canEditObject(item.id) ?
                                                                         <label>
                                                                             <gn-input>
                                                                                 <input

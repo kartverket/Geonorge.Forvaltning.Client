@@ -3,7 +3,7 @@ import { Vector as VectorLayer } from 'ol/layer';
 import { GeoJSON } from 'ol/format';
 import { Point } from 'ol/geom';
 import { GeometryType } from './constants';
-import { getEpsgCode, getLayer, getVectorSource, readGeoJsonFeature, writeGeometryObject } from 'utils/helpers/map';
+import { getEpsgCode, getLayer, getVectorSource, writeGeometryObject } from 'utils/helpers/map';
 import { clusterStyle, featureStyle } from './style';
 import getCentroid from '@turf/centroid';
 import environment from 'config/environment';

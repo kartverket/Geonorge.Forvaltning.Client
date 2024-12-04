@@ -224,6 +224,7 @@ export const {
    useGetDatasetDefinitionQuery,
    useGetDatasetQuery,
    useGetAnalysableDatasetIdsQuery,
+   useLazyGetOrganizationNameQuery,
    useAddDatasetMutation,
    useUpdateDatasetMutation,
    useUpdateTagMutation,
