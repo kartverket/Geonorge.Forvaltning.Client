@@ -14,9 +14,16 @@ export async function getDataset(id) {
 }
 
 async function getDatasetData(metadata) {
+
    const table = metadata.TableName;
-   const columns = metadata.ForvaltningsObjektPropertiesMetadata.map(metadata => metadata.ColumnName);
+   const columns = metadata.ForvaltningsObjektPropertiesMetadata.filter(prop => prop.hidden === false).map(metadata => metadata.ColumnName);
+   const hiddenColumns = metadata.ForvaltningsObjektPropertiesMetadata.filter(prop => prop.hidden === true).map(prop => prop.ColumnName);
+
    let select = `id, ${columns.join(', ')}, geometry`;
+
+   if(hiddenColumns.length > 0) {
+      select += `, ${table}_hidden (${hiddenColumns.join(', ')})`;
+   }
 
    if (metadata.Id === environment.TAG_DATASET_ID) {
       select += ', tag'
