@@ -51,7 +51,6 @@ export function createFeatureGeoJson(metadata, object = {}) {
    metadata.forEach(data => {
       if(data.hidden && !isNil(object['t_96_hidden']))  //todo get table name from metadata
       {        
-         console.log(data);
          feature.properties[data.ColumnName] = {
             name: data.Name,
             value: !isNil(object['t_96_hidden'][data.ColumnName]) ? object['t_96_hidden'][data.ColumnName] : null,

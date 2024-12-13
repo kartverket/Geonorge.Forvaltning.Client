@@ -20,10 +20,23 @@ export async function addDatasetObjects(payload, table) {
 }
 
 export async function updateDatasetObject(id, payload, table) {
-   const { error } = await supabase
+
+      //todo read hidden columns from metadata
+      let payloadHidden = {"c_3" : payload["c_3"]};
+      delete payload['c_3'];
+
+      payload['contributor_org'] = ['914994780']; // todo why problem double [[ sometimes ?
+
+      const { error } = await supabase
       .from(table)
       .update(payload)
       .eq('id', id)
+
+      await supabase // todo handle error
+      .from(table + '_hidden')
+      .update(payloadHidden)
+      .eq('id_row', id)
+
 
    return { data: null, error };
 }
