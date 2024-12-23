@@ -11,7 +11,7 @@ export async function getDatasetDefinitions() {
 export async function getDatasetDefinition(id) {
    const { data, error } = await supabase
       .from('ForvaltningsObjektMetadata')
-      .select('Id, Organization, Name, Description, TableName, IsOpenData, Contributors, Viewers, AttachedForvaltningObjektMetadataIds, ForvaltningsObjektPropertiesMetadata (Id, Name, DataType, ColumnName, AllowedValues, AccessByProperties (Id, Value, Contributors))')
+      .select('Id, Organization, Name, Description, TableName, IsOpenData, Contributors, Viewers, AttachedForvaltningObjektMetadataIds, ForvaltningsObjektPropertiesMetadata (Id, Name, DataType, ColumnName, AllowedValues, Hidden, AccessByProperties (Id, Value, Contributors))')
       .eq('Id', id)
       .single();
 
