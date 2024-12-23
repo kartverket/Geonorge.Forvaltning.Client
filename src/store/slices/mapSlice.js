@@ -8,6 +8,7 @@ const initialState = {
     styling: null,
     featuresInExtent: [],
     pointerPositions: {},
+    mapExtent: null,
     editMode: false,
     editor: {
         show: false,
@@ -112,6 +113,12 @@ export const mapSlice = createSlice({
                 ...state,
                 pointerPositions
             };
+        },
+        setMapExtent: (state, action) => {
+            return {
+                ...state,
+                mapExtent: action.payload
+            };
         }
     }
 });
@@ -127,7 +134,8 @@ export const {
     toggleEditor,
     setFeaturesSelected,
     setPointerPositions, 
-    removePointerPositions
+    removePointerPositions,
+    setMapExtent
 } = mapSlice.actions;
 
 export default mapSlice.reducer;

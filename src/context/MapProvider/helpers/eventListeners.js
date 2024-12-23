@@ -13,139 +13,139 @@ const CLUSTER_MAX_ZOOM = 14;
 const MAP_PADDING = [50, 50, 50, 50];
 
 export function toggleClusteredFeatures(map) {
-   const mapZoom = map.getView().getZoom();
-   const layer = getLayer(map, 'features');
-   const isCluster = layer.get('_isCluster');
+    const mapZoom = map.getView().getZoom();
+    const layer = getLayer(map, 'features');
+    const isCluster = layer.get('_isCluster');
 
-   if (mapZoom >= CLUSTER_MAX_ZOOM && isCluster) {
-      toggleCluster(layer, false);
-   } else if (mapZoom < CLUSTER_MAX_ZOOM && !isCluster) {
-      toggleCluster(layer, true);
-   }
+    if (mapZoom >= CLUSTER_MAX_ZOOM && isCluster) {
+        toggleCluster(layer, false);
+    } else if (mapZoom < CLUSTER_MAX_ZOOM && !isCluster) {
+        toggleCluster(layer, true);
+    }
 }
 
 export function handleContextMenu(event, map) {
-   event.preventDefault();
+    event.preventDefault();
 
-   if (isEditMode()) {
-      return;
-   }
+    if (isEditMode()) {
+        return;
+    }
 
-   const features = map.getFeaturesAtPixel(event.pixel);
+    const features = map.getFeaturesAtPixel(event.pixel);
 
-   if (features.length > 0) {
-      return;
-   }
+    if (features.length > 0) {
+        return;
+    }
 
-   const coordinates = map.getCoordinateFromPixel(event.pixel);
-   const lonLat = transformCoordinates(environment.MAP_EPSG, `EPSG:${environment.DATASET_SRID}`, coordinates);
-   const roundedLonLat = roundCoordinates(lonLat);
-   const originalEvent = event.originalEvent;
+    const coordinates = map.getCoordinateFromPixel(event.pixel);
+    const lonLat = transformCoordinates(environment.MAP_EPSG, `EPSG:${environment.DATASET_SRID}`, coordinates);
+    const roundedLonLat = roundCoordinates(lonLat);
+    const originalEvent = event.originalEvent;
 
-   store.dispatch(setMapContextMenuData({ 
-      pixels: {
-         x: originalEvent.clientX, 
-         y: originalEvent.clientY 
-      },
-      coordinates,
-      lonLat: roundedLonLat
-   }));
+    store.dispatch(setMapContextMenuData({
+        pixels: {
+            x: originalEvent.clientX,
+            y: originalEvent.clientY
+        },
+        coordinates,
+        lonLat: roundedLonLat
+    }));
 }
 
 export async function handleMapClick(event, map) {
-   if (isEditMode()) {
-      return;
-   }
+    if (isEditMode()) {
+        return;
+    }
 
-   const layer = getLayer(map, 'features');
+    const layer = getLayer(map, 'features');
 
-   if (!layer.get('_isCluster')) {
-      handleNonClusteredFeatures(map, event);
-      return;
-   }
+    if (!layer.get('_isCluster')) {
+        handleNonClusteredFeatures(map, event);
+        return;
+    }
 
-   const [clusterFeature] = await layer.getFeatures(event.pixel);
+    const [clusterFeature] = await layer.getFeatures(event.pixel);
 
-   if (!clusterFeature) {
-      return;
-   }
+    if (!clusterFeature) {
+        return;
+    }
 
-   const features = clusterFeature.get('features');
+    const features = clusterFeature.get('features');
 
-   if (features.length === 1) {
-      store.dispatch(selectFeature({ id: features[0].get('id').value, zoom: true, featureType: features[0].get('_featureType') }));
-   } else if (features.length > 1) {
-      const extent = createEmpty();
-      features.forEach(feature => extend(extent, feature.getGeometry().getExtent()));
+    if (features.length === 1) {
+        store.dispatch(selectFeature({ id: features[0].get('id').value, zoom: true, featureType: features[0].get('_featureType') }));
+    } else if (features.length > 1) {
+        const extent = createEmpty();
+        features.forEach(feature => extend(extent, feature.getGeometry().getExtent()));
 
-      const view = map.getView();
-      view.fit(extent, { duration: 500, padding: MAP_PADDING, maxZoom: 18 });
-   }
+        const view = map.getView();
+        view.fit(extent, { duration: 500, padding: MAP_PADDING, maxZoom: 18 });
+    }
 }
 
-export function setFeatureIdsInExtent(map) {  
-   if (!showObjectsInExtent()) {
-      return;
-   }
+export function setFeatureIdsInExtent(map) {
+    if (!showObjectsInExtent()) {
+        return;
+    }
 
-   const view = map.getView();
-   const point = createPoint(view.getCenter());
-   const centerPoint = reproject(point, environment.MAP_EPSG, `EPSG:${environment.DATASET_SRID}`);
-   const extent = view.calculateExtent(map.getSize());
-   const layer = getLayer(map, 'features');
-   const source = getVectorSource(layer);
-   const features = [];
+    const view = map.getView();
+    const point = createPoint(view.getCenter());
+    const centerPoint = reproject(point, environment.MAP_EPSG, `EPSG:${environment.DATASET_SRID}`);
+    const extent = view.calculateExtent(map.getSize());
+    const layer = getLayer(map, 'features');
+    const source = getVectorSource(layer);
+    const features = [];
 
-   source.forEachFeatureInExtent(extent, feature => {
-      const geometry = writeGeometryObject(feature.getGeometry(), 'EPSG:3857', 'EPSG:4326');
-      const centroid = getCentroid(geometry);
-      const distance = getDistance(centerPoint, centroid, { units: 'meters' });
+    source.forEachFeatureInExtent(extent, feature => {
+        const geometry = writeGeometryObject(feature.getGeometry(), 'EPSG:3857', 'EPSG:4326');
+        const centroid = getCentroid(geometry);
+        const distance = getDistance(centerPoint, centroid, { units: 'meters' });
 
-      features.push({
-         id: feature.get('id').value,
-         distance
-      });
-   });
+        features.push({
+            id: feature.get('id').value,
+            distance
+        });
+    });
 
-   inPlaceSort(features).by({ asc: feature => feature.distance });
-   const featureIds = features.map(feature => feature.id);
+    inPlaceSort(features).by({ asc: feature => feature.distance });
+    const featureIds = features.map(feature => feature.id);
 
-   store.dispatch(setFeaturesInExtent(featureIds));
+    store.dispatch(setFeaturesInExtent(featureIds));
 }
 
 function handleNonClusteredFeatures(map, event) {
-   const features = map
-      .getFeaturesAtPixel(event.pixel, { hitTolerance: 10 });
+    const features = map
+        .getFeaturesAtPixel(event.pixel, { hitTolerance: 10 });
 
-   if (features.length === 1) {
-      store.dispatch(selectFeature({ id: features[0].get('id').value, zoom: true, featureType: features[0].get('_featureType') }));
-   } else if (features.length > 1) {
-      const originalEvent = event.originalEvent;
-      const featureIds = features.map(feature => feature.get('id').value);
+    if (features.length === 1) {
+        store.dispatch(selectFeature({ id: features[0].get('id').value, zoom: true, featureType: features[0].get('_featureType') }));
+    } else if (features.length > 1) {
+        const originalEvent = event.originalEvent;
+        const featureIds = features.map(feature => feature.get('id').value);
 
-      store.dispatch(setFeatureContextMenuData({ 
-         pixels: {
-            x: originalEvent.clientX, 
-            y: originalEvent.clientY 
-         },
-         featureIds      
-      }));
-   }
+        store.dispatch(setFeatureContextMenuData({
+            pixels: {
+                x: originalEvent.clientX,
+                y: originalEvent.clientY
+            },
+            featureIds
+        }));
+    }
 }
 
 function toggleCluster(layer, toggle) {
-   const disabledSource = layer.get('_disabledSource')
-   const currentSource = layer.getSource();
+    const disabledSource = layer.get('_disabledSource')
+    const currentSource = layer.getSource();
 
-   layer.set('_isCluster', toggle);
-   layer.setSource(disabledSource);
-   layer.set('_disabledSource', currentSource);
+    layer.set('_isCluster', toggle);
+    layer.setSource(disabledSource);
+    layer.set('_disabledSource', currentSource);
 }
 
 function isEditMode() {
-   return store.getState().map.editMode;
+    return store.getState().map.editMode;
 }
 
 function showObjectsInExtent() {
-   return store.getState().object.showObjectsInExtent;
+    return store.getState().object.showObjectsInExtent;
 }

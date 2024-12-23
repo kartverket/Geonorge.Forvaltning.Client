@@ -10,6 +10,7 @@ export default function Cursors() {
     const { map } = useMap();
     const { definition } = useDataset();
     const pointerPositions = useSelector(state => state.map.pointerPositions);
+    const mapExtent = useSelector(state => state.map.mapExtent);
 
     const cursors = useMemo(
         () => {
@@ -17,8 +18,8 @@ export default function Cursors() {
                 return null;
             }
 
-            const extent = map.getView().calculateExtent(map.getSize());
-
+            const extent = mapExtent || map.getView().calculateExtent(map.getSize());
+            
             return Object.values(pointerPositions)
                 .filter(value => value.datasetId === definition.Id && containsXY(extent, ...value.coordinate))
                 .map(value => {
@@ -34,7 +35,7 @@ export default function Cursors() {
                     );
                 });
         },
-        [map, pointerPositions, definition.Id]
+        [map, pointerPositions, mapExtent, definition.Id]
     );
 
     return cursors;

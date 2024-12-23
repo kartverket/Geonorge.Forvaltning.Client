@@ -107,7 +107,7 @@ export default function MapView({ tableExpanded }) {
 
             const pointerMoved = throttle(event => {
                 send(messageType.SendPointerMoved, { datasetId: datasetInfo.id, coordinate: event.coordinate });
-            }, 150);
+            }, 250);
 
             map.on('pointermove', pointerMoved);
 
