@@ -86,7 +86,7 @@ export default function DatasetProperty({ index }) {
                </div> :
                null
          }
-         <div>
+         <div className={styles.hiddenProperty}>
             <Controller
                control={control}
                name={`properties.${index}.hidden`}
@@ -95,7 +95,7 @@ export default function DatasetProperty({ index }) {
                      id={`properties.${index}.hidden`}
                      {...field}
                      error={error}
-                     label="Skjult egenskap"
+                     label="Skjul for bruker med lesetilgang"
                      checked={hidden}
                   />
                )}
