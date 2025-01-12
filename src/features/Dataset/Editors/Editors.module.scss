@@ -1,0 +1,22 @@
+.editors {
+    display: flex;
+    gap: 6px;
+    height: fit-content;
+
+    &::before {
+        content: '';
+        background: url('../../../assets/gfx/icon-edit.svg') no-repeat center;
+        width: 20px;
+        height: 25px;
+        background-size: 14px;
+        margin-right: -2px;  
+    }
+}
+
+.editor {
+    border: 1px solid #ffffff;
+    border-radius: 4px;
+    padding: 3px 6px;
+    color: #ffffff;
+    font-size: 13px;
+}

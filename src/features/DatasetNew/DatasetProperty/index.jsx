@@ -1,5 +1,5 @@
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
-import { Select, TextField } from 'components/Form';
+import { Checkbox, Select, TextField } from 'components/Form';
 import { useModal } from 'context/ModalProvider';
 import { modalType } from 'components/Modals';
 import styles from './DatasetProperty.module.scss';
@@ -14,6 +14,7 @@ const DATA_TYPES = [
 export default function DatasetProperty({ index }) {
    const { control, setValue, getValues } = useFormContext();
    const dataType = useWatch({ name: `properties.${index}.dataType` });
+   const hidden = useWatch({ name: `properties.${index}.hidden` });
    const allowedValues = useWatch({ name: `properties.${index}.allowedValues` });
    const { showModal } = useModal();
 
@@ -85,6 +86,21 @@ export default function DatasetProperty({ index }) {
                </div> :
                null
          }
+         <div className={styles.hiddenProperty}>
+            <Controller
+               control={control}
+               name={`properties.${index}.hidden`}
+               render={({ field, fieldState: { error } }) => (
+                  <Checkbox
+                     id={`properties.${index}.hidden`}
+                     {...field}
+                     error={error}
+                     label="Skjul for bruker med lesetilgang"
+                     checked={hidden}
+                  />
+               )}
+            />
+         </div>
       </div>
    )
 }

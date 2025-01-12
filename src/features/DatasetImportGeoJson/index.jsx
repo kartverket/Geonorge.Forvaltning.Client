@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useLoaderData } from 'react-router-dom';
 import { useAddDatasetObjectsMutation, useDeleteAllDatasetObjectsMutation } from 'store/services/api';
 import { useBreadcrumbs } from 'features/Breadcrumbs';
 import { filesize } from 'filesize';
@@ -13,11 +12,10 @@ import { isNil } from 'lodash';
 import gjv from 'geojson-validation';
 import Files from 'react-files';
 import projections from 'config/map/projections.json';
-import Spinner from 'components/Spinner';
+import { Spinner } from 'components';
 import styles from './DatasetImportGeoJson.module.scss';
 
-export default function DatasetImportGeoJson() {
-   const dataset = useLoaderData();
+export default function DatasetImportGeoJson({ dataset }) {
    useBreadcrumbs(dataset);
 
    const metadatas = dataset.ForvaltningsObjektPropertiesMetadata;

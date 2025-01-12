@@ -13,7 +13,7 @@ import { toGeoJson } from './exportGeoJson';
 import { createMapImages } from './PdfExport/helpers';
 import dayjs from 'dayjs';
 import PdfExport from './PdfExport';
-import Spinner from 'components/Spinner';
+import { Spinner } from 'components';
 import styles from './AnalysisResult.module.scss';
 
 export default function AnalysisResult() {

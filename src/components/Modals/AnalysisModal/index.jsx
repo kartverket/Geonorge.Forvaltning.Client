@@ -2,10 +2,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { Controller, FormProvider, useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { useAnalayzeMutation, useGetDatasetDefinitionsQuery } from 'store/services/api';
 import { Select, TextField } from 'components/Form';
+import { Spinner } from 'components';
 import { useModal } from 'context/ModalProvider';
 import { modalType } from '..';
 import Filter from './Filter';
-import Spinner from 'components/Spinner';
 import styles from './AnalysisModal.module.scss';
 
 export default function AnalysisModal({ datasetId, objectId, datasetIds, onClose, callback }) {

@@ -53,7 +53,7 @@ export function getFeatureById(map, id, featureType = 'default', layerName = 'fe
    const source = getVectorSource(layer);
 
    return source.getFeatures()
-      .find(feature => feature.get('id')?.value === id && feature.get('_featureType') === featureType);
+      .find(feature => feature.get('id')?.value === id && feature.get('_featureType') === featureType) || null;
 }
 
 export function getFeaturesById(map, ids, layerName = 'features') {
