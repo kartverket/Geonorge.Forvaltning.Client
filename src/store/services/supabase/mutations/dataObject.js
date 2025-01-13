@@ -2,27 +2,11 @@ import supabase from 'store/services/supabase/client';
 
 export async function addDatasetObject(payload, table) {
 
-      //todo read hidden columns from metadata
-      let payloadHidden = {"c_3" : payload["c_3"]};
-      delete payload['c_3'];
-
-      payload['contributor_org'] = ['914994780']; // todo why problem double [[ sometimes ?
-
    const { data, error } = await supabase
       .from(table)
       .insert(payload)
       .select()
       .single();
-
-      console.log(data);
-      
-      payloadHidden['id_row'] = data.id;
-      payloadHidden['owner_org'] = '971040238'; //todo get data
-      payloadHidden['contributor_org'] = ['914994780']; //todo get data
-
-      await supabase // todo handle error
-      .from(table + '_hidden')
-      .insert(payloadHidden);   
 
    return { data, error };
 }
@@ -38,22 +22,10 @@ export async function addDatasetObjects(payload, table) {
 
 export async function updateDatasetObject(id, payload, table) {
 
-      //todo read hidden columns from metadata
-      let payloadHidden = {"c_3" : payload["c_3"]};
-      delete payload['c_3'];
-
-      payload['contributor_org'] = ['914994780']; // todo why problem double [[ sometimes ?
-
       const { error } = await supabase
       .from(table)
       .update(payload)
       .eq('id', id)
-
-      await supabase // todo handle error
-      .from(table + '_hidden')
-      .update(payloadHidden)
-      .eq('id_row', id)
-
 
    return { data: null, error };
 }
