@@ -59,10 +59,36 @@ export async function updateDatasetObject(id, payload, table) {
 }
 
 export async function deleteDatasetObjects(ids, table) {
-   const { error } = await supabase
+   /*const { error } = await supabase
       .from(table)
       .delete()
-      .in('id', ids);
+      .in('id', ids);*/
+
+   let error = null;
+   try {
+      const accessToken = await getAccessToken();
+      const bearer = `Bearer ${accessToken}`;
+
+      var idDataset = table.replace("t_", "");
+
+      for (const id of ids) {
+         const response = await fetch(environment.API_BASE_URL + '/Object/'+ idDataset + "/" + id, { 
+            method: 'DELETE',
+            headers: new Headers({
+               'Content-type': 'application/json',
+               'Authorization': bearer,
+               'Apikey': environment.SUPABASE_ANON_KEY,
+            })
+         });
+   
+         if (!response.ok) {
+           throw new Error('Network response was not ok.');
+         }
+      }
+   }
+   catch (error) {
+      console.error('There has been a problem with your fetch operation:', error);
+   }
 
    return { data: null, error };
 }
