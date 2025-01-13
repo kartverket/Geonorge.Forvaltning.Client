@@ -4,11 +4,40 @@ import environment from 'config/environment';
 
 export async function addDatasetObject(payload, table) {
 
-   const { data, error } = await supabase
+   /*const { data, error } = await supabase
       .from(table)
       .insert(payload)
       .select()
       .single();
+      */
+   let error = null;
+   let data = null;
+
+   try {
+      const accessToken = await getAccessToken();
+      const bearer = `Bearer ${accessToken}`;
+
+      var idDataset = table.replace("t_", "");
+
+      const response = await fetch(environment.API_BASE_URL + '/Object/'+ idDataset, { 
+         method: 'POST',
+         headers: new Headers({
+            'Content-type': 'application/json',
+            'Authorization': bearer,
+            'Apikey': environment.SUPABASE_ANON_KEY,
+         }),
+         body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok.');
+      }
+
+      data = await response.json();
+   }
+   catch (error) {
+      console.error('There has been a problem with your fetch operation:', error);
+   }
 
    return { data, error };
 }
