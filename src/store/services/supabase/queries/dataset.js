@@ -1,4 +1,4 @@
-import supabase from 'store/services/supabase/client';
+import { getAccessToken } from 'store/services/supabase/client';
 import { getDatasetDefinition } from './datasetDefinition';
 import { getRowCount } from './common';
 import environment from 'config/environment';
@@ -14,15 +14,23 @@ export async function getDataset(id) {
 }
 
 async function getDatasetData(metadata) {
+
    const table = metadata.TableName;
    const columns = metadata.ForvaltningsObjektPropertiesMetadata.map(metadata => metadata.ColumnName);
+   //const columns = metadata.ForvaltningsObjektPropertiesMetadata.filter(prop => prop.Hidden === false).map(metadata => metadata.ColumnName);
+   //const hiddenColumns = metadata.ForvaltningsObjektPropertiesMetadata.filter(prop => prop.Hidden === true).map(prop => prop.ColumnName);
+
    let select = `id, ${columns.join(', ')}, geometry`;
+
+   //if(hiddenColumns.length > 0) {
+   //   select += `, ${table}_hidden (${hiddenColumns.join(', ')})`;
+   //}
 
    if (metadata.Id === environment.TAG_DATASET_ID) {
       select += ', tag'
    }
 
-   const { data: objects, error } = await getData(table, select);
+   const { data: objects, error } = await getData(metadata.Id);
 
    if (error !== null) {
       return { data: null, error };
@@ -38,21 +46,32 @@ async function getDatasetData(metadata) {
    };
 }
 
-async function getData(table, select) {
-   const { count } = await getRowCount(table);
-   const queryCount = Math.ceil(count / environment.SUPABASE_MAX_ROWS);
-   const promises = [];
+async function getData(id) {
 
-   for (let i = 0; i < queryCount; i++) {
-      promises.push(supabase
-         .from(table)
-         .select(select)
-         .range(i * environment.SUPABASE_MAX_ROWS, i * environment.SUPABASE_MAX_ROWS + 999)
-         .order('id', { ascending: false })
-      );
-   }
+   const promises = [];
+      try {
+
+         const accessToken = await getAccessToken();
+         const bearer = `Bearer ${accessToken}`;
+
+         const response = await fetch(environment.API_BASE_URL + '/Object/'+ id, { 
+            headers: new Headers({
+               'Content-type': 'application/json',
+               'Authorization': bearer,
+               'Apikey': environment.SUPABASE_ANON_KEY,
+            })}
+         );
+         if (!response.ok) {
+           throw new Error('Network response was not ok.');
+         }
+         promises.push(await response.json());
+      }
+      catch (error) {
+         console.error('There has been a problem with your fetch operation:', error);
+      }
 
    const results = await Promise.all(promises);
+   console.log(results);
    const error = results.find(result => result.error !== null)?.error;
 
    if (error) {
@@ -60,7 +79,7 @@ async function getData(table, select) {
    }
 
    return { 
-      data: results.flatMap(result => result.data), 
+      data: results.flatMap(result => result), 
       error: null 
    };
 }
