@@ -17,12 +17,6 @@ async function getDatasetData(metadata) {
    const table = metadata.TableName;
    const columns = metadata.ForvaltningsObjektPropertiesMetadata.map(metadata => metadata.ColumnName);
 
-   let select = `id, ${columns.join(', ')}, geometry`;
-
-   if (metadata.Id === environment.TAG_DATASET_ID) {
-      select += ', tag'
-   }
-
    const { data: objects, error } = await getData(metadata.Id);
 
    if (error !== null) {
