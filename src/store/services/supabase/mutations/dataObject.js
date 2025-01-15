@@ -1,15 +1,8 @@
-import supabase from 'store/services/supabase/client';
 import { getAccessToken } from 'store/services/supabase/client';
 import environment from 'config/environment';
 
 export async function addDatasetObject(payload, table) {
 
-   /*const { data, error } = await supabase
-      .from(table)
-      .insert(payload)
-      .select()
-      .single();
-      */
    let error = null;
    let data = null;
 
@@ -43,11 +36,6 @@ export async function addDatasetObject(payload, table) {
 }
 
 export async function addDatasetObjects(payload, table) {     
-   /*const { data, error } = await supabase
-      .from(table)
-      .insert(payload)
-      .select();*/
-
 
       let error = null;
       let data = null;
@@ -83,11 +71,6 @@ export async function addDatasetObjects(payload, table) {
 
 export async function updateDatasetObject(id, payload, table) {
 
-      /*const { error } = await supabase
-      .from(table)
-      .update(payload)
-      .eq('id', id)*/
-
       let error = null;
       try {
          const accessToken = await getAccessToken();
@@ -118,10 +101,6 @@ export async function updateDatasetObject(id, payload, table) {
 }
 
 export async function deleteDatasetObjects(ids, table) {
-   /*const { error } = await supabase
-      .from(table)
-      .delete()
-      .in('id', ids);*/
 
    let error = null;
    try {
@@ -153,11 +132,6 @@ export async function deleteDatasetObjects(ids, table) {
 }
 
 export async function deleteAllDatasetObjects(table) {
-   
-   /*const { error } = await supabase
-      .from(table)
-      .delete()
-      .neq('id', 0);*/
 
    let error = null;
    try {

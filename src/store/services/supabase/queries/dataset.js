@@ -1,6 +1,5 @@
 import { getAccessToken } from 'store/services/supabase/client';
 import { getDatasetDefinition } from './datasetDefinition';
-import { getRowCount } from './common';
 import environment from 'config/environment';
 
 export async function getDataset(id) {
@@ -17,14 +16,8 @@ async function getDatasetData(metadata) {
 
    const table = metadata.TableName;
    const columns = metadata.ForvaltningsObjektPropertiesMetadata.map(metadata => metadata.ColumnName);
-   //const columns = metadata.ForvaltningsObjektPropertiesMetadata.filter(prop => prop.Hidden === false).map(metadata => metadata.ColumnName);
-   //const hiddenColumns = metadata.ForvaltningsObjektPropertiesMetadata.filter(prop => prop.Hidden === true).map(prop => prop.ColumnName);
 
    let select = `id, ${columns.join(', ')}, geometry`;
-
-   //if(hiddenColumns.length > 0) {
-   //   select += `, ${table}_hidden (${hiddenColumns.join(', ')})`;
-   //}
 
    if (metadata.Id === environment.TAG_DATASET_ID) {
       select += ', tag'
@@ -71,7 +64,7 @@ async function getData(id) {
       }
 
    const results = await Promise.all(promises);
-   console.log(results);
+
    const error = results.find(result => result.error !== null)?.error;
 
    if (error) {
