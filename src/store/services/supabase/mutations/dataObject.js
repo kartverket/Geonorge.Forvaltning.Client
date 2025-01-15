@@ -28,8 +28,9 @@ export async function addDatasetObject(payload, table) {
 
       data = await response.json();
    }
-   catch (error) {
-      console.error('There has been a problem with your fetch operation:', error);
+   catch (exception) {
+      console.error('There has been a problem with your fetch operation:', exception);
+      error = exception;
    }
 
    return { data, error };
@@ -62,8 +63,9 @@ export async function addDatasetObjects(payload, table) {
    
          data = await response.json();
       }
-      catch (error) {
-         console.error('There has been a problem with your fetch operation:', error);
+      catch (exception) {
+         console.error('There has been a problem with your fetch operation:', exception);
+         error = exception;
       }
 
    return { data, error };
@@ -92,10 +94,12 @@ export async function updateDatasetObject(id, payload, table) {
            throw new Error('Network response was not ok.');
          }
       }
-      catch (error) {
-         console.error('There has been a problem with your fetch operation:', error);
+      catch (exception) {
+         console.error('There has been a problem with your fetch operation:', exception);
+         error = exception;
       }
 
+      console.log(error);
 
    return { data: null, error };
 }
@@ -124,8 +128,9 @@ export async function deleteDatasetObjects(ids, table) {
          }
       }
    }
-   catch (error) {
-      console.error('There has been a problem with your fetch operation:', error);
+   catch (exception) {
+      console.error('There has been a problem with your fetch operation:', exception);
+      error = exception;
    }
 
    return { data: null, error };
@@ -155,8 +160,9 @@ export async function deleteAllDatasetObjects(table) {
       }
 
    }
-   catch (error) {
-      console.error('There has been a problem with your fetch operation:', error);
+   catch (exception) {
+      console.error('There has been a problem with your fetch operation:', exception);
+      error = exception;
    }   
 
    return { data: null, error };
