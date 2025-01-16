@@ -132,7 +132,7 @@ export default function DatasetImportCsv({ dataset }) {
 
       if (emptyFirst) {
          try {
-            await deleteAllDatasetObjects({ table: dataset.TableName, tableId: dataset.Id }).unwrap();
+            await deleteAllDatasetObjects({ tableId: dataset.Id }).unwrap();
          } catch (error) {
             console.error(error);
 
@@ -148,7 +148,7 @@ export default function DatasetImportCsv({ dataset }) {
       }
 
       try {
-         const response = await addDatasetObjects({ payload: objects, table: dataset.TableName, tableId: dataset.Id }).unwrap();
+         const response = await addDatasetObjects({ payload: objects, tableId: dataset.Id }).unwrap();
          setLoading(false);
 
          await showModal({

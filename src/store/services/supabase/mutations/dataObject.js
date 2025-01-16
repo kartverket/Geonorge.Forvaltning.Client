@@ -1,169 +1,105 @@
-import { getAccessToken } from 'store/services/supabase/client';
+import { getHeaders } from '../queries/helpers';
+import axios from 'axios';
 import environment from 'config/environment';
 
-export async function addDatasetObject(payload, table) {
+export async function addDatasetObject(payload, tableId) {
+    try {
+        const url = `${environment.API_BASE_URL}/object/${tableId}`;
+        const headers = await getHeaders();
+        const response = await axios.post(url, payload, { headers });
 
-   let error = null;
-   let data = null;
-
-   try {
-      const accessToken = await getAccessToken();
-      const bearer = `Bearer ${accessToken}`;
-
-      var idDataset = table.replace("t_", "");
-
-      const response = await fetch(environment.API_BASE_URL + '/Object/'+ idDataset, { 
-         method: 'POST',
-         headers: new Headers({
-            'Content-type': 'application/json',
-            'Authorization': bearer,
-            'Apikey': environment.SUPABASE_ANON_KEY,
-         }),
-         body: JSON.stringify(payload)
-      });
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok.');
-      }
-
-      data = await response.json();
-   }
-   catch (exception) {
-      console.error('There has been a problem with your fetch operation:', exception);
-      error = exception;
-   }
-
-   return { data, error };
+        return {
+            data: response.data,
+            error: null
+        };
+    }
+    catch (error) {
+        return {
+            data: null,
+            error
+        };
+    }
 }
 
-export async function addDatasetObjects(payload, table) {     
+export async function addDatasetObjects(payload, tableId) {
+    try {
+        const url = `${environment.API_BASE_URL}/object/all/${tableId}`;
+        const headers = await getHeaders();
+        const response = await axios.post(url, payload, { headers });
 
-      let error = null;
-      let data = null;
-   
-      try {
-         const accessToken = await getAccessToken();
-         const bearer = `Bearer ${accessToken}`;
-   
-         var idDataset = table.replace("t_", "");
-   
-         const response = await fetch(environment.API_BASE_URL + '/Object/all/'+ idDataset, { 
-            method: 'POST',
-            headers: new Headers({
-               'Content-type': 'application/json',
-               'Authorization': bearer,
-               'Apikey': environment.SUPABASE_ANON_KEY,
-            }),
-            body: JSON.stringify(payload)
-         });
-   
-         if (!response.ok) {
-           throw new Error('Network response was not ok.');
-         }
-   
-         data = await response.json();
-      }
-      catch (exception) {
-         console.error('There has been a problem with your fetch operation:', exception);
-         error = exception;
-      }
-
-   return { data, error };
+        return {
+            data: response.data,
+            error: null
+        };
+    }
+    catch (error) {
+        return {
+            data: null,
+            error
+        };
+    }
 }
 
-export async function updateDatasetObject(id, payload, table) {
+export async function updateDatasetObject(payload, tableId) {
+    try {
+        const url = `${environment.API_BASE_URL}/object/${tableId}`;
+        const headers = await getHeaders();
+        const response = await axios.put(url, payload, { headers });
 
-      let error = null;
-      try {
-         const accessToken = await getAccessToken();
-         const bearer = `Bearer ${accessToken}`;
-
-         var idDataset = table.replace("t_", "");
-
-         const response = await fetch(environment.API_BASE_URL + '/Object/'+ idDataset, { 
-            method: 'PUT',
-            headers: new Headers({
-               'Content-type': 'application/json',
-               'Authorization': bearer,
-               'Apikey': environment.SUPABASE_ANON_KEY,
-            }),
-            body: JSON.stringify(payload)
-         });
-
-         if (!response.ok) {
-           throw new Error('Network response was not ok.');
-         }
-      }
-      catch (exception) {
-         console.error('There has been a problem with your fetch operation:', exception);
-         error = exception;
-      }
-
-      console.log(error);
-
-   return { data: null, error };
+        return {
+            data: response.data,
+            error: null
+        };
+    }
+    catch (error) {
+        return {
+            data: null,
+            error
+        };
+    }
 }
 
-export async function deleteDatasetObjects(ids, table) {
+export async function deleteDatasetObjects(ids, tableId) {
+    try {
+        const headers = await getHeaders();
+        const promises = [];
 
-   let error = null;
-   try {
-      const accessToken = await getAccessToken();
-      const bearer = `Bearer ${accessToken}`;
+        for (const id of ids) {
+            const url = `${environment.API_BASE_URL}/object/${tableId}/${id}`;
+            promises.push(axios.delete(url, { headers }));
+        }
 
-      var idDataset = table.replace("t_", "");
+        await Promise.all(promises);
 
-      for (const id of ids) {
-         const response = await fetch(environment.API_BASE_URL + '/Object/'+ idDataset + "/" + id, { 
-            method: 'DELETE',
-            headers: new Headers({
-               'Content-type': 'application/json',
-               'Authorization': bearer,
-               'Apikey': environment.SUPABASE_ANON_KEY,
-            })
-         });
-   
-         if (!response.ok) {
-           throw new Error('Network response was not ok.');
-         }
-      }
-   }
-   catch (exception) {
-      console.error('There has been a problem with your fetch operation:', exception);
-      error = exception;
-   }
-
-   return { data: null, error };
+        return {
+            data: null,
+            error: null
+        };
+    }
+    catch (error) {
+        return {
+            data: null,
+            error
+        };
+    }
 }
 
-export async function deleteAllDatasetObjects(table) {
+export async function deleteAllDatasetObjects(tableId) {
+    try {
+        const url = `${environment.API_BASE_URL}/object/${tableId}`;
+        const headers = await getHeaders();
+        
+        await axios.delete(url, { headers });
 
-   let error = null;
-   try {
-      const accessToken = await getAccessToken();
-      const bearer = `Bearer ${accessToken}`;
-
-      var idDataset = table.replace("t_", "");
-
-
-      const response = await fetch(environment.API_BASE_URL + '/Object/'+ idDataset, { 
-         method: 'DELETE',
-         headers: new Headers({
-            'Content-type': 'application/json',
-            'Authorization': bearer,
-            'Apikey': environment.SUPABASE_ANON_KEY,
-         })
-      });
-
-      if (!response.ok) {
-         throw new Error('Network response was not ok.');
-      }
-
-   }
-   catch (exception) {
-      console.error('There has been a problem with your fetch operation:', exception);
-      error = exception;
-   }   
-
-   return { data: null, error };
+        return {
+            data: null,
+            error: null
+        };
+    }
+    catch (error) {
+        return {
+            data: null,
+            error
+        };
+    }
 }
