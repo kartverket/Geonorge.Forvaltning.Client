@@ -15,7 +15,6 @@ export async function getDataset(id) {
 async function getDatasetData(metadata) {
 
    const table = metadata.TableName;
-   const columns = metadata.ForvaltningsObjektPropertiesMetadata.map(metadata => metadata.ColumnName);
 
    const { data: objects, error } = await getData(metadata.Id);
 
