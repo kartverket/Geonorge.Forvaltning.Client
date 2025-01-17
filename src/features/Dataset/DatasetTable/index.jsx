@@ -193,7 +193,7 @@ export default function DatasetTable() {
 
     async function handleUpdate(event, objectId) {
         const { name, value } = event.target;
-        const payload = { [name]: value };
+        const payload = { id: objectId, [name]: value };
 
         try {
             await update({
