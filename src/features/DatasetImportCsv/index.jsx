@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useLoaderData } from 'react-router-dom';
 import { useAddDatasetObjectsMutation, useDeleteAllDatasetObjectsMutation } from 'store/services/api';
 import { useBreadcrumbs } from 'features/Breadcrumbs';
 import { filesize } from 'filesize';
@@ -12,11 +11,10 @@ import { isNil } from 'lodash';
 import Papa from 'papaparse';
 import Files from 'react-files';
 import projections from 'config/map/projections.json';
-import Spinner from 'components/Spinner';
+import { Spinner } from 'components';
 import styles from './DatasetImportCsv.module.scss';
 
-export default function DatasetImportCsv() {
-   const dataset = useLoaderData();
+export default function DatasetImportCsv({ dataset }) {
    useBreadcrumbs(dataset);
 
    const metadatas = dataset.ForvaltningsObjektPropertiesMetadata;
@@ -134,7 +132,7 @@ export default function DatasetImportCsv() {
 
       if (emptyFirst) {
          try {
-            await deleteAllDatasetObjects({ table: dataset.TableName, tableId: dataset.Id }).unwrap();
+            await deleteAllDatasetObjects({ tableId: dataset.Id }).unwrap();
          } catch (error) {
             console.error(error);
 
@@ -150,7 +148,7 @@ export default function DatasetImportCsv() {
       }
 
       try {
-         const response = await addDatasetObjects({ payload: objects, table: dataset.TableName, tableId: dataset.Id }).unwrap();
+         const response = await addDatasetObjects({ payload: objects, tableId: dataset.Id }).unwrap();
          setLoading(false);
 
          await showModal({

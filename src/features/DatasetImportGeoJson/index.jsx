@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useLoaderData } from 'react-router-dom';
 import { useAddDatasetObjectsMutation, useDeleteAllDatasetObjectsMutation } from 'store/services/api';
 import { useBreadcrumbs } from 'features/Breadcrumbs';
 import { filesize } from 'filesize';
@@ -13,11 +12,10 @@ import { isNil } from 'lodash';
 import gjv from 'geojson-validation';
 import Files from 'react-files';
 import projections from 'config/map/projections.json';
-import Spinner from 'components/Spinner';
+import { Spinner } from 'components';
 import styles from './DatasetImportGeoJson.module.scss';
 
-export default function DatasetImportGeoJson() {
-   const dataset = useLoaderData();
+export default function DatasetImportGeoJson({ dataset }) {
    useBreadcrumbs(dataset);
 
    const metadatas = dataset.ForvaltningsObjektPropertiesMetadata;
@@ -98,7 +96,7 @@ export default function DatasetImportGeoJson() {
 
       if (emptyFirst) {
          try {
-            await deleteAllDatasetObjects({ table: dataset.TableName, tableId: dataset.Id }).unwrap();
+            await deleteAllDatasetObjects({ tableId: dataset.Id }).unwrap();
          } catch (error) {
             console.error(error);
             setLoading(false);
@@ -115,7 +113,7 @@ export default function DatasetImportGeoJson() {
       }
 
       try {
-         const response = await addDatasetObjects({ payload: objects, table: dataset.TableName, tableId: dataset.Id }).unwrap();
+         const response = await addDatasetObjects({ payload: objects, tableId: dataset.Id }).unwrap();
          setLoading(false);
 
          await showModal({

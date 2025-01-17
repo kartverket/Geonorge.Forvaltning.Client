@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useDeleteDatasetMutation } from 'store/services/api';
 import { useModal } from 'context/ModalProvider';
 import { modalType } from '..';
-import Spinner from 'components/Spinner';
+import { Spinner } from 'components';
 import styles from './DeleteDatasetModal.module.scss';
 
 export default function DeleteDatasetModal({ datasetId, datasetName, onClose, callback }) {

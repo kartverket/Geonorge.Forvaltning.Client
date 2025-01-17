@@ -1,7 +1,7 @@
 import { forwardRef } from 'react';
 import styles from '../Form.module.scss';
 
-const Checkbox = forwardRef(({ id, name, value, onChange, label, className }, ref) =>  {
+const Checkbox = forwardRef(({ id, name, value, onChange, label, className = '' }, ref) =>  {
    return (
       <div className={`${styles.checkbox} ${className}`}>
          <gn-input>

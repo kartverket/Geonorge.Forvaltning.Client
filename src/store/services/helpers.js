@@ -3,7 +3,6 @@ import store from 'store';
 
 function addCommonProperties(data, ownerOrg, definition) {
     const user = store.getState().app.user;
-
     if (user !== null) {
         data['owner_org'] = ownerOrg;
         data['contributor_org'] = getContributors(definition, data);
@@ -30,7 +29,8 @@ function getContributors(definition, data) {
                 .map(access => access.Contributors);
         });
 
-    return [...new Set(contributorsByProperty)];
+    contributors = [...new Set(contributorsByProperty)];
+    return contributors[0];
 }
 
 export default addCommonProperties;

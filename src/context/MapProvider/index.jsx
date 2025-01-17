@@ -4,34 +4,34 @@ import { addInteractions } from 'features/Map/Editor/helpers';
 import createMap from './helpers/map';
 
 export default function MapProvider({ children }) {
-   const { featureCollection } = useDataset();
-   const [map, setMap] = useState(null);
-   const [analysisResult, setAnalysisResult] = useState(null);
-   const initRef = useRef(true);
+    const { featureCollection } = useDataset();
+    const [map, setMap] = useState(null);
+    const [analysisResult, setAnalysisResult] = useState(null);
+    const initRef = useRef(true);
 
-   useEffect(
-      () => {
-         if (!featureCollection || !initRef.current) {
-            return;
-         }
+    useEffect(
+        () => {
+            if (!featureCollection || !initRef.current) {
+                return;
+            }
 
-         initRef.current = false;
-         
-         (async () => {
-            const olMap = await createMap(featureCollection);
+            initRef.current = false;
 
-            addInteractions(olMap);
-            setMap(olMap);
-         })();
-      },
-      [featureCollection]
-   );
+            (async () => {
+                const olMap = await createMap(featureCollection);
 
-   return (
-      <MapContext.Provider value={{ map, analysisResult, setAnalysisResult }}>
-         {children}
-      </MapContext.Provider>
-   );
+                addInteractions(olMap);
+                setMap(olMap);
+            })();
+        },
+        [featureCollection]
+    );
+
+    return (
+        <MapContext.Provider value={{ map, analysisResult, setAnalysisResult }}>
+            {children}
+        </MapContext.Provider>
+    );
 }
 
 export const MapContext = createContext({});

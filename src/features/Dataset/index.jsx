@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useBlocker, useLoaderData, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { FeatureInfo, AnalysisResult } from 'features';
 import { FeatureContextMenu, Legend, MapContextMenu, MapView, PlaceSearch } from 'features/Map';
 import { useBreadcrumbs } from 'features/Breadcrumbs';
@@ -12,12 +12,12 @@ import { toGeoJson } from './export';
 import MapProvider from 'context/MapProvider';
 import DatasetProvider from 'context/DatasetProvider';
 import DatasetTable from './DatasetTable';
+import Cursors from './Cursors';
 import styles from './Dataset.module.scss';
+import Editors from './Editors';
 
-export default function Dataset() {
-    const dataset = useLoaderData();
+export default function Dataset({ dataset }) {
     useBreadcrumbs(dataset.definition);
-
     const { id } = useParams();
     const navigate = useNavigate();
     const [tableExpanded, setTableExpanded] = useState(false);
@@ -25,14 +25,6 @@ export default function Dataset() {
     const fullscreen = useSelector(state => state.app.fullscreen);
     const { showModal } = useModal();
     const dispatch = useDispatch();
-
-    useBlocker(({ currentLocation, nextLocation }) => {
-        if (currentLocation.pathname !== nextLocation.pathname) {
-            dispatch(_toggleFullscreen(false));
-        }
-
-        return false;
-    });
 
     async function deleteDataset() {
         const { result: confirmed } = await showModal({
@@ -73,9 +65,13 @@ export default function Dataset() {
     return (
         <div className={`${fullscreen ? styles.fullscreen : ''}`}>
             <div className={styles.header}>
-                <heading-text>
-                    <h1 underline="true">{dataset.definition.Name}</h1>
-                </heading-text>
+                <div>
+                    <heading-text>
+                        <h1 underline="true">{dataset.definition.Name}</h1>
+                    </heading-text>
+
+                    <Editors datasetId={dataset.definition.Id} />
+                </div>
 
                 <div className={styles.actionButtons}>
                     {
@@ -138,6 +134,8 @@ export default function Dataset() {
                                 title={!fullscreen ? 'Aktiver fullskjerm' : 'Deaktiver fullskjerm'}
                                 className={styles.fullscreenButton}
                             ></button>
+
+                            <Cursors />
                         </div>
 
                         <AnalysisResult />

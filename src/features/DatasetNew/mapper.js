@@ -10,6 +10,7 @@ export function fromDbModel(dbModel) {
          name: metadata.Name,
          columnName: metadata.ColumnName,
          dataType: metadata.DataType,
+         hidden: metadata.Hidden,
          allowedValues: metadata.AllowedValues
       }))
    };
@@ -24,6 +25,7 @@ export function toDbModel(model) {
          id: property.id || 0,
          name: property.name,
          dataType: property.dataType,
+         hidden: property.hidden,
          allowedValues: property.allowedValues
       }))
    };
