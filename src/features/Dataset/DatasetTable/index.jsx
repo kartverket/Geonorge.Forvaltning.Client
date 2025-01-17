@@ -197,9 +197,7 @@ export default function DatasetTable() {
 
         try {
             await update({
-                id: objectId,
                 payload,
-                table: definition.TableName,
                 tableId: definition.Id,
                 ownerOrg: definition.Organization,
                 definition: definition
@@ -247,7 +245,6 @@ export default function DatasetTable() {
         try {
             await _delete({
                 ids: toDelete,
-                table: definition.TableName,
                 tableId: definition.Id
             }).unwrap();
 

@@ -19,7 +19,7 @@ const cacheUpdater = {
    updateDatasetObject: (dispatch, args) => {
       dispatch(
          api.util.updateQueryData('getDataset', args.tableId.toString(), cachedData => {
-            const object = cachedData.objects.find(object => object.id === args.id);
+            const object = cachedData.objects.find(object => object.id === args.payload.id);
             const objectKeys = Object.keys(object);
 
             Object.entries(args.payload)

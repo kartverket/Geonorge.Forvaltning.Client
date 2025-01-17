@@ -176,7 +176,6 @@ function FeatureInfo() {
         try {
             const response = await add({
                 payload,
-                table: definition.TableName,
                 tableId: definition.Id,
                 ownerOrg: definition.Organization,
                 definition: definition
@@ -210,9 +209,7 @@ function FeatureInfo() {
     async function updateObject(id, payload) {
         try {
             await update({
-                id,
                 payload,
-                table: definition.TableName,
                 tableId: definition.Id,
                 ownerOrg: definition.Organization,
                 definition: definition
@@ -249,7 +246,6 @@ function FeatureInfo() {
         try {
             await _delete({
                 ids: [id],
-                table: definition.TableName,
                 tableId: definition.Id
             }).unwrap();
 

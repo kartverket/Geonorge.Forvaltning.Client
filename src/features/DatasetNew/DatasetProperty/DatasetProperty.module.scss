@@ -1,34 +1,35 @@
 .property {
-   display: flex;
+    display: flex;
 
-   > div {
-      margin-right: 12px;
+    >div {
+        margin-right: 12px;
 
-      &:last-child {
-         margin-right: 0;
-      }
-   }
+        &:last-child {
+            margin-right: 0;
+        }
+    }
 }
 
 .textField {
-   width: 240px;
+    width: 240px;
 
-   input {
-      width: 100%;
-   }
+    input {
+        width: 100%;
+    }
 }
 
 .dataType {
-   width: 150px;
+    width: 150px;
 }
 
 .allowedValues {
-   display: flex;
-   align-items: flex-end;
+    display: flex;
+    align-items: flex-start;
+    margin-top: 26px;
 }
 
 .hiddenProperty {
-   display: flex;
-   align-items: flex-baseline;
-   margin-top: 12px;
+    display: flex;
+    align-items: flex-start;
+    margin-top: 32px;
 }
