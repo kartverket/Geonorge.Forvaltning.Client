@@ -155,7 +155,7 @@ export default function DatasetImportCsv({ dataset }) {
             type: modalType.INFO,
             variant: 'success',
             title: 'Datasett importert',
-            body: `${response.length} objekt(er) ble importert til datasettet.`
+            body: `${response} objekt(er) ble importert til datasettet.`
          });
 
          resetForm();
