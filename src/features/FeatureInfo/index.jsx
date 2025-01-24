@@ -193,7 +193,7 @@ function FeatureInfo() {
             dispatch(initializeDataObject(null));
             dispatch(selectFeature({ id: response.id, zoom: true }));
 
-            await send(messageType.SendObjectCreated, { datasetId: definition.Id, object: response });
+            //await send(messageType.SendObjectCreated, { datasetId: definition.Id, object: response });
         } catch (error) {
             console.error(error);
 
@@ -218,7 +218,7 @@ function FeatureInfo() {
             exitEditMode();
             dispatch(updateDataObject({ id, properties: payload }));
 
-            await send(messageType.SendObjectUpdated, { objectId: id, datasetId: definition.Id, properties: payload });
+            //await send(messageType.SendObjectUpdated, { objectId: id, datasetId: definition.Id, properties: payload });
         } catch (error) {
             console.error(error);
 
@@ -254,7 +254,7 @@ function FeatureInfo() {
 
             dispatch(deleteDataObjects({ datasetId: definition.Id, ids: [id] }));
 
-            await send(messageType.SendObjectsDeleted, { datasetId: definition.Id, ids: [id] });
+            //await send(messageType.SendObjectsDeleted, { datasetId: definition.Id, ids: [id] });
         } catch (error) {
             console.error(error);
 
