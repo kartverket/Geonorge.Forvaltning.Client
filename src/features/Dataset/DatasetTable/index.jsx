@@ -125,7 +125,20 @@ export default function DatasetTable() {
     }
 
     function canEdit() {
-        return user !== null && (definition.Viewers === null || !definition.Viewers.includes(user.organization));
+
+        return user !== null && (definition.Viewers === null || !definition.Viewers.includes(user.organization) || hasAccessByProperties);
+    }
+
+    function hasAccessByProperties() {
+        definition.ForvaltningsObjektPropertiesMetadata.forEach(prop => {
+            prop.AccessByProperties.forEach(access => {
+                if(access.Contributors.includes(user.organization)) {
+                    return true;
+                }
+            });
+        });
+
+        return false;
     }
 
     function canEditObject(objectId) {
@@ -192,8 +205,14 @@ export default function DatasetTable() {
     }
 
     async function handleUpdate(event, objectId) {
+
+        let dataObjectNode = data.nodes.find(dataObject => dataObject.id === objectId);
+
         const { name, value } = event.target;
-        const payload = { id: objectId, [name]: value };
+        let dataObject = {...dataObjectNode};
+        dataObject = {...dataObject, [name]: value};
+        console.log(dataObject);
+        const payload =  dataObject ;
 
         try {
             await update({
