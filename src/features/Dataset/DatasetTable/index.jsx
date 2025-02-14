@@ -142,7 +142,34 @@ export default function DatasetTable() {
     }
 
     function canEditObject(objectId) {
-        return !editedDataObjects.some(dataObject => dataObject.objectId === objectId);
+        console.log(objectId);
+        let allowed = false;
+        let dataObjectNode = data.nodes.find(dataObject => dataObject.id === objectId);
+        console.log(definition);
+
+        if(definition.Organization === user.organization)
+            allowed = true;
+
+        if(definition.Contributors != null && definition.Contributors.includes(user.organization))
+            allowed = true;
+
+        definition.ForvaltningsObjektPropertiesMetadata.forEach(prop => {
+            prop.AccessByProperties.forEach(access => {
+                if(access.Contributors.includes(user.organization)) {
+                    var data = dataObjectNode[prop.ColumnName];
+                    var valueAllowed = access.Value;
+                    console.log('data: ' + data + ' value: ' + valueAllowed);   
+                    if(data === valueAllowed) {         
+                        console.log('Access by properties'); 
+                        allowed = true;
+                    }
+                }
+            });
+        });
+
+        //??????
+        //return !editedDataObjects.some(dataObject => dataObject.objectId === objectId);
+        return allowed;
     }
 
     function renderFormControl(name, value, dataType, objectId) {
@@ -211,7 +238,6 @@ export default function DatasetTable() {
         const { name, value } = event.target;
         let dataObject = {...dataObjectNode};
         dataObject = {...dataObject, [name]: value};
-        console.log(dataObject);
         const payload =  dataObject ;
 
         try {

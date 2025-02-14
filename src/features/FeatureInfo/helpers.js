@@ -18,11 +18,13 @@ export function updateFeature({ id, properties }, map) {
       .filter(entry => featureKeys.includes(entry[0]))
       .forEach(entry => {
          if (entry[0] === 'geometry') {
-            const geometry = JSON.parse(entry[1]);
-            const transformed = reproject(geometry, DATASET_EPSG, environment.MAP_EPSG);
-
-            feature.setGeometry(readGeometry(transformed));
-            feature.set('_coordinates', geometry.coordinates);
+            try {
+               const geometry = JSON.parse(entry[1]);
+               const transformed = reproject(geometry, DATASET_EPSG, environment.MAP_EPSG);
+   
+               feature.setGeometry(readGeometry(transformed));
+               feature.set('_coordinates', geometry.coordinates);
+            } catch (e) { console.error("Error parse geometry: ", e); }
          } else {
             const prop = feature.get(entry[0]);
 
