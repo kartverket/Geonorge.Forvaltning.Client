@@ -19,7 +19,8 @@ export default function MapContextMenu() {
 
    useEffect(
       () => {
-         if (map === null || definition.Viewers !== null && definition.Viewers.includes(user?.organization)) {
+         let canAdd = user !== null && (definition.Viewers === null || !definition.Viewers.includes(user.organization) || hasAccessByProperties)
+         if(!canAdd){
             return;
          }
 
@@ -53,6 +54,18 @@ export default function MapContextMenu() {
 
       dispatch(initializeDataObject({ geoJson, type: GeometryType.Polygon }));
    }
+
+   function hasAccessByProperties() {
+      definition.ForvaltningsObjektPropertiesMetadata.forEach(prop => {
+          prop.AccessByProperties.forEach(access => {
+              if(access.Contributors.includes(user.organization)) {
+                  return true;
+              }
+          });
+      });
+
+      return false;
+  }
 
    return (
       <ControlledMenu
