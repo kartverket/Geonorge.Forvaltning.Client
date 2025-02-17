@@ -230,12 +230,8 @@ export default function DatasetTable() {
 
     async function handleUpdate(event, objectId) {
 
-        let dataObjectNode = data.nodes.find(dataObject => dataObject.id === objectId);
-
         const { name, value } = event.target;
-        let dataObject = {...dataObjectNode};
-        dataObject = {...dataObject, [name]: value};
-        const payload =  dataObject ;
+        const payload = { id: objectId, [name]: value };
 
         try {
             await update({
