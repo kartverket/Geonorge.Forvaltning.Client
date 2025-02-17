@@ -38,21 +38,20 @@ messageHandlers.set(messageType.ReceiveObjectsEdited, message => {
 
 messageHandlers.set(messageType.ReceiveObjectCreated, message => {
     const { datasetId, object } = message;
-
+    console.log("messageHandlers created -> message", message)
     store.dispatch(createDataObject({ datasetId, object }));
     store.dispatch(api.util.invalidateTags([{ type: 'Dataset', id: datasetId }]));
 });
 
 messageHandlers.set(messageType.ReceiveObjectUpdated, message => {
-    const { objectId: id, datasetId, properties } = message;
-
-    store.dispatch(updateDataObject({ id, properties }));
+    const { objectId: id, datasetId } = message;
+    console.log("messageHandlers updated -> message", message)
+    //store.dispatch(updateDataObject({ id, properties }));
     store.dispatch(api.util.invalidateTags([{ type: 'Dataset', id: datasetId }]));
 });
 
 messageHandlers.set(messageType.ReceiveObjectsDeleted, message => {
     const { datasetId, ids } = message;
-
     store.dispatch(deleteDataObjects({ datasetId, ids }));
     store.dispatch(api.util.invalidateTags([{ type: 'Dataset', id: datasetId }]));
 });
