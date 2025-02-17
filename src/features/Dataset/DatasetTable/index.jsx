@@ -142,10 +142,9 @@ export default function DatasetTable() {
     }
 
     function canEditObject(objectId) {
-        console.log(objectId);
+
         let allowed = false;
         let dataObjectNode = data.nodes.find(dataObject => dataObject.id === objectId);
-        console.log(definition);
 
         if(definition.Organization === user.organization)
             allowed = true;
@@ -157,17 +156,15 @@ export default function DatasetTable() {
             prop.AccessByProperties.forEach(access => {
                 if(access.Contributors.includes(user.organization)) {
                     var data = dataObjectNode[prop.ColumnName];
-                    var valueAllowed = access.Value;
-                    console.log('data: ' + data + ' value: ' + valueAllowed);   
+                    var valueAllowed = access.Value; 
                     if(data === valueAllowed) {         
-                        console.log('Access by properties'); 
                         allowed = true;
                     }
                 }
             });
         });
 
-        //??????
+        //? Return true if object is not in editedDataObjects, related to SignalR samtidsredigering
         //return !editedDataObjects.some(dataObject => dataObject.objectId === objectId);
         return allowed;
     }
