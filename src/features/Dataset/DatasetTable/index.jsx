@@ -125,11 +125,48 @@ export default function DatasetTable() {
     }
 
     function canEdit() {
-        return user !== null && (definition.Viewers === null || !definition.Viewers.includes(user.organization));
+
+        return user !== null && (definition.Viewers === null || !definition.Viewers.includes(user.organization) || hasAccessByProperties);
+    }
+
+    function hasAccessByProperties() {
+        definition.ForvaltningsObjektPropertiesMetadata.forEach(prop => {
+            prop.AccessByProperties.forEach(access => {
+                if(access.Contributors.includes(user.organization)) {
+                    return true;
+                }
+            });
+        });
+
+        return false;
     }
 
     function canEditObject(objectId) {
-        return !editedDataObjects.some(dataObject => dataObject.objectId === objectId);
+
+        let allowed = false;
+        let dataObjectNode = data.nodes.find(dataObject => dataObject.id === objectId);
+
+        if(definition.Organization === user.organization)
+            allowed = true;
+
+        if(definition.Contributors != null && definition.Contributors.includes(user.organization))
+            allowed = true;
+
+        definition.ForvaltningsObjektPropertiesMetadata.forEach(prop => {
+            prop.AccessByProperties.forEach(access => {
+                if(access.Contributors.includes(user.organization)) {
+                    var data = dataObjectNode[prop.ColumnName];
+                    var valueAllowed = access.Value; 
+                    if(data === valueAllowed) {         
+                        allowed = true;
+                    }
+                }
+            });
+        });
+
+        //? Return true if object is not in editedDataObjects, related to SignalR samtidsredigering
+        //return !editedDataObjects.some(dataObject => dataObject.objectId === objectId);
+        return allowed;
     }
 
     function renderFormControl(name, value, dataType, objectId) {
@@ -192,8 +229,13 @@ export default function DatasetTable() {
     }
 
     async function handleUpdate(event, objectId) {
+
+        let dataObjectNode = data.nodes.find(dataObject => dataObject.id === objectId);
+
         const { name, value } = event.target;
-        const payload = { id: objectId, [name]: value };
+        let dataObject = {...dataObjectNode};
+        dataObject = {...dataObject, [name]: value};
+        const payload =  dataObject ;
 
         try {
             await update({
