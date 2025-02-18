@@ -290,6 +290,7 @@ export default function DatasetTable() {
             dispatch(deleteDataObjects(toDelete));
 
             //await send(messageType.SendObjectsDeleted, { datasetId: definition.Id, ids: toDelete });
+            window.location.href="/datasett/" + definition.Id;
         } catch (error) {
             console.error(error);
 
