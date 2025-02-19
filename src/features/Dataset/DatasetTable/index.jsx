@@ -243,7 +243,7 @@ export default function DatasetTable() {
 
 
             dispatch(updateDataObject({ id: objectId, properties: payload }));
-            //await send(messageType.SendObjectUpdated, { objectId, datasetId: definition.Id, properties: payload });
+            await send(messageType.SendObjectUpdated, { objectId, datasetId: definition.Id, properties: payload });
         } catch (error) {
             console.error(error);
 
@@ -289,7 +289,7 @@ export default function DatasetTable() {
             setSelectedRows({ ids: [] });
             dispatch(deleteDataObjects(toDelete));
 
-            //await send(messageType.SendObjectsDeleted, { datasetId: definition.Id, ids: toDelete });
+            await send(messageType.SendObjectsDeleted, { datasetId: definition.Id, ids: toDelete });
             window.location.href="/datasett/" + definition.Id;
         } catch (error) {
             console.error(error);
