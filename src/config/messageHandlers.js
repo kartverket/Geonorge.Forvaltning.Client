@@ -42,8 +42,17 @@ messageHandlers.set(messageType.ReceiveObjectsEdited, message => {
 messageHandlers.set(messageType.ReceiveObjectCreated, message => {
     const { datasetId, object } = message;
     console.log("messageHandlers created -> message", message)
-    store.dispatch(createDataObject({ datasetId, object }));
-    store.dispatch(api.util.invalidateTags([{ type: 'Dataset', id: datasetId }]));
+    getDatasetObject(datasetId, object.id).then(({ data, error }) => {
+        if (error) {
+            console.error(error);
+            return;
+        }
+        console.log("messageHandlers created -> data", data)
+        const object = data[0];
+        store.dispatch(createDataObject({ datasetId, object }));
+        store.dispatch(api.util.invalidateTags([{ type: 'Dataset', id: datasetId }]));
+    });
+
 });
 
 messageHandlers.set(messageType.ReceiveObjectUpdated, message => {
