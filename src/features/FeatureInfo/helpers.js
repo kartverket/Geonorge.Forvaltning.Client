@@ -18,11 +18,17 @@ export function updateFeature({ id, properties }, map) {
       .filter(entry => featureKeys.includes(entry[0]))
       .forEach(entry => {
          if (entry[0] === 'geometry') {
-            const geometry = JSON.parse(entry[1]);
-            const transformed = reproject(geometry, DATASET_EPSG, environment.MAP_EPSG);
-
-            feature.setGeometry(readGeometry(transformed));
-            feature.set('_coordinates', geometry.coordinates);
+            let geometry = entry[1];
+            try {
+               if(!isObject(geometry)) {
+                  geometry = JSON.parse(entry[1]);
+               }
+            } catch (e) { console.error("Error parse geometry: ", e); }
+               const transformed = reproject(geometry, DATASET_EPSG, environment.MAP_EPSG);
+   
+               feature.setGeometry(readGeometry(transformed));
+               feature.set('_coordinates', geometry.coordinates);
+            
          } else {
             const prop = feature.get(entry[0]);
 
@@ -35,6 +41,10 @@ export function updateFeature({ id, properties }, map) {
 
    return feature;
 }
+
+function isObject (item) {
+   return (typeof item === "object" && !Array.isArray(item) && item !== null);
+ }
 
 export function toDbModel(original, updated) {
    const toUpdate = getPropsToUpdate(original, updated);
