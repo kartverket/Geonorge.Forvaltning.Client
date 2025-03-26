@@ -2486,7 +2486,8 @@ geojson-validation@^1.0.2:
     file-saver "^2.0.5"
     filesize "^10.1.0"
     geojson-validation "^1.0.2"
-    geonorge-forvaltning-client "file:../../../AppData/Local/Yarn/Cache/v6/npm-geonorge-forvaltning-client-1.0.0-15e1d7d2-db56-4477-b827-dbe2edb32a2e-1743002961055/node_modules/geonorge-forvaltning-client"
+    geonorge-forvaltning-client "file:../../../AppData/Local/Yarn/Cache/v6/npm-geonorge-forvaltning-client-1.0.0-6d3638eb-f2d8-4845-8163-08722280ca21-1743005873198/node_modules/geonorge-forvaltning-client"
+    js-cookie "^3.0.1"
     lodash "^4.17.21"
     ol "^10.2.1"
     ol-ext "^4.0.23"
@@ -2979,6 +2980,11 @@ jay-peg@^1.0.2:
   integrity sha512-D62KEuBxz/ip2gQKOEhk/mx14o7eiFRaU+VNNSP4MOiIkwb/D6B3G1Mfas7C/Fit8EsSV2/IWjZElx/Gs6A4ww==
   dependencies:
     restructure "^3.0.0"
+
+js-cookie@^3.0.1:
+  version "3.0.5"
+  resolved "https://registry.yarnpkg.com/js-cookie/-/js-cookie-3.0.5.tgz#0b7e2fd0c01552c58ba86e0841f94dc2557dcdbc"
+  integrity sha512-cEiJEAEoIbWfCZYKWhVwFuvPX1gETRYPw6LlaTKoxD3s2AkXzkCjnp6h0V77ozyqj0jakteJ4YqDJT830+lVGw==
 
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"
@@ -4137,6 +4143,7 @@ stream-combiner@^0.2.2:
     through "~2.3.4"
 
 "string-width-cjs@npm:string-width@^4.2.0", string-width@^4.1.0:
+  name string-width-cjs
   version "4.2.3"
   resolved "https://registry.npmjs.org/string-width/-/string-width-4.2.3.tgz"
   integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==

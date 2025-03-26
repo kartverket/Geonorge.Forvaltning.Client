@@ -2,10 +2,17 @@ import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from 'context/AuthProvider';
 import styles from './Login.module.scss';
+import Cookies from 'js-cookie';
 
 export default function Login() {
    const { signIn } = useAuth()
    const [searchParams] = useSearchParams();
+
+   let loggedInOtherApp = Cookies.get('_loggedIn') ? Cookies.get('_loggedIn') : 'false';
+
+   if(loggedInOtherApp === 'true') {
+      signIn();
+   }
 
    const error = useMemo(
       () => {
