@@ -474,10 +474,10 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
-"@kartverket/geonorge-web-components@^2.22.4":
-  version "2.22.4"
-  resolved "https://registry.yarnpkg.com/@kartverket/geonorge-web-components/-/geonorge-web-components-2.22.4.tgz#b1861b6803ecf29ec40652362227d00c68ad1003"
-  integrity sha512-dASJSuxdcPpF2+XEu41XHewP6QBHkDhJxLVxBuITWOrYUpTHWBHyz/6OxsjuDBUtXAf9LEHa5y1Bsd7FSACDCw==
+"@kartverket/geonorge-web-components@^2.22.6":
+  version "2.22.6"
+  resolved "https://registry.yarnpkg.com/@kartverket/geonorge-web-components/-/geonorge-web-components-2.22.6.tgz#30d0a593f4eaa2eff8a18e204909200eda608946"
+  integrity sha512-RkNH0ERcoSnv3wXQ8T3cFNvaYCdLV0D0elnb4ORBprPdiW8mpUk07lPacaLljdrXAmHJMa2cCn/jFRbb6cx3rg==
 
 "@microsoft/signalr@^8.0.7":
   version "8.0.7"
@@ -2465,7 +2465,7 @@ geojson-validation@^1.0.2:
   version "1.0.0"
   dependencies:
     "@emotion/react" "^11.11.3"
-    "@kartverket/geonorge-web-components" "^2.22.4"
+    "@kartverket/geonorge-web-components" "^2.22.6"
     "@microsoft/signalr" "^8.0.7"
     "@react-pdf/renderer" "^3.3.8"
     "@reduxjs/toolkit" "^1.9.7"
@@ -2486,7 +2486,7 @@ geojson-validation@^1.0.2:
     file-saver "^2.0.5"
     filesize "^10.1.0"
     geojson-validation "^1.0.2"
-    geonorge-forvaltning-client "file:../../../AppData/Local/Yarn/Cache/v6/npm-geonorge-forvaltning-client-1.0.0-580aa207-51be-40b2-8e00-c61757ffd710-1743104144980/node_modules/geonorge-forvaltning-client"
+    geonorge-forvaltning-client "file:../../../AppData/Local/Yarn/Cache/v6/npm-geonorge-forvaltning-client-1.0.0-76e0d6bf-20d8-4c84-b3e2-6a719d390082-1743428727646/node_modules/geonorge-forvaltning-client"
     js-cookie "^3.0.1"
     lodash "^4.17.21"
     ol "^10.2.1"
