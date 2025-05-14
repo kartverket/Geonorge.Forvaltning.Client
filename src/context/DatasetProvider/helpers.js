@@ -1,59 +1,70 @@
-import { isNil, orderBy } from 'lodash';
+import { isNil, orderBy } from "lodash";
 
-export function getAllowedValuesForUser(columnName, metadata, user, ownerOrganization) {   
+export function getAllowedValuesForUser(
+   columnName,
+   metadata,
+   user,
+   ownerOrganization
+) {
    if (user === null) {
       return [];
    }
 
-   const column = metadata
-      .find(data => data.ColumnName === columnName);
+   const column = metadata.find((data) => data.ColumnName === columnName);
 
    if (column.AllowedValues === null) {
       return null;
    }
 
-   if (column.AccessByProperties.length === 0 || user.organization === ownerOrganization) {
+   if (
+      column.AccessByProperties.length === 0 ||
+      user.organization === ownerOrganization
+   ) {
       return column.AllowedValues;
    }
 
-   const values = column.AccessByProperties
-      .filter(access => access.Contributors
-         .some(orgNo => orgNo === user.organization))
-      .map(access => access.Value)
+   const values = column.AccessByProperties.filter((access) =>
+      access.Contributors.some((orgNo) => orgNo === user.organization)
+   ).map((access) => access.Value);
 
-   return orderBy(values, value => value.toLowerCase());
+   return orderBy(values, (value) => value.toLowerCase());
 }
 
 export function createFeatureCollectionGeoJson(dataset) {
    const metadata = dataset.definition.ForvaltningsObjektPropertiesMetadata;
-   const features = dataset.objects.map(object => createFeatureGeoJson(metadata, object));
+   const features = dataset.objects.map((object) =>
+      createFeatureGeoJson(metadata, object)
+   );
 
    return {
-      type: 'FeatureCollection',
-      features
+      type: "FeatureCollection",
+      features,
    };
 }
 
 export function createFeatureGeoJson(metadata, object = {}) {
    const feature = {
-      type: 'Feature',
+      type: "Feature",
       geometry: object.geometry || null,
       properties: {
          id: {
-            name: 'ID',
+            name: "ID",
             value: object.id || null,
-            dataType: null
+            dataType: null,
          },
-         _tag: object.tag || null
-      }
+         _tag: object.tag || null,
+      },
    };
 
-   metadata.forEach(data => {
+   metadata.forEach((data) => {
       feature.properties[data.ColumnName] = {
          name: data.Name,
-         value: !isNil(object[data.ColumnName]) ? object[data.ColumnName] : null,
-         dataType: data.DataType
-      }
+         value: !isNil(object[data.ColumnName])
+            ? object[data.ColumnName]
+            : null,
+         dataType: data.DataType,
+         propertyOrder: data.PropertyOrder,
+      };
    });
 
    return feature;
