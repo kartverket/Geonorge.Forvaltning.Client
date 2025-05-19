@@ -1,0 +1,69 @@
+.property {
+   display: flex;
+   margin-bottom: 12px;
+
+   &:last-child {
+      margin-bottom: 0;
+   }
+
+   >* {
+      margin-right: 18px;
+
+      &:last-child {
+         margin-right: 0;
+      }
+   }
+
+   .propertyButtons {
+      display: flex;
+      align-items: center;
+      margin-top: 26px;
+
+      button {
+         margin-right: 12px;
+         width: 30px;
+         height: 30px;
+         border: 1px solid #d8d8d8;
+         border-radius: 50%;
+         transition: border-color 250ms linear;
+         cursor: pointer;
+
+         &:last-child {
+            margin-right: 0;
+         }
+
+         &:hover {
+            border-color: #000000;
+         }
+      }
+
+      .dragButton {
+         background: url(../../../../assets/gfx/icon-drag-vertical.svg) center no-repeat;
+         width: 30px;
+         height: 30px;
+         border: none;
+         border-radius: 4px;
+
+         &:hover {
+            cursor: grab;
+            background-color: #EEEEEE;
+         }
+
+         &:active {
+            cursor: grabbing;
+            background-color: #EEEEEE;
+
+         }
+      }
+
+      .removeButton {
+         background: url(../../../../assets/gfx/icon-remove.svg) center no-repeat;
+         background-size: 18px;
+      }
+   }
+}
+
+.draggingProperty,
+.draggingProperty * {
+   cursor: grabbing !important;
+}
