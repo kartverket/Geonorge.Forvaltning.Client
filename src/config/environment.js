@@ -11,7 +11,8 @@ const environment = {
    'TAG_DATASET_ID': parseInt(import.meta.env.VITE_TAG_DATASET_ID),
    'COUNTY_GOVERNORS': import.meta.env.VITE_COUNTY_GOVERNORS
       .split(',')
-      .map(orgNo => orgNo.trim())
+      .map(orgNo => orgNo.trim()),
+   'API_BRREG_URL': import.meta.env.VITE_API_BRREG_URL,
 };
 
 export default environment;
