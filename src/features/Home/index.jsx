@@ -1,10 +1,8 @@
 import { useSelector } from 'react-redux';
-import { useBreadcrumbs } from 'features/Breadcrumbs';
 import Datasets from './Datasets';
 import RequestAuthorization from './RequestAuthorization';
 
 export default function Home({ datasets }) {
-    useBreadcrumbs();
     const user = useSelector(state => state.app.user);
 
     function renderContents() {

@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FeatureInfo, AnalysisResult } from 'features';
 import { FeatureContextMenu, Legend, MapContextMenu, MapView, PlaceSearch } from 'features/Map';
-import { useBreadcrumbs } from 'features/Breadcrumbs';
 import { Menu, MenuItem, SubMenu, MenuDivider } from '@szhsin/react-menu';
 import { toggleFullscreen as _toggleFullscreen } from 'store/slices/appSlice';
 import { useModal } from 'context/ModalProvider';
@@ -17,7 +16,6 @@ import styles from './Dataset.module.scss';
 import Editors from './Editors';
 
 export default function Dataset({ dataset }) {
-    useBreadcrumbs(dataset.definition);
     const { id } = useParams();
     const navigate = useNavigate();
     const [tableExpanded, setTableExpanded] = useState(false);

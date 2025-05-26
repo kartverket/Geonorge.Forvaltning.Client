@@ -1,5 +1,4 @@
 import { useCallback, useState } from "react";
-import { useBreadcrumbs } from "features/Breadcrumbs";
 import { isValidOrgNo } from "./helpers";
 import {
    useForm,
@@ -23,7 +22,6 @@ import AutocompleteLookup from "components/Form/AutocompleteLookup";
 import styles from "./DatasetAccessControl.module.scss";
 
 export default function DatasetAccessControl({ dataset }) {
-   useBreadcrumbs(dataset);
    const methods = useForm({ values: fromDbModel(dataset) });
    const { control, handleSubmit, register } = methods;
    const { fields, append, remove } = useFieldArray({

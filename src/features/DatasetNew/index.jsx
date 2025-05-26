@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useAddDatasetMutation } from 'store/services/api';
 import { useModal } from 'context/ModalProvider';
-import { useBreadcrumbs } from 'features/Breadcrumbs';
 import { modalType } from 'components/Modals';
 import { getDefaultValues, toDbModel } from './mapper';
 import DatasetForm from './DatasetForm';
@@ -10,7 +9,6 @@ import { Spinner } from 'components';
 import styles from './DatasetNew.module.scss';
 
 export default function DatasetNew() {
-    useBreadcrumbs();
     const methods = useForm({ defaultValues: getDefaultValues() });
     const { handleSubmit, reset } = methods;
     const [loading, setLoading] = useState(false);

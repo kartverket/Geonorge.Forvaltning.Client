@@ -1,7 +1,6 @@
 import { useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useAddDatasetObjectsMutation, useDeleteAllDatasetObjectsMutation } from 'store/services/api';
-import { useBreadcrumbs } from 'features/Breadcrumbs';
 import { filesize } from 'filesize';
 import { detectGeometryColumns, mapCsvToObjects } from './helpers';
 import { Checkbox } from 'components/Form';
@@ -15,8 +14,6 @@ import { Spinner } from 'components';
 import styles from './DatasetImportCsv.module.scss';
 
 export default function DatasetImportCsv({ dataset }) {
-   useBreadcrumbs(dataset);
-
    const metadatas = dataset.ForvaltningsObjektPropertiesMetadata;
    const [file, setFile] = useState(null);
    const [properties, setProperties] = useState(null);

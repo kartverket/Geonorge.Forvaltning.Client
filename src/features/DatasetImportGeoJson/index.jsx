@@ -1,7 +1,6 @@
 import { useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useAddDatasetObjectsMutation, useDeleteAllDatasetObjectsMutation } from 'store/services/api';
-import { useBreadcrumbs } from 'features/Breadcrumbs';
 import { filesize } from 'filesize';
 import { getSrId } from 'utils/helpers/map';
 import { mapGeoJsonToObjects } from './helpers';
@@ -16,8 +15,6 @@ import { Spinner } from 'components';
 import styles from './DatasetImportGeoJson.module.scss';
 
 export default function DatasetImportGeoJson({ dataset }) {
-   useBreadcrumbs(dataset);
-
    const metadatas = dataset.ForvaltningsObjektPropertiesMetadata;
    const [file, setFile] = useState(null);
    const [properties, setProperties] = useState(null);

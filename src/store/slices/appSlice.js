@@ -3,7 +3,6 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
     user: null,
     fullscreen: false,
-    breadcrumbs: []
 };
 
 export const appSlice = createSlice({
@@ -22,15 +21,9 @@ export const appSlice = createSlice({
                 fullscreen: action.payload
             };
         },
-        setBreadcrumbs: (state, action) => {
-            return {
-                ...state,
-                breadcrumbs: action.payload
-            };
-        }
     }
 });
 
-export const { setUser, toggleFullscreen, setBreadcrumbs } = appSlice.actions;
+export const { setUser, toggleFullscreen } = appSlice.actions;
 
 export default appSlice.reducer;
