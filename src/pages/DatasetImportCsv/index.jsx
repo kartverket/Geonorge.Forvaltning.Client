@@ -1,15 +1,10 @@
-import { useParams } from 'react-router-dom';
-import { useGetDatasetDefinitionQuery } from 'store/services/api';
-import { DefaultLayout } from 'components';
-import { DatasetImportCsv as DatasetImportCsvFeature } from 'features';
+import { useParams } from "react-router-dom";
+import { useGetDatasetDefinitionQuery } from "store/services/api";
+import { DatasetImportCsv as DatasetImportCsvFeature } from "features";
 
 export default function DatasetImportCsv() {
-    const { id } = useParams();
-    const { data: dataset, isSuccess } = useGetDatasetDefinitionQuery(id);
+   const { id } = useParams();
+   const { data: dataset, isSuccess } = useGetDatasetDefinitionQuery(id);
 
-    return (
-        <DefaultLayout>
-            {isSuccess ? <DatasetImportCsvFeature dataset={dataset} /> : null}
-        </DefaultLayout>
-    );
+   return isSuccess ? <DatasetImportCsvFeature dataset={dataset} /> : null;
 }

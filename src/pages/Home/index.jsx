@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useGetDatasetDefinitionsQuery, useLazyGetOrganizationNameQuery } from 'store/services/api';
-import { DefaultLayout } from 'components';
 import { Home as HomeFeature } from 'features';
 
 export default function Home() {
@@ -34,9 +33,5 @@ export default function Home() {
         [isSuccess, _definitions, getOrganizationName]
     );
 
-    return (
-        <DefaultLayout>
-            {definitions !== null && <HomeFeature datasets={definitions} />}
-        </DefaultLayout>
-    );
+   return definitions !== null && <HomeFeature datasets={definitions} />;
 }
