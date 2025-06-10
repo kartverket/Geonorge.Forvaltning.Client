@@ -1,0 +1,35 @@
+.property {
+    display: flex;
+
+    >div {
+        margin-right: 12px;
+
+        &:last-child {
+            margin-right: 0;
+        }
+    }
+}
+
+.textField {
+    width: 240px;
+
+    input {
+        width: 100%;
+    }
+}
+
+.dataType {
+    width: 150px;
+}
+
+.allowedValues {
+    display: flex;
+    align-items: flex-start;
+    margin-top: 26px;
+}
+
+.hiddenProperty {
+    display: flex;
+    align-items: flex-start;
+    margin-top: 32px;
+}

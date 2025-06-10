@@ -1,10 +1,28 @@
-import { useSelector } from 'react-redux';
-import RequestAuthorization from './RequestAuthorization';
+import { useSelector } from "react-redux";
+import { ToastContainer } from "react-toastify";
+import RequestAuthorization from "./RequestAuthorization";
+import MapProvider from "context/MapProvider";
+import Panel from "features/Map/Panel";
+import { MapView } from "features/Map";
+import styles from "./Home.module.scss";
 
 export default function Home({ datasets }) {
-    const user = useSelector(state => state.app.user);
+   const user = useSelector((state) => state.app.user);
 
-    return (
-        user !== null && user.organization === null ? <RequestAuthorization /> : <div>Placeholder for map. Number of datasets: {datasets.length}</div>
-    );
+   return user?.organization !== null ? (
+      <div className="container">
+         <MapProvider>
+            <div className={styles.mapContainer}>
+               <div className={styles.mapView}>
+                  {!!user && <Panel datasets={datasets} />}
+                  <MapView />
+               </div>
+            </div>
+         </MapProvider>
+
+         <ToastContainer />
+      </div>
+   ) : user !== null ? (
+      <RequestAuthorization />
+   ) : null;
 }
