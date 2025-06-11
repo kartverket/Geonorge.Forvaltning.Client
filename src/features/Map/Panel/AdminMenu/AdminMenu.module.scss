@@ -1,0 +1,133 @@
+.adminMenu {
+   ul {
+      min-width: 132px;
+      border-radius: 4px;
+      box-shadow: 0 3px 7px rgba(0, 0, 0, .133), 0 0.6px 2px rgba(0, 0, 0, .1);
+      border: 0 none;
+      margin-top: 1px !important;
+   }
+
+   .createObject {
+      display: flex;
+      align-items: center;
+
+      &::before {
+         content: "";
+         background: url(../../../../assets/gfx/icon-add.svg) no-repeat center;
+         width: 20px;
+         height: 22px;
+         background-size: 20px;
+         margin-right: 6px;
+      }
+   }
+
+   .criticalUser {
+      display: flex;
+      align-items: center;
+
+      &::before {
+         content: "";
+         background: url(../../../../assets/gfx/icon-critical-user.svg) no-repeat center;
+         width: 20px;
+         height: 22px;
+         background-size: 20px;
+         margin-right: 6px;
+      }
+   }
+
+   .definitions {
+      display: flex;
+      align-items: center;
+
+      &::before {
+         content: "";
+         background: url(../../../../assets/gfx/icon-database.svg) no-repeat center;
+         width: 20px;
+         height: 22px;
+         background-size: 15px;
+         margin-right: 6px;
+      }
+   }
+
+   .accessControl {
+      display: flex;
+      align-items: center;
+
+      &::before {
+         content: "";
+         background: url(../../../../assets/gfx/icon-key.svg) no-repeat center;
+         width: 20px;
+         height: 22px;
+         background-size: 17px;
+         margin-right: 6px;
+      }
+   }
+
+   .importData {
+      display: flex;
+      align-items: center;
+      width: 100%;
+
+      &::before {
+         content: "";
+         background: url(../../../../assets/gfx/icon-import.svg) no-repeat center;
+         width: 23px;
+         height: 24px;
+         background-size: 23px;
+         margin-right: 6px;
+      }
+   }
+
+   .exportData {
+      display: flex;
+      align-items: center;
+      width: 100%;
+
+      &::before {
+         content: "";
+         background: url(../../../../assets/gfx/icon-export.svg) no-repeat center;
+         width: 23px;
+         height: 24px;
+         background-size: 23px;
+         margin-right: 6px;
+      }
+   }
+
+   .deleteDataset {
+      display: flex;
+      align-items: center;
+      color: #e00d0d;
+
+      &::before {
+         content: "";
+         background: url(../../../../assets/gfx/icon-delete.svg) no-repeat center;
+         width: 23px;
+         height: 24px;
+         background-size: 27px;
+         margin-right: 6px;
+      }
+   }
+}
+
+.menu::before {
+   background-image: url(../../../../assets/gfx/icon-cog.svg);
+}
+
+.confirmDeleteModal {
+    h1 {
+        display: flex;
+        align-items: center;
+        font-size: 20px;
+        margin: 0 0 18px 0;
+
+        &::before {
+            content: "";
+            background: url(../../assets/gfx/icon-error.svg) no-repeat center;
+            background-size: 27px;
+            width: 27px;
+            height: 26px;
+            display: flex;
+            margin-right: 10px;
+        }
+    }
+}

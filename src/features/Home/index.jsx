@@ -6,7 +6,7 @@ import Panel from "features/Map/Panel";
 import { MapView } from "features/Map";
 import styles from "./Home.module.scss";
 
-export default function Home({ datasets }) {
+export default function Home() {
    const user = useSelector((state) => state.app.user);
 
    return user?.organization !== null ? (
@@ -14,7 +14,7 @@ export default function Home({ datasets }) {
          <MapProvider>
             <div className={styles.mapContainer}>
                <div className={styles.mapView}>
-                  {!!user && <Panel datasets={datasets} />}
+                  {!!user && <Panel />}
                   <MapView />
                </div>
             </div>
