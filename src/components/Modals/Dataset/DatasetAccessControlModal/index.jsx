@@ -35,6 +35,8 @@ export default function DatasetAccessControlModal({ dataset, onClose }) {
 
    const bottomRef = useRef(null);
 
+   const datasetName = dataset.Name;
+
    function addProperty() {
       append({ propertyId: "", value: "", contributors: [] });
 
@@ -51,19 +53,17 @@ export default function DatasetAccessControlModal({ dataset, onClose }) {
    function submit() {
       handleSubmit(async (dataset) => {
          setLoading(true);
-         const payload = toDbModel(dataset);
 
          try {
+            const payload = toDbModel(dataset);
+            console.log(payload);
             await setDatasetAccess(payload).unwrap();
             setLoading(false);
-            toast.success(
-               `Datasettet ${dataset.Name} sine tilgangsrettigheter ble oppdatert.`
-            );
+            toast.success(`Tilganger for ${datasetName} ble oppdatert`);
+            onClose();
          } catch (error) {
             setLoading(false);
-            toast.error(
-               `Datasettet ${dataset.Name} sine tilgangsrettigheter kunne ikke oppdateres.`
-            );
+            toast.error(`Tilganger for ${datasetName} kunne ikke oppdateres`);
          }
       })();
    }
@@ -88,15 +88,11 @@ export default function DatasetAccessControlModal({ dataset, onClose }) {
    return (
       <div className={styles.modal}>
          <heading-text>
-            <h1>{dataset.Name}</h1>
+            <h1>Tilganger for {dataset.Name}</h1>
          </heading-text>
 
-         <heading-text>
-            <h2 underline="true">Tilganger</h2>
-         </heading-text>
-
-         <div className={styles.body}>
-            <FormProvider {...methods}>
+         <FormProvider {...methods}>
+            <div className={styles.body}>
                <div className={styles.heading}>
                   <span>Brukere med lesetilgang </span>
                </div>
@@ -232,13 +228,16 @@ export default function DatasetAccessControlModal({ dataset, onClose }) {
                      </div>
                   )}
                </div>
+            </div>
 
+            <div className={styles.modalButtons}>
                <div className={styles.submit}>
                   <gn-button>
                      <button onClick={submit} disabled={loading}>
                         Oppdater tilganger
                      </button>
                   </gn-button>
+
                   {loading ? (
                      <Spinner
                         style={{
@@ -249,14 +248,12 @@ export default function DatasetAccessControlModal({ dataset, onClose }) {
                      />
                   ) : null}
                </div>
-            </FormProvider>
-         </div>
 
-         <div className={styles.modalButtons}>
-            <gn-button>
-               <button onClick={onClose}>Lukk</button>
-            </gn-button>
-         </div>
+               <gn-button>
+                  <button onClick={onClose}>Lukk</button>
+               </gn-button>
+            </div>
+         </FormProvider>
       </div>
    );
 }

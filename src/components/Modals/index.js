@@ -3,7 +3,6 @@ import AnalysisModal from "./AnalysisModal";
 import ConfirmModal from "./ConfirmModal";
 import DatasetAccessControlModal from "./Dataset/DatasetAccessControlModal";
 import DatasetDefinitionsModal from "./Dataset/DatasetDefinitionsModal";
-import DatasetImportCsvModal from "./Dataset/DatasetImportCsvModal";
 import DatasetImportGeoJsonModal from "./Dataset/DatasetImportGeoJsonModal";
 import DatasetNewModal from "./Dataset/DatasetNewModal";
 import DeleteDatasetModal from "./Dataset/DeleteDatasetModal";
@@ -15,7 +14,6 @@ export const modalType = {
    CONFIRM: "CONFIRM",
    DATASET_ACCESS_CONTROL: "DATASET_ACCESS_CONTROL",
    DATASET_DEFINITIONS: "DATASET_DEFINITIONS",
-   DATASET_IMPORT_CSV: "DATASET_IMPORT_CSV",
    DATASET_IMPORT_GEOJSON: "DATASET_IMPORT_GEOJSON",
    DATASET_NEW: "DATASET_NEW",
    DELETE_DATASET: "DELETE_DATASET",
@@ -28,7 +26,6 @@ export const modals = {
    CONFIRM: ConfirmModal,
    DATASET_ACCESS_CONTROL: DatasetAccessControlModal,
    DATASET_DEFINITIONS: DatasetDefinitionsModal,
-   DATASET_IMPORT_CSV: DatasetImportCsvModal,
    DATASET_IMPORT_GEOJSON: DatasetImportGeoJsonModal,
    DATASET_NEW: DatasetNewModal,
    DELETE_DATASET: DeleteDatasetModal,

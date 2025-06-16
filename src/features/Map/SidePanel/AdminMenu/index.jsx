@@ -1,10 +1,10 @@
-import { Menu, MenuItem, SubMenu, MenuDivider } from "@szhsin/react-menu";
+import { Menu, MenuItem, MenuDivider } from "@szhsin/react-menu";
 import { useModal } from "context/ModalProvider";
 import { modalType } from "components/Modals";
 // import { useGetDatasetQuery } from "store/services/api";
 import { getDatasetDefinition } from "store/services/supabase/queries/datasetDefinition";
-import styles from "./AdminMenu.module.scss";
 import { toGeoJson } from "features/AnalysisResult/exportGeoJson";
+import styles from "./AdminMenu.module.scss";
 
 export default function AdminMenu({ datasetId }) {
    const { showModal } = useModal();
@@ -53,7 +53,13 @@ export default function AdminMenu({ datasetId }) {
 
    return (
       <Menu
-         menuButton={<button className={styles.menu}></button>}
+         portal
+         menuButton={
+            <button
+               className={styles.menu}
+               title="Administrer datasett"
+            ></button>
+         }
          align="start"
          direction="right"
          arrow={true}
@@ -64,29 +70,21 @@ export default function AdminMenu({ datasetId }) {
          <MenuItem onClick={() => openModal(modalType.DATASET_DEFINITIONS)}>
             <span className={styles.definitions}>Definisjoner</span>
          </MenuItem>
+
          <MenuItem onClick={() => openModal(modalType.DATASET_ACCESS_CONTROL)}>
             <span className={styles.accessControl}>Tilganger</span>
          </MenuItem>
-         <SubMenu
-            label={<span className={styles.importData}>Importér</span>}
-            className={styles.subMenu}
-         >
-            <MenuItem
-               onClick={() => openModal(modalType.DATASET_IMPORT_GEOJSON)}
-            >
-               GeoJSON
-            </MenuItem>
-            <MenuItem onClick={() => openModal(modalType.DATASET_IMPORT_CSV)}>
-               CSV
-            </MenuItem>
-         </SubMenu>
-         <SubMenu
-            label={<span className={styles.exportData}>Eksportér</span>}
-            className={styles.subMenu}
-         >
-            <MenuItem onClick={exportToGeoJson}>GeoJSON</MenuItem>
-         </SubMenu>
+
+         <MenuItem onClick={() => openModal(modalType.DATASET_IMPORT_GEOJSON)}>
+            <span className={styles.importData}>Importér GeoJSON</span>
+         </MenuItem>
+
+         <MenuItem onClick={exportToGeoJson}>
+            <span className={styles.exportData}>Eksportér GeoJSON</span>
+         </MenuItem>
+
          <MenuDivider />
+
          <MenuItem onClick={() => openModal(modalType.DELETE_DATASET)}>
             <span className={styles.deleteDataset}>Slett datasett...</span>
          </MenuItem>

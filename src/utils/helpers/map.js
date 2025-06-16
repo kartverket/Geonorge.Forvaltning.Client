@@ -1,3 +1,4 @@
+import { getLayerFeaturesId } from "context/MapProvider/helpers/utils";
 import { isNil } from "lodash";
 import GeoJSON from "ol/format/GeoJSON";
 import proj4 from "proj4";
@@ -25,12 +26,28 @@ export function getSrId(geoJson) {
    return match !== null ? parseInt(match.groups.epsg) : 4326;
 }
 
-export function getLayer(map, id) {
+export function getLayer(map, datasetId) {
    return (
       map
          .getLayers()
          .getArray()
-         .find((layer) => layer.get("id") === id) || null
+         .find((layer) => layer.get("id") === getLayerFeaturesId(datasetId)) ||
+      null
+   );
+}
+
+export function getFeatures(map, datasetId) {
+   return (
+      getLayer(map, datasetId)
+         ?.getSource()
+         ?.getFeatures()
+         .flatMap((f) => f.get("features") || [f]) || []
+   );
+}
+
+export function getFeatureById2(map, datasetId, id) {
+   return getFeatures(map, datasetId).find(
+      (feature) => feature.get("id")?.value === id
    );
 }
 
@@ -53,24 +70,26 @@ export function hasFeatures(map, layerName = "features", withGeom = true) {
    return source.getFeatures().length > 0;
 }
 
-export function getFeatureById(
-   map,
-   id,
-   featureType = "default",
-   layerName = "features"
-) {
-   const layer = getLayer(map, layerName);
+export function getFeatureById(map, datasetId, id, featureType = "default") {
+   const layer = getLayer(map, datasetId);
+   if (!layer) return null;
+
    const source = getVectorSource(layer);
 
-   return (
-      source
-         .getFeatures()
-         .find(
-            (feature) =>
-               feature.get("id")?.value === id &&
-               feature.get("_featureType") === featureType
-         ) || null
-   );
+   let feature;
+
+   source.getFeatures().forEach((allFeatures) => {
+      const features = allFeatures.get("features") || [];
+
+      if (features?.length === 1) {
+         const foundId = features[0].get("id")?.value;
+         const foundFeatureType = features[0].get("_featureType");
+
+         if (foundId && foundFeatureType) feature = features[0];
+      }
+   });
+
+   return feature;
 }
 
 export function getFeaturesById(map, ids, layerName = "features") {

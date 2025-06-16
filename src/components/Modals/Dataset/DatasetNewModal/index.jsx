@@ -36,21 +36,19 @@ export default function DatasetNewModal({ onClose }) {
    return (
       <div className={styles.modal}>
          <heading-text>
-            <h1>{datasetName ? datasetName : "Nytt datasett"}</h1>
+            <h1>Opprett datasett</h1>
          </heading-text>
 
-         <heading-text>
-            <h2 underline="true">Legg til datasett</h2>
-         </heading-text>
-
-         <div className={styles.body}>
-            <FormProvider {...methods}>
+         <FormProvider {...methods}>
+            <div className={styles.body}>
                <DatasetForm setDatasetName={setDatasetName} />
+            </div>
 
+            <div className={styles.buttons}>
                <div className={styles.submit}>
                   <gn-button>
                      <button onClick={submit} disabled={loading}>
-                        Legg til datasett
+                        Opprett datasett
                      </button>
                   </gn-button>
                   {loading ? (
@@ -63,14 +61,11 @@ export default function DatasetNewModal({ onClose }) {
                      />
                   ) : null}
                </div>
-            </FormProvider>
-         </div>
-
-         <div className={styles.buttons}>
-            <gn-button>
-               <button onClick={onClose}>Lukk</button>
-            </gn-button>
-         </div>
+               <gn-button>
+                  <button onClick={onClose}>Lukk</button>
+               </gn-button>
+            </div>
+         </FormProvider>
       </div>
    );
 }

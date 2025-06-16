@@ -33,7 +33,7 @@ export function getAllowedValuesForUser(
 export function createFeatureCollectionGeoJson(dataset) {
    const metadata = dataset.definition.ForvaltningsObjektPropertiesMetadata;
    const features = dataset.objects.map((object) =>
-      createFeatureGeoJson(metadata, object)
+      createFeatureGeoJson(dataset.definition.Id, metadata, object)
    );
 
    return {
@@ -42,11 +42,12 @@ export function createFeatureCollectionGeoJson(dataset) {
    };
 }
 
-export function createFeatureGeoJson(metadata, object = {}) {
+export function createFeatureGeoJson(datasetId, metadata, object = {}) {
    const feature = {
       type: "Feature",
       geometry: object.geometry || null,
       properties: {
+         datasetId,
          id: {
             name: "ID",
             value: object.id || null,

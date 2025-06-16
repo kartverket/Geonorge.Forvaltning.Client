@@ -166,11 +166,7 @@ export default function DatasetImportGeoJsonModal({ dataset, onClose }) {
    return (
       <div className={styles.modal}>
          <heading-text>
-            <h1>{dataset.Name}</h1>
-         </heading-text>
-
-         <heading-text>
-            <h2 underline="true">Importer GeoJSON</h2>
+            <h1>Importer GeoJSON i {dataset.Name}</h1>
          </heading-text>
 
          <div className={styles.body}>

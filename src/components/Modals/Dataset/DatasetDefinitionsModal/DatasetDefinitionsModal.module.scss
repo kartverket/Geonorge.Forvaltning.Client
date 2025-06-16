@@ -21,8 +21,7 @@
    
    .buttons {
       display: flex;
-      justify-content: flex-end;
-      // border-top: solid 8px #fe5000;
+      justify-content: space-between;
 
       button {
          min-width: 72px;

@@ -137,7 +137,7 @@ export default function DatasetAccessProperty({ index, metadata }) {
                         )}
                      </div>
 
-                     <div ref={bottomValueRef}>hei</div>
+                     <div ref={bottomValueRef} />
                   </div>
                ))}
             </div>

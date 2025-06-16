@@ -1,37 +1,45 @@
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useMap } from 'context/MapProvider';
-import { useDataset } from 'context/DatasetProvider';
-import { initializeDataObject } from 'store/slices/objectSlice';
-import { createFeatureGeoJson } from 'context/DatasetProvider/helpers';
-import { ControlledMenu, MenuItem } from '@szhsin/react-menu';
-import { point as createPoint } from '@turf/helpers';
-import { GeometryType } from 'context/MapProvider/helpers/constants';
-import styles from './MapContextMenu.module.scss';
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useMap } from "context/MapProvider";
+import { useDataset } from "context/DatasetProvider";
+import { initializeDataObject } from "store/slices/objectSlice";
+import { createFeatureGeoJson } from "context/DatasetProvider/helpers";
+import { ControlledMenu, MenuItem } from "@szhsin/react-menu";
+import { point as createPoint } from "@turf/helpers";
+import { GeometryType } from "context/MapProvider/helpers/constants";
+import styles from "./MapContextMenu.module.scss";
 
 export default function MapContextMenu() {
    const { map } = useMap();
-   const { definition, metadata } = useDataset();
+   const { activeDatasetId, datasets } = useDataset();
+   const activeDataset = datasets[activeDatasetId];
+   const definition = activeDataset?.definition;
+   const metadata = activeDataset?.metadata;
    const [open, setOpen] = useState(false);
-   const menuData = useSelector(state => state.map.mapContextMenuData);
-   const user = useSelector(state => state.app.user);
+   const menuData = useSelector((state) => state.map.mapContextMenuData);
+   const user = useSelector((state) => state.app.user);
    const dispatch = useDispatch();
 
-   useEffect(
-      () => {
-         let canAdd = user !== null && (definition.Viewers === null || !definition.Viewers.includes(user.organization) || hasAccessByProperties)
-         if(!canAdd){
-            return;
-         }
+   useEffect(() => {
+      let canAdd =
+         user !== null &&
+         (definition.Viewers === null ||
+            !definition.Viewers.includes(user.organization) ||
+            hasAccessByProperties);
 
-         setOpen(menuData !== null);
+      if (!canAdd) return;
 
-         if (menuData !== null) {
-            map.once('movestart', () => setOpen(false));
-         }
-      },
-      [menuData, map, definition.Viewers, user?.organization]
-   );
+      setOpen(menuData !== null);
+
+      if (menuData !== null) map.once("movestart", () => setOpen(false));
+   }, [
+      // user,
+      user?.organization,
+      definition.Viewers,
+      // hasAccessByProperties,
+      menuData,
+      map,
+   ]);
 
    function addPoint() {
       const geoJson = createFeatureGeoJson(metadata);
@@ -46,7 +54,9 @@ export default function MapContextMenu() {
    function addLineString() {
       const geoJson = createFeatureGeoJson(metadata);
 
-      dispatch(initializeDataObject({ geoJson, type: GeometryType.LineString }));
+      dispatch(
+         initializeDataObject({ geoJson, type: GeometryType.LineString })
+      );
    }
 
    function addPolygon() {
@@ -56,35 +66,41 @@ export default function MapContextMenu() {
    }
 
    function hasAccessByProperties() {
-      definition.ForvaltningsObjektPropertiesMetadata.forEach(prop => {
-          prop.AccessByProperties.forEach(access => {
-              if(access.Contributors.includes(user.organization)) {
-                  return true;
-              }
-          });
+      definition.ForvaltningsObjektPropertiesMetadata.forEach((prop) => {
+         prop.AccessByProperties.forEach((access) => {
+            if (access.Contributors.includes(user.organization)) {
+               return true;
+            }
+         });
       });
 
       return false;
-  }
+   }
 
    return (
       <ControlledMenu
          anchorPoint={menuData?.pixels}
          onClose={() => setOpen(false)}
-         state={open ? 'open' : 'closed'}
+         state={open ? "open" : "closed"}
          direction="right"
          viewScroll="close"
          className={styles.contextMenu}
       >
-         <li className={styles.header}>Legg til:</li>
+         <li className={styles.header}>Legg til i aktivt lag:</li>
          <MenuItem onClick={addPoint}>
-            <span className={`${styles.addButton} ${styles.addPoint}`}>Punkt</span>
+            <span className={`${styles.addButton} ${styles.addPoint}`}>
+               Punkt
+            </span>
          </MenuItem>
          <MenuItem onClick={addLineString}>
-            <span className={`${styles.addButton} ${styles.addLineString}`}>Linje</span>
+            <span className={`${styles.addButton} ${styles.addLineString}`}>
+               Linje
+            </span>
          </MenuItem>
          <MenuItem onClick={addPolygon}>
-            <span className={`${styles.addButton} ${styles.addPolygon}`}>Polygon</span>
+            <span className={`${styles.addButton} ${styles.addPolygon}`}>
+               Polygon
+            </span>
          </MenuItem>
       </ControlledMenu>
    );

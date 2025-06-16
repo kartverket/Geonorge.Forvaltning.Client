@@ -5,9 +5,11 @@ import { useDataset } from "context/DatasetProvider";
 import { useMap } from "context/MapProvider";
 import { useSignalR } from "context/SignalRProvider";
 import { selectFeature } from "store/slices/mapSlice";
+import { toggleFullscreen as _toggleFullscreen } from "store/slices/appSlice";
 import {
    DEFAULT_ZOOM,
    getFeatureById,
+   getFeatureById2,
    getLayer,
    getVectorSource,
    hasFeatures,
@@ -17,7 +19,7 @@ import {
    highlightFeature,
    setNextAndPreviousFeatureId,
 } from "context/MapProvider/helpers/feature";
-import { FeatureTooltip } from "..";
+import { FeatureTooltip, Legend } from "..";
 import { Zoom, ZoomToExtent } from "components/Map";
 import { messageType } from "config/messageHandlers";
 import { throttle } from "lodash";
@@ -27,9 +29,9 @@ import styles from "./MapView.module.scss";
 
 export default function MapView({ tableExpanded }) {
    const { map } = useMap();
-   const { datasetInfo } = useDataset();
+   const { activeDatasetId, datasets } = useDataset();
    const { send } = useSignalR();
-   const { id, objId } = useParams();
+   const { objId } = useParams();
    const location = useLocation();
    const mapElementRef = useRef(null);
    const selectedFeature = useSelector((state) => state.map.selectedFeature);
@@ -37,32 +39,41 @@ export default function MapView({ tableExpanded }) {
    const dispatch = useDispatch();
 
    useEffect(() => {
-      if (map === null) {
+      if (map === null) return;
+
+      if (!selectedFeature) {
+         if (activeDatasetId) {
+            history.replaceState(
+               null,
+               document.title,
+               `?datasett=${activeDatasetId}`
+            );
+         }
+
          return;
       }
 
-      if (selectedFeature === null) {
-         history.replaceState(null, document.title, `/datasett/${id}`);
+      const feature = getFeatureById2(map, activeDatasetId, selectedFeature.id);
+
+      if (!feature) {
+         if (activeDatasetId) {
+            history.replaceState(
+               null,
+               document.title,
+               `?datasett=${activeDatasetId}`
+            );
+         }
+
          return;
       }
 
-      const feature = getFeatureById(
-         map,
-         selectedFeature.id,
-         selectedFeature.featureType
-      );
-
-      if (feature === null) {
-         history.replaceState(null, document.title, `/datasett/${id}`);
-         return;
-      }
-
-      setNextAndPreviousFeatureId(map, feature);
-      highlightFeature(map, feature);
+      setNextAndPreviousFeatureId(map, activeDatasetId, feature);
+      highlightFeature(map, activeDatasetId, feature);
 
       if (selectedFeature.updateUrl) {
-         const route = `/datasett/${id}/objekt/${selectedFeature.id}`;
-         history.replaceState(null, document.title, route);
+         const query = `?datasett=${selectedFeature.datasetId}&objekt=${selectedFeature.id}`;
+         // const route = `/datasett/${id}/objekt/${selectedFeature.id}`;
+         history.replaceState(null, document.title, query);
       }
 
       if (selectedFeature.zoom && feature.getGeometry() !== null) {
@@ -73,7 +84,7 @@ export default function MapView({ tableExpanded }) {
             selectedFeature.disableZoomOut
          );
       }
-   }, [selectedFeature, map, location.pathname, id]);
+   }, [selectedFeature, activeDatasetId, map, location.pathname]);
 
    useEffect(() => {
       if (map === null) {
@@ -82,16 +93,16 @@ export default function MapView({ tableExpanded }) {
 
       map.setTarget(mapElementRef.current);
 
-      const layer = getLayer(map, "features");
-      const source = getVectorSource(layer);
+      // const layer = getLayer(map, "features");
+      // const source = getVectorSource(layer);
       const view = map.getView();
       let extent;
 
-      if (hasFeatures(map)) {
-         extent = source.getExtent();
-      } else {
-         extent = baseMap.extent;
-      }
+      // if (hasFeatures(map)) {
+      //    extent = source.getExtent();
+      // } else {
+      extent = baseMap.extent;
+      // }
 
       if (!isNaN(objId)) {
          dispatch(selectFeature({ id: parseInt(objId), zoom: true }));
@@ -112,22 +123,26 @@ export default function MapView({ tableExpanded }) {
       };
    }, [map, dispatch, objId]);
 
-   useEffect(() => {
-      if (map === null) {
-         return;
-      }
+   // useEffect(() => {
+   //    if (map === null) {
+   //       return;
+   //    }
 
-      const pointerMoved = throttle((event) => {
-         send(messageType.SendPointerMoved, {
-            datasetId: datasetInfo.id,
-            coordinate: event.coordinate,
-         });
-      }, 250);
+   //    const pointerMoved = throttle((event) => {
+   //       send(messageType.SendPointerMoved, {
+   //          datasetId: datasetInfo.id,
+   //          coordinate: event.coordinate,
+   //       });
+   //    }, 250);
 
-      map.on("pointermove", pointerMoved);
+   //    map.on("pointermove", pointerMoved);
 
-      return () => map.un("pointermove", pointerMoved);
-   }, [map, send, datasetInfo.id]);
+   //    return () => map.un("pointermove", pointerMoved);
+   // }, [map, send, datasetInfo.id]);
+
+   function toggleFullscreen() {
+      dispatch(_toggleFullscreen(!fullscreen));
+   }
 
    return (
       <>
@@ -144,13 +159,22 @@ export default function MapView({ tableExpanded }) {
             <div className={styles.buttons}>
                <Zoom map={map} />
                <ZoomToExtent map={map} layerName="features" />
+               <button
+                  className={styles.fullscreenButton}
+                  title={
+                     !fullscreen ? "Aktiver fullskjerm" : "Deaktiver fullskjerm"
+                  }
+                  onClick={toggleFullscreen}
+               />
+
+               {datasets[activeDatasetId] && <Legend />}
             </div>
 
-            {map !== null && (
+            {/* {map !== null && (
                <div className={styles.editor}>
                   <Editor />
                </div>
-            )}
+            )} */}
          </div>
       </>
    );

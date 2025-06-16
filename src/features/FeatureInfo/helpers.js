@@ -1,12 +1,17 @@
-import { getFeatureById, getProperties, readGeometry, writeGeometry } from 'utils/helpers/map';
-import { reproject } from 'reproject';
-import WKT from 'ol/format/WKT';
-import environment from 'config/environment';
+import {
+   getFeatureById,
+   getProperties,
+   readGeometry,
+   writeGeometry,
+} from "utils/helpers/map";
+import { reproject } from "reproject";
+import WKT from "ol/format/WKT";
+import environment from "config/environment";
 
 const DATASET_EPSG = `EPSG:${environment.DATASET_SRID}`;
 
-export function updateFeature({ id, properties }, map) {
-   const feature = getFeatureById(map, id);
+export function updateFeature({ datasetId, id, properties }, map) {
+   const feature = getFeatureById(map, datasetId, id);
 
    if (feature === null) {
       return null;
@@ -15,26 +20,31 @@ export function updateFeature({ id, properties }, map) {
    const featureKeys = Object.keys(feature.getProperties());
 
    Object.entries(properties)
-      .filter(entry => featureKeys.includes(entry[0]))
-      .forEach(entry => {
-         if (entry[0] === 'geometry') {
+      .filter((entry) => featureKeys.includes(entry[0]))
+      .forEach((entry) => {
+         if (entry[0] === "geometry") {
             let geometry = entry[1];
             try {
-               if(!isObject(geometry)) {
+               if (!isObject(geometry)) {
                   geometry = JSON.parse(entry[1]);
                }
-            } catch (e) { console.error("Error parse geometry: ", e); }
-               const transformed = reproject(geometry, DATASET_EPSG, environment.MAP_EPSG);
-   
-               feature.setGeometry(readGeometry(transformed));
-               feature.set('_coordinates', geometry.coordinates);
-            
+            } catch (e) {
+               console.error("Error parse geometry: ", e);
+            }
+            const transformed = reproject(
+               geometry,
+               DATASET_EPSG,
+               environment.MAP_EPSG
+            );
+
+            feature.setGeometry(readGeometry(transformed));
+            feature.set("_coordinates", geometry.coordinates);
          } else {
             const prop = feature.get(entry[0]);
 
             feature.set(entry[0], {
                ...prop,
-               value: entry[1]
+               value: entry[1],
             });
          }
       });
@@ -42,9 +52,9 @@ export function updateFeature({ id, properties }, map) {
    return feature;
 }
 
-function isObject (item) {
-   return (typeof item === "object" && !Array.isArray(item) && item !== null);
- }
+function isObject(item) {
+   return typeof item === "object" && !Array.isArray(item) && item !== null;
+}
 
 export function toDbModel(original, updated) {
    const toUpdate = getPropsToUpdate(original, updated);
@@ -53,16 +63,22 @@ export function toDbModel(original, updated) {
       return null;
    }
 
-   if ('_geometry' in toUpdate) {
-      const geometry = writeGeometry(updated.getGeometry(), 'EPSG:3857', 'EPSG:4326', 6);
+   if ("_geometry" in toUpdate) {
+      const geometry = writeGeometry(
+         updated.getGeometry(),
+         "EPSG:3857",
+         "EPSG:4326",
+         6
+      );
       toUpdate.geometry = { value: geometry };
       delete toUpdate._geometry;
    }
 
    const payload = {};
 
-   Object.entries(toUpdate)
-      .forEach(entry => payload[entry[0]] = entry[1].value);
+   Object.entries(toUpdate).forEach(
+      (entry) => (payload[entry[0]] = entry[1].value)
+   );
 
    if (payload.id === null) {
       delete payload.id;
@@ -75,7 +91,7 @@ function getPropsToUpdate(original, updated) {
    let updatedProps;
    const format = new WKT();
 
-   if (updated.get('id').value === null) {
+   if (updated.get("id").value === null) {
       updatedProps = getProperties(updated.getProperties());
       updatedProps._geometry = format.writeGeometry(updated.getGeometry());
 

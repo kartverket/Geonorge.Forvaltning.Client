@@ -16,17 +16,17 @@ export default function InfoModal({ dataset, onClose }) {
    function submit() {
       handleSubmit(async (dataset) => {
          setLoading(true);
-         const payload = toDbModel(dataset);
 
          try {
+            const payload = toDbModel(dataset);
             await updateDataset({ id: dataset.id, dataset: payload }).unwrap();
             setLoading(false);
-            toast.success(`Datasettet '${dataset.name}' ble oppdatert.`);
+            toast.success(`${dataset.name} ble oppdatert`);
             onClose();
          } catch (error) {
             console.error(error);
             setLoading(false);
-            toast.error(`Datasettet '${dataset.name}' kunne ikke oppdateres.`);
+            toast.error(`${dataset.name} kunne ikke oppdateres`);
          }
       })();
    }
@@ -34,17 +34,15 @@ export default function InfoModal({ dataset, onClose }) {
    return (
       <div className={styles.modal}>
          <heading-text>
-            <h1>{dataset.Name}</h1>
+            <h1>Rediger datasett</h1>
          </heading-text>
 
-         <heading-text>
-            <h2 underline="true">Rediger definisjoner</h2>
-         </heading-text>
-
-         <div className={styles.body}>
-            <FormProvider {...methods}>
+         <FormProvider {...methods}>
+            <div className={styles.body}>
                <DatasetForm />
+            </div>
 
+            <div className={styles.buttons}>
                <div className={styles.submit}>
                   <gn-button>
                      <button onClick={submit} disabled={loading}>
@@ -62,14 +60,12 @@ export default function InfoModal({ dataset, onClose }) {
                      />
                   )}
                </div>
-            </FormProvider>
-         </div>
 
-         <div className={styles.buttons}>
-            <gn-button>
-               <button onClick={onClose}>Lukk</button>
-            </gn-button>
-         </div>
+               <gn-button>
+                  <button onClick={onClose}>Lukk</button>
+               </gn-button>
+            </div>
+         </FormProvider>
       </div>
    );
 }

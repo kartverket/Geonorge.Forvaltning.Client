@@ -1,5 +1,7 @@
 import { createBrowserRouter, redirect } from "react-router-dom";
 import { ErrorBoundary, Home, Login, NotFound } from "features";
+import DatasetProvider from "context/DatasetProvider";
+import MapProvider from "context/MapProvider";
 import { signedIn } from "store/services/supabase/client";
 import { getDatasetDefinitions } from "store/services/loaders";
 import App from "App";
@@ -12,7 +14,11 @@ const router = createBrowserRouter([
          {
             index: true,
             path: "/",
-            element: <Home />,
+            element: (
+               <DatasetProvider>
+                  <Home />
+               </DatasetProvider>
+            ),
             loader: authGuard,
             errorElement: <ErrorBoundary />,
          },
