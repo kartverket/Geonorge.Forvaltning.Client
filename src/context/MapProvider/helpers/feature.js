@@ -130,15 +130,18 @@ export function toggleFeature(feature) {
    feature.set("_visible", !feature.get("_visible"));
 }
 
-export function highlightFeature(map, datasetId, feature) {
-   const vectorLayer = getLayer(map, datasetId);
-   const selectedFeature = vectorLayer.get("_selectedFeature");
-
-   if (selectedFeature) {
-      selectedFeature.set("_selected", false);
+export function highlightFeature(map, datasetId, previousDatasetId, feature) {
+   const previousVectorLayer = getLayer(map, previousDatasetId);
+   if (previousVectorLayer) {
+      const previousSelectedFeature =
+         previousVectorLayer.get("_selectedFeature");
+      if (previousSelectedFeature) {
+         previousSelectedFeature.set("_selected", false);
+      }
    }
 
    if (feature !== null) {
+      const vectorLayer = getLayer(map, datasetId);
       feature.set("_selected", true);
       vectorLayer.set("_selectedFeature", feature);
    }

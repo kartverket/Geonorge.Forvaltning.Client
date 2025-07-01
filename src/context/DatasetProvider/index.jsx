@@ -21,6 +21,7 @@ import {
 export default function DatasetProvider({ children }) {
    const [visibleDatasetIds, setVisibleDatasetIds] = useState([]);
    const [activeDatasetId, setActiveDatasetId] = useState(null);
+   const [previousActiveDatasetId, setPreviousActiveDatasetId] = useState(null);
    const [datasets, setDatasets] = useState([]);
    const [loadingDatasetId, setLoadingDatasetId] = useState(null);
    const [getDataset] = useLazyGetDatasetQuery();
@@ -59,6 +60,7 @@ export default function DatasetProvider({ children }) {
          }));
       });
    }, [visibleDatasetIds, datasets, getDataset]);
+
    //    const { objects, definition, metadata, allowedValues } = useDataset();
 
    // const datasetInfo = { id: dataset.definition.Id };
@@ -112,8 +114,13 @@ export default function DatasetProvider({ children }) {
 
    useEffect(() => {
       if (!selectedFeature) return;
+      console.log("Selected feature changed:", selectedFeature);
       setActiveDatasetId(selectedFeature.datasetId);
    }, [selectedFeature]);
+
+   useEffect(() => {
+      if (activeDatasetId) setPreviousActiveDatasetId(activeDatasetId);
+   }, [activeDatasetId]);
 
    return (
       <DatasetContext.Provider
@@ -122,6 +129,7 @@ export default function DatasetProvider({ children }) {
             toggleVisibleDataset,
             activeDatasetId,
             selectActiveDataset,
+            previousActiveDatasetId,
             datasets,
             loadingDatasetId,
             dataset: datasets[activeDatasetId],

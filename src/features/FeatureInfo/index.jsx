@@ -45,7 +45,12 @@ import styles from "./FeatureInfo.module.scss";
 import { RemoteEditor } from "components";
 
 function FeatureInfo() {
-   const { activeDatasetId, datasets, analysableDatasetIds } = useDataset();
+   const {
+      activeDatasetId,
+      previousActiveDatasetId,
+      datasets,
+      analysableDatasetIds,
+   } = useDataset();
    const definition = datasets[activeDatasetId]?.definition;
    const metadata = datasets[activeDatasetId]?.metadata;
    const { map, setAnalysisResult } = useMap();
@@ -137,10 +142,16 @@ function FeatureInfo() {
       feature.set("_geomType", initializedDataObject.type);
 
       addFeatureToMap(map, feature);
-      highlightFeature(map, activeDatasetId, feature);
+      highlightFeature(map, activeDatasetId, previousActiveDatasetId, feature);
       startEditMode(feature);
       setExpanded(true);
-   }, [initializedDataObject, map, activeDatasetId, startEditMode]);
+   }, [
+      initializedDataObject,
+      map,
+      activeDatasetId,
+      previousActiveDatasetId,
+      startEditMode,
+   ]);
 
    useEffect(() => {
       if (
@@ -399,7 +410,9 @@ function FeatureInfo() {
       const id = feature.get("_nextFeature");
 
       if (!isNil(id)) {
-         dispatch(selectFeature({ id, zoom: true }));
+         dispatch(
+            selectFeature({ id, zoom: true, datasetId: activeDatasetId })
+         );
       }
    }
 

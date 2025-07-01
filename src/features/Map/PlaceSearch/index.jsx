@@ -50,7 +50,12 @@ export default function PlaceSearch() {
 
       if (value.properties.objectType === "Forvaltningsobjekt") {
          dispatch(
-            selectFeature({ id: value.id, zoom: true, featureType: "default" })
+            selectFeature({
+               id: value.id,
+               zoom: true,
+               featureType: "default",
+               datasetId: value.properties.datasetId,
+            })
          );
       } else {
          zoomToGeoJsonFeature(map, value, 14);

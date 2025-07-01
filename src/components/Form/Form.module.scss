@@ -47,7 +47,8 @@
       input[type],
       input:not([type]) {
          font-size: 15px;
-   
+         width: 100%;
+
          &:disabled {
             border: 1px solid transparent;
             background: transparent;

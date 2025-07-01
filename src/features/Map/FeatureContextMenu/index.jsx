@@ -27,7 +27,13 @@ export default function FeatureContextMenu() {
    }, [menuData, map]);
 
    function handleFeatureSelect(feature) {
-      dispatch(selectFeature({ id: feature.get("id").value, zoom: true }));
+      dispatch(
+         selectFeature({
+            id: feature.get("id").value,
+            zoom: true,
+            datasetId: feature.get("datasetId"),
+         })
+      );
    }
 
    function renderMenuItem(feature) {

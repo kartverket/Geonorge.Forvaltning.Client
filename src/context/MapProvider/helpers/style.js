@@ -65,7 +65,7 @@ export function featureStyle(feature) {
       });
    }
 
-   if (styling === null) {
+   if (styling === null || styling.datasetId !== feature.get("datasetId")) {
       return createFeatureStyle(geomType, {
          color1: Color.DEFAULT_FEATURE_COLOR,
          color2: `${Color.DEFAULT_FEATURE_COLOR}5e`,

@@ -137,7 +137,9 @@ export default function DatasetTable() {
       event.stopPropagation();
 
       if (!event.shiftKey) {
-         dispatch(selectFeature({ id: item.id, zoom: true }));
+         dispatch(
+            selectFeature({ id: item.id, zoom: true, datasetId: definition.Id })
+         );
       }
    }
 

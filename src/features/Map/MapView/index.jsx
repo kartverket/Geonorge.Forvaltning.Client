@@ -29,7 +29,7 @@ import styles from "./MapView.module.scss";
 
 export default function MapView({ tableExpanded }) {
    const { map } = useMap();
-   const { activeDatasetId, datasets } = useDataset();
+   const { activeDatasetId, previousActiveDatasetId, datasets } = useDataset();
    const { send } = useSignalR();
    const { objId } = useParams();
    const location = useLocation();
@@ -68,10 +68,10 @@ export default function MapView({ tableExpanded }) {
       }
 
       setNextAndPreviousFeatureId(map, activeDatasetId, feature);
-      highlightFeature(map, activeDatasetId, feature);
+      highlightFeature(map, activeDatasetId, previousActiveDatasetId, feature);
 
       if (selectedFeature.updateUrl) {
-         const query = `?datasett=${selectedFeature.datasetId}&objekt=${selectedFeature.id}`;
+         const query = `?datasett=${activeDatasetId}&objekt=${selectedFeature.id}`;
          // const route = `/datasett/${id}/objekt/${selectedFeature.id}`;
          history.replaceState(null, document.title, query);
       }
@@ -84,7 +84,13 @@ export default function MapView({ tableExpanded }) {
             selectedFeature.disableZoomOut
          );
       }
-   }, [selectedFeature, activeDatasetId, map, location.pathname]);
+   }, [
+      selectedFeature,
+      activeDatasetId,
+      previousActiveDatasetId,
+      map,
+      location.pathname,
+   ]);
 
    useEffect(() => {
       if (map === null) {

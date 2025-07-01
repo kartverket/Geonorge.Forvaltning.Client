@@ -79,13 +79,15 @@ export async function handleMapClick(event, map) {
       const features = featureAtPixel.get("features");
 
       if (features.length === 1) {
+         const feature = features[0];
+
          store.dispatch(
             selectFeature({
-               datasetId: features[0].get("datasetId"),
-               id: features[0].get("id").value,
+               datasetId: feature.get("datasetId"),
+               id: feature.get("id").value,
                zoom: true,
                disableZoomOut: false,
-               featureType: features[0].get("_featureType"),
+               featureType: feature.get("_featureType"),
             })
          );
       } else if (features.length > 1) {

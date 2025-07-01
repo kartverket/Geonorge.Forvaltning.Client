@@ -293,6 +293,7 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
                      </div>
                   </div>
                </div>
+
                {Object.entries(properties)
                   .filter(
                      ([, entry]) =>
@@ -307,6 +308,7 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
                         </div>
                      </div>
                   ))}
+
                <div className={styles.row}>
                   <div className={styles.label}>Geometri:</div>
                   <div className={styles.value}>
@@ -323,6 +325,7 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
                      />
                   </div>
                </div>
+
                {coordinates && geometryType === "Point" && (
                   <div className={styles.row}>
                      <div className={styles.label}>Posisjon:</div>
@@ -361,6 +364,7 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
                      <button onClick={handleDelete}>Slett...</button>
                   </gn-button>
                </div>
+
                <div>
                   <gn-button>
                      <button onClick={handleCancel}>Avbryt</button>
