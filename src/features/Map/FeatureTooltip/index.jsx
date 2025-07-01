@@ -4,8 +4,6 @@ import { renderProperty } from "utils/helpers/general";
 import { getProperties } from "utils/helpers/map";
 import styles from "./FeatureTooltip.module.scss";
 
-const listCutoff = 10;
-
 export default function FeatureTooltip() {
    const { map } = useMap();
    const tooltipRef = useRef(null);
@@ -28,21 +26,21 @@ export default function FeatureTooltip() {
          map.forEachFeatureAtPixel(pixel, (featureAtPixel, layer) => {
             if (!layer.get("id")?.includes("features")) return false;
 
+            const tooltip = tooltipRef.current;
+
+            const features = featureAtPixel.get("features");
+
             let feature;
-            let valueStr = "";
 
-            const features = featureAtPixel
-               .get("features")
-               .slice()
-               .sort((a, b) => {
-                  const indexA = +getProperties(a.getProperties()).id.value;
-                  const indexB = +getProperties(b.getProperties()).id.value;
-                  return indexA - indexB;
-               });
+            if (layer.get("_isCluster")) {
+               feature = features.length === 1 ? features[0] : null;
+            } else {
+               feature = clusterFeature;
+            }
 
-            let counter = 0;
+            if (features.length === 1) {
+               feature = features[0];
 
-            features.some((feature) => {
                const { id, ...properties } = getProperties(
                   feature.getProperties()
                );
@@ -56,25 +54,19 @@ export default function FeatureTooltip() {
 
                values.unshift(["ID", id.value]);
 
-               valueStr += values
-                  .map((value) => `${value[0]}: ${value[1]}`)
+               const valueStr = values
+                  .map(([label, value]) => `${label}: ${value}`)
                   .join(" | ");
 
-               valueStr += "\n";
+               tooltip.style.left = pixel[0] + "px";
+               tooltip.style.top = pixel[1] + "px";
 
-               counter++;
-               if (counter === listCutoff && features.length > listCutoff)
-                  valueStr += `\n(Viser kun de ${listCutoff} første i sortert rekkefølge)`;
-               return counter === listCutoff;
-            });
-
-            const tooltip = tooltipRef.current;
-            tooltip.style.left = pixel[0] + "px";
-            tooltip.style.top = pixel[1] + "px";
-
-            if (feature !== currentFeatureRef.current) {
-               tooltip.style.visibility = "visible";
-               tooltip.textContent = valueStr;
+               if (feature !== currentFeatureRef.current) {
+                  tooltip.style.visibility = "visible";
+                  tooltip.textContent = valueStr;
+               }
+            } else {
+               tooltip.style.visibility = "hidden";
             }
 
             currentFeatureRef.current = feature;
@@ -105,5 +97,5 @@ export default function FeatureTooltip() {
       });
    }, [map, displayFeatureInfo]);
 
-   return <div className={styles.featureInfo} ref={tooltipRef} />;
+   return <div className={styles.featureInfo} ref={tooltipRef}></div>;
 }
