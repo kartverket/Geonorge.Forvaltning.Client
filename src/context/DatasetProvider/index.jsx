@@ -25,6 +25,8 @@ export default function DatasetProvider({ children }) {
    const [loadingDatasetId, setLoadingDatasetId] = useState(null);
    const [getDataset] = useLazyGetDatasetQuery();
 
+   const selectedFeature = useSelector((state) => state.map.selectedFeature);
+
    const toggleVisibleDataset = (datasetId) => {
       setVisibleDatasetIds((prev) => {
          const next = prev.includes(datasetId)
@@ -107,6 +109,11 @@ export default function DatasetProvider({ children }) {
 
       return allowed;
    }, [metadata, user, ownerOrganization]);
+
+   useEffect(() => {
+      if (!selectedFeature) return;
+      setActiveDatasetId(selectedFeature.datasetId);
+   }, [selectedFeature]);
 
    return (
       <DatasetContext.Provider

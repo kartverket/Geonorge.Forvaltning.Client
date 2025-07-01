@@ -2,18 +2,17 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { ToastContainer } from "react-toastify";
 import RequestAuthorization from "./RequestAuthorization";
+import { useDataset } from "context/DatasetProvider";
 import MapProvider from "context/MapProvider";
+import { AnalysisResult, FeatureInfo } from "features";
+import DatasetTable from "features/Dataset/DatasetTable";
 import {
    FeatureContextMenu,
-   Legend,
    MapContextMenu,
    MapView,
    PlaceSearch,
 } from "features/Map";
-import { AnalysisResult, FeatureInfo } from "features";
-import { useDataset } from "context/DatasetProvider";
 import SidePanel from "features/Map/SidePanel";
-import DatasetTable from "features/Dataset/DatasetTable";
 import styles from "./Home.module.scss";
 
 export default function Home() {

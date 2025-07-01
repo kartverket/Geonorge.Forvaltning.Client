@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import { getInteraction, getLayer, getVectorSource } from "utils/helpers/map";
+import {
+   getEditLayer,
+   getInteraction,
+   getLayer,
+   getVectorSource,
+} from "utils/helpers/map";
 import { GeometryType } from "context/MapProvider/helpers/constants";
 import { createModifyGeometryStyle } from "../helpers";
 import ModifyFeature from "ol-ext/interaction/ModifyFeature";
@@ -42,7 +47,7 @@ ModifyGeometry.addInteraction = (map) => {
       return;
    }
 
-   const vectorLayer = getLayer(map, "features-edit");
+   const vectorLayer = getEditLayer(map);
    if (!vectorLayer) return;
    const source = getVectorSource(vectorLayer);
 

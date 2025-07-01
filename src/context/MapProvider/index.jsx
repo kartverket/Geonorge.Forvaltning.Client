@@ -34,6 +34,7 @@ export default function MapProvider({ children }) {
          if (layerCache.current.has(id)) return;
 
          const featureCollection = createFeatureCollectionGeoJson(datasets[id]);
+
          const layer = createFeaturesLayer(id, featureCollection);
 
          map.addLayer(layer);

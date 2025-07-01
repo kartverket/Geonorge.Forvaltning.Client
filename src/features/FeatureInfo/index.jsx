@@ -10,6 +10,7 @@ import {
    updateDataObject,
 } from "store/slices/objectSlice";
 import {
+   getEditLayer,
    getFeatureById,
    getFeatureById2,
    getLayer,
@@ -78,7 +79,8 @@ function FeatureInfo() {
    const startEditMode = useCallback(
       (feature) => {
          const clone = feature.clone();
-         const vectorLayer = getLayer(map, "features-edit");
+
+         const vectorLayer = getEditLayer(map);
          const vectorSource = vectorLayer.getSource();
 
          vectorSource.addFeature(clone);
@@ -95,7 +97,7 @@ function FeatureInfo() {
    );
 
    function exitEditMode() {
-      const vectorLayer = getLayer(map, "features-edit");
+      const vectorLayer = getEditLayer(map);
       const vectorSource = vectorLayer.getSource();
 
       vectorSource.clear();

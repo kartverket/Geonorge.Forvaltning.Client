@@ -36,6 +36,15 @@ export function getLayer(map, datasetId) {
    );
 }
 
+export function getEditLayer(map) {
+   return (
+      map
+         .getLayers()
+         .getArray()
+         .find((layer) => layer.get("id") === "features-edit") || null
+   );
+}
+
 export function getFeatures(map, datasetId) {
    return (
       getLayer(map, datasetId)

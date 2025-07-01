@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useMap } from "context/MapProvider";
 import { renderProperty } from "utils/helpers/general";
-import { getLayer, getProperties } from "utils/helpers/map";
+import { getProperties } from "utils/helpers/map";
 import styles from "./FeatureTooltip.module.scss";
+
+const listCutoff = 10;
 
 export default function FeatureTooltip() {
    const { map } = useMap();
@@ -26,38 +28,53 @@ export default function FeatureTooltip() {
          map.forEachFeatureAtPixel(pixel, (featureAtPixel, layer) => {
             if (!layer.get("id")?.includes("features")) return false;
 
-            const tooltip = tooltipRef.current;
-
             let feature;
+            let valueStr = "";
 
-            const features = featureAtPixel.get("features");
+            const features = featureAtPixel
+               .get("features")
+               .slice()
+               .sort((a, b) => {
+                  const indexA = +getProperties(a.getProperties()).id.value;
+                  const indexB = +getProperties(b.getProperties()).id.value;
+                  return indexA - indexB;
+               });
 
-            if (features.length === 1) {
-               feature = features[0];
+            let counter = 0;
 
+            features.some((feature) => {
                const { id, ...properties } = getProperties(
                   feature.getProperties()
                );
 
-               const values = Object.entries(properties).map((entry) => [
-                  entry[1].name,
-                  renderProperty(entry[1]),
-               ]);
+               const values = Object.entries(properties)
+                  .filter(
+                     ([, entry]) =>
+                        entry && typeof entry === "object" && "name" in entry
+                  )
+                  .map((entry) => [entry[1].name, renderProperty(entry[1])]);
+
                values.unshift(["ID", id.value]);
 
-               const valueStr = values
+               valueStr += values
                   .map((value) => `${value[0]}: ${value[1]}`)
                   .join(" | ");
 
-               tooltip.style.left = pixel[0] + "px";
-               tooltip.style.top = pixel[1] + "px";
+               valueStr += "\n";
 
-               if (feature !== currentFeatureRef.current) {
-                  tooltip.style.visibility = "visible";
-                  tooltip.textContent = valueStr;
-               }
-            } else {
-               tooltip.style.visibility = "hidden";
+               counter++;
+               if (counter === listCutoff && features.length > listCutoff)
+                  valueStr += `\n(Viser kun de ${listCutoff} første i sortert rekkefølge)`;
+               return counter === listCutoff;
+            });
+
+            const tooltip = tooltipRef.current;
+            tooltip.style.left = pixel[0] + "px";
+            tooltip.style.top = pixel[1] + "px";
+
+            if (feature !== currentFeatureRef.current) {
+               tooltip.style.visibility = "visible";
+               tooltip.textContent = valueStr;
             }
 
             currentFeatureRef.current = feature;
@@ -88,5 +105,5 @@ export default function FeatureTooltip() {
       });
    }, [map, displayFeatureInfo]);
 
-   return <div className={styles.featureInfo} ref={tooltipRef}></div>;
+   return <div className={styles.featureInfo} ref={tooltipRef} />;
 }

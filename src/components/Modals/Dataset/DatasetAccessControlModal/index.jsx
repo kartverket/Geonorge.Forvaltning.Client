@@ -56,7 +56,6 @@ export default function DatasetAccessControlModal({ dataset, onClose }) {
 
          try {
             const payload = toDbModel(dataset);
-            console.log(payload);
             await setDatasetAccess(payload).unwrap();
             setLoading(false);
             toast.success(`Tilganger for ${datasetName} ble oppdatert`);
