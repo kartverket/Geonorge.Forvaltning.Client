@@ -45,7 +45,7 @@
     "perfect-cursors": "^1.0.5",
     "proj4": "^2.19.5",
     "react": "^19.1.0",
-    "react-datepicker": "^7.6.0",
+    "react-datepicker": "^8.4.0",
     "react-dom": "^19.1.0",
     "react-files": "^3.0.3",
     "react-hook-form": "^7.59.0",
