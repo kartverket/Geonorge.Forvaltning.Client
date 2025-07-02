@@ -93,7 +93,10 @@ export default function SidePanel() {
                               : ""
                         }
                         onClick={() => {
-                           selectActiveDataset(dataset.Id);
+                           selectActiveDataset({
+                              id: dataset.Id,
+                              name: dataset.Name,
+                           });
                         }}
                      >
                         {dataset.Name}

@@ -8,6 +8,7 @@ import {
    useState,
 } from "react";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 import {
    useGetAnalysableDatasetIdsQuery,
    useGetDatasetQuery,
@@ -24,6 +25,7 @@ export default function DatasetProvider({ children }) {
    const [previousActiveDatasetId, setPreviousActiveDatasetId] = useState(null);
    const [datasets, setDatasets] = useState([]);
    const [loadingDatasetId, setLoadingDatasetId] = useState(null);
+   const [activeDataset, setActiveDataset] = useState(null);
    const [getDataset] = useLazyGetDatasetQuery();
 
    const selectedFeature = useSelector((state) => state.map.selectedFeature);
@@ -37,11 +39,12 @@ export default function DatasetProvider({ children }) {
       });
    };
 
-   const selectActiveDataset = (datasetId) => {
-      setActiveDatasetId(datasetId);
+   const selectActiveDataset = ({ id, name }) => {
+      setActiveDatasetId(id);
       setVisibleDatasetIds((prev) =>
-         prev.includes(datasetId) ? prev : [...prev, datasetId]
+         prev.includes(id) ? prev : [...prev, id]
       );
+      setActiveDataset({ id, name });
    };
 
    useEffect(() => {
@@ -50,16 +53,27 @@ export default function DatasetProvider({ children }) {
       visibleDatasetIds.forEach(async (datasetId) => {
          if (datasets[datasetId]) return;
 
-         setLoadingDatasetId(datasetId);
-         const dataset = await getDataset(datasetId).unwrap();
-         setLoadingDatasetId(null);
+         try {
+            setLoadingDatasetId(datasetId);
 
-         setDatasets((prev) => ({
-            ...prev,
-            [datasetId]: dataset,
-         }));
+            const dataset = await getDataset(datasetId).unwrap();
+
+            setDatasets((prev) => ({
+               ...prev,
+               [datasetId]: dataset,
+            }));
+         } catch (error) {
+            const datasetName =
+               activeDataset.id === datasetId ? activeDataset.name : datasetId;
+
+            toast.error(`Kunne ikke laste inn datasett ${datasetName}`, {
+               position: "top-left",
+            });
+         } finally {
+            setLoadingDatasetId(null);
+         }
       });
-   }, [visibleDatasetIds, datasets, getDataset]);
+   }, [visibleDatasetIds, datasets, activeDataset, getDataset]);
 
    //    const { objects, definition, metadata, allowedValues } = useDataset();
 
