@@ -8,7 +8,6 @@ import { selectFeature } from "store/slices/mapSlice";
 import { toggleFullscreen as _toggleFullscreen } from "store/slices/appSlice";
 import {
    DEFAULT_ZOOM,
-   getFeatureById,
    getFeatureById2,
    getLayer,
    getVectorSource,

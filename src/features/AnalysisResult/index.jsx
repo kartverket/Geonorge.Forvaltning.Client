@@ -6,7 +6,7 @@ import { saveAs } from "file-saver";
 import { isNil } from "lodash";
 import { ControlledMenu, MenuItem } from "@szhsin/react-menu";
 import { selectFeature } from "store/slices/mapSlice";
-import { getFeatureById, getLayer, getVectorSource } from "utils/helpers/map";
+import { getFeatureById2, getLayer, getVectorSource } from "utils/helpers/map";
 import { mapAnalysisResult } from "./mapper";
 import {
    addAnalysisFeaturesToMap,
@@ -116,7 +116,11 @@ export default function AnalysisResult() {
 
    function handleClose() {
       if (selectedFeature !== null) {
-         const feature = getFeatureById(map, selectedFeature.id);
+         const feature = getFeatureById2(
+            map,
+            selectedFeature.datasetId,
+            selectedFeature.id
+         );
 
          if (feature?.get("_featureType") === "analysis") {
             dispatch(selectFeature(null));

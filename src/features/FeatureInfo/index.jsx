@@ -11,9 +11,7 @@ import {
 } from "store/slices/objectSlice";
 import {
    getEditLayer,
-   getFeatureById,
    getFeatureById2,
-   getLayer,
    getProperties,
    getPropertyValue,
    zoomToFeature,
@@ -420,7 +418,9 @@ function FeatureInfo() {
       const id = feature.get("_prevFeature");
 
       if (!isNil(id)) {
-         dispatch(selectFeature({ id, zoom: true }));
+         dispatch(
+            selectFeature({ id, zoom: true, datasetId: activeDatasetId })
+         );
       }
    }
 

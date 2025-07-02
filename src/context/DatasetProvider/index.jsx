@@ -71,8 +71,12 @@ export default function DatasetProvider({ children }) {
 
    // const featuresInExtent = useSelector(state => state.map.featuresInExtent);
    // const showObjectsInExtent = useSelector(state => state.object.showObjectsInExtent);
-   const { data: analysableDatasetIds = [] } =
-      useGetAnalysableDatasetIdsQuery(activeDatasetId);
+   const { data: analysableDatasetIds = [] } = useGetAnalysableDatasetIdsQuery(
+      activeDatasetId,
+      {
+         skip: !activeDatasetId,
+      }
+   );
 
    const objects = useMemo(
       () => {
@@ -114,7 +118,6 @@ export default function DatasetProvider({ children }) {
 
    useEffect(() => {
       if (!selectedFeature) return;
-      console.log("Selected feature changed:", selectedFeature);
       setActiveDatasetId(selectedFeature.datasetId);
    }, [selectedFeature]);
 
