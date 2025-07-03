@@ -1,8 +1,10 @@
 .modal {
    display: flex;
    flex-direction: column;
-   width: 480px;
-
+   max-height: 90dvh;
+   min-width: 480px;
+   max-width: 90dvw;
+   
    &:focus-visible {
       outline: none;
    }
@@ -15,11 +17,12 @@
    
    .body {
       margin-bottom: 24px;
+      overflow-y: auto;;
    }
    
-   .buttons {
+   .modalButtons {
       display: flex;
-      justify-content: flex-end;
+      justify-content: space-between;
 
       button {
          min-width: 72px;

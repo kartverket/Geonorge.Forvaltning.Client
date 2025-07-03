@@ -184,6 +184,7 @@ export default function DatasetImportGeoJsonModal({ dataset, onClose }) {
                   </i>
                )}
             </Files>
+
             {properties !== null ? (
                <div>
                   <heading-text>
@@ -290,28 +291,30 @@ export default function DatasetImportGeoJsonModal({ dataset, onClose }) {
                         }
                      />
                   </div>
-
-                  <div className={styles.submit}>
-                     <gn-button>
-                        <button onClick={handleImport} disabled={loading}>
-                           Importér datasett
-                        </button>
-                     </gn-button>
-                     {loading ? (
-                        <Spinner
-                           style={{
-                              position: "absolute",
-                              top: "2px",
-                              right: "-42px",
-                           }}
-                        />
-                     ) : null}
-                  </div>
                </div>
             ) : null}
          </div>
 
-         <div className={styles.buttons}>
+         <div className={styles.modalButtons}>
+            <div className={styles.submit}>
+               {properties && (
+                  <gn-button>
+                     <button onClick={handleImport} disabled={loading}>
+                        Importér datasett
+                     </button>
+                  </gn-button>
+               )}
+               {loading ? (
+                  <Spinner
+                     style={{
+                        position: "absolute",
+                        top: "2px",
+                        right: "-42px",
+                     }}
+                  />
+               ) : null}
+            </div>
+
             <gn-button>
                <button onClick={onClose}>Lukk</button>
             </gn-button>

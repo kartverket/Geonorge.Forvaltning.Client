@@ -14,7 +14,7 @@ export default function MapContextMenu() {
    const { activeDatasetId, datasets } = useDataset();
    const activeDataset = datasets[activeDatasetId];
    const definition = activeDataset?.definition;
-   const metadata = activeDataset?.metadata;
+   const metadata = definition?.ForvaltningsObjektPropertiesMetadata || [];
    const [open, setOpen] = useState(false);
    const menuData = useSelector((state) => state.map.mapContextMenuData);
    const user = useSelector((state) => state.app.user);
@@ -42,7 +42,7 @@ export default function MapContextMenu() {
    ]);
 
    function addPoint() {
-      const geoJson = createFeatureGeoJson(metadata);
+      const geoJson = createFeatureGeoJson(activeDatasetId, metadata);
       const point = createPoint(menuData.coordinates);
 
       geoJson.geometry = point.geometry;

@@ -160,7 +160,11 @@ function FeatureInfo() {
          return;
       }
 
-      const geoJson = createFeatureGeoJson(metadata, createdDataObject.object);
+      const geoJson = createFeatureGeoJson(
+         activeDatasetId,
+         metadata,
+         createdDataObject.object
+      );
       const feature = createFeature(
          geoJson,
          `EPSG:${environment.DATASET_SRID}`
@@ -181,6 +185,7 @@ function FeatureInfo() {
          feature !== null &&
          updatedDataObject.id === getPropertyValue(feature, "id")
       ) {
+         console.log("FeatureInfo: Updated feature", updated);
          setFeature(updated);
       }
    }, [updatedDataObject, map, activeDatasetId, feature]);
@@ -409,7 +414,11 @@ function FeatureInfo() {
 
       if (!isNil(id)) {
          dispatch(
-            selectFeature({ id, zoom: true, datasetId: activeDatasetId })
+            selectFeature({
+               id,
+               zoom: true,
+               datasetId: feature.get("datasetId"),
+            })
          );
       }
    }
@@ -419,7 +428,11 @@ function FeatureInfo() {
 
       if (!isNil(id)) {
          dispatch(
-            selectFeature({ id, zoom: true, datasetId: activeDatasetId })
+            selectFeature({
+               id,
+               zoom: true,
+               datasetId: feature.get("datasetId"),
+            })
          );
       }
    }
@@ -497,6 +510,7 @@ function FeatureInfo() {
                   />
                )}
             </div>
+
             <div
                className={styles.navigation}
                style={{ display: featureToEdit === null ? "flex" : "none" }}

@@ -1,16 +1,15 @@
 import { Menu, MenuItem, MenuDivider } from "@szhsin/react-menu";
 import { useModal } from "context/ModalProvider";
 import { modalType } from "components/Modals";
-// import { useGetDatasetQuery } from "store/services/api";
-import { getDatasetDefinition } from "store/services/supabase/queries/datasetDefinition";
-import { toGeoJson } from "features/AnalysisResult/exportGeoJson";
+import { toGeoJson } from "features/Dataset/export";
+import { getDataset } from "store/services/supabase/queries/dataset";
 import styles from "./AdminMenu.module.scss";
 
 export default function AdminMenu({ datasetId }) {
    const { showModal } = useModal();
 
-   const getDataset = async () => {
-      const { data: dataset, error } = await getDatasetDefinition(datasetId);
+   const fetchDataset = async () => {
+      const { data: dataset, error } = await getDataset(datasetId);
 
       if (error) {
          await showModal({
@@ -25,13 +24,13 @@ export default function AdminMenu({ datasetId }) {
       return dataset;
    };
 
-   function exportToGeoJson() {
-      const dataset = getDataset();
+   async function exportToGeoJson() {
+      const dataset = await fetchDataset();
       toGeoJson(dataset);
    }
 
    const openModal = async (type) => {
-      const dataset = await getDataset();
+      const dataset = await fetchDataset();
 
       if (type === modalType.DELETE_DATASET) {
          const { result: confirmed } = await showModal({

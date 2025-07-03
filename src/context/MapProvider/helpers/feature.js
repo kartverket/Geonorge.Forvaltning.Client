@@ -112,15 +112,15 @@ export function createFeature(
    return feature;
 }
 
-export function addFeatureToMap(map, feature, layerName = "features") {
-   const vectorLayer = getLayer(map, layerName);
+export function addFeatureToMap(map, feature) {
+   const vectorLayer = getLayer(map, feature.get("datasetId"));
    const vectorSource = getVectorSource(vectorLayer);
 
    vectorSource.addFeature(feature);
 }
 
-export function removeFeatureFromMap(map, feature, layerName = "features") {
-   const vectorLayer = getLayer(map, layerName);
+export function removeFeatureFromMap(map, feature) {
+   const vectorLayer = getLayer(map, feature.get("datasetId"));
    const vectorSource = getVectorSource(vectorLayer);
 
    vectorSource.removeFeature(feature);

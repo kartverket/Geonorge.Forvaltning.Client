@@ -17,7 +17,7 @@ import DatasetProperty from "../DatasetProperty";
 import SortableItem from "./SortableItem";
 import styles from "./DatasetForm.module.scss";
 
-export default function DatasetForm({ setDatasetName }) {
+export default function DatasetForm() {
    const { control } = useFormContext();
    const { fields, append, remove, move } = useFieldArray({
       control,
@@ -66,10 +66,7 @@ export default function DatasetForm({ setDatasetName }) {
                         error={error}
                         errorMessage="Navn må fylles ut"
                         className={styles.textField}
-                        onChange={(e) => {
-                           field.onChange(e);
-                           setDatasetName(e.target.value);
-                        }}
+                        onChange={field.onChange}
                      />
                   )}
                />

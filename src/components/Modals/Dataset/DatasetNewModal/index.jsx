@@ -8,7 +8,6 @@ import { Spinner } from "components";
 import styles from "./DatasetNewModal.module.scss";
 
 export default function DatasetNewModal({ onClose }) {
-   const [datasetName, setDatasetName] = useState("");
    const methods = useForm({ defaultValues: getDefaultValues() });
    const { handleSubmit, reset } = methods;
    const [loading, setLoading] = useState(false);
@@ -41,7 +40,7 @@ export default function DatasetNewModal({ onClose }) {
 
          <FormProvider {...methods}>
             <div className={styles.body}>
-               <DatasetForm setDatasetName={setDatasetName} />
+               <DatasetForm />
             </div>
 
             <div className={styles.buttons}>
