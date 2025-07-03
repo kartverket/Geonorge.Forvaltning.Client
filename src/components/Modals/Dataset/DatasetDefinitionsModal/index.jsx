@@ -7,26 +7,29 @@ import DatasetForm from "../DatasetNewModal/DatasetForm";
 import { fromDbModel, toDbModel } from "../DatasetNewModal/mapper";
 import styles from "./DatasetDefinitionsModal.module.scss";
 
-export default function InfoModal({ dataset, onClose }) {
+export default function InfoModal({ definition, onClose }) {
    const [loading, setLoading] = useState(false);
-   const methods = useForm({ defaultValues: fromDbModel(dataset) });
+   const methods = useForm({ defaultValues: fromDbModel(definition) });
    const { handleSubmit } = methods;
    const [updateDataset] = useUpdateDatasetMutation();
 
    function submit() {
-      handleSubmit(async (dataset) => {
+      handleSubmit(async (definition) => {
          setLoading(true);
 
          try {
-            const payload = toDbModel(dataset);
-            await updateDataset({ id: dataset.id, dataset: payload }).unwrap();
+            const payload = toDbModel(definition);
+            await updateDataset({
+               id: definition.id,
+               dataset: payload,
+            }).unwrap();
             setLoading(false);
-            toast.success(`${dataset.name} ble oppdatert`);
+            toast.success(`${definition.name} ble oppdatert`);
             onClose();
          } catch (error) {
             console.error(error);
             setLoading(false);
-            toast.error(`${dataset.name} kunne ikke oppdateres`);
+            toast.error(`${definition.name} kunne ikke oppdateres`);
          }
       })();
    }

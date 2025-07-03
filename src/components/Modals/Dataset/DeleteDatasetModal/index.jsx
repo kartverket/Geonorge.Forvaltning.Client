@@ -1,15 +1,13 @@
 import { useState } from "react";
+import { toast } from "react-toastify";
 import { useDeleteDatasetMutation } from "store/services/api";
-import { useModal } from "context/ModalProvider";
-import { modalType } from "components/Modals";
 import { Spinner } from "components";
 import styles from "./DeleteDatasetModal.module.scss";
 
-export default function DeleteDatasetModal({ dataset, onClose, callback }) {
+export default function DeleteDatasetModal({ definition, onClose, callback }) {
    const [name, setName] = useState("");
    const [loading, setLoading] = useState(false);
    const [_deleteDataset] = useDeleteDatasetMutation();
-   const { showModal } = useModal();
 
    function handleClose() {
       onClose();
@@ -19,29 +17,15 @@ export default function DeleteDatasetModal({ dataset, onClose, callback }) {
    async function deleteDataset() {
       try {
          setLoading(true);
-         await _deleteDataset({ id: dataset.Id }).unwrap();
-         onClose();
+         await _deleteDataset({ id: definition.Id }).unwrap();
 
-         await showModal({
-            type: modalType.INFO,
-            variant: "success",
-            title: "Datasett slettet",
-            body: `Datasettet «${dataset.Name}» ble slettet.`,
-         });
-
+         toast.success(`Datasettet «${definition.Name}» ble slettet`);
          callback({ result: true });
-      } catch (error) {
-         console.error(error);
          onClose();
-
-         await showModal({
-            type: modalType.INFO,
-            variant: "error",
-            title: "Feil",
-            body: `Datasettet «${dataset.Name}» kunne ikke slettes.`,
-         });
-
+      } catch (error) {
+         toast.error(`Datasettet «${definition.Name}» kunne ikke slettes`);
          callback({ result: false });
+         onClose();
       }
    }
 
@@ -50,7 +34,7 @@ export default function DeleteDatasetModal({ dataset, onClose, callback }) {
          <h1>Slett datasett</h1>
 
          <div className={styles.body}>
-            <p>For å bekrefte, skriv «{dataset.Name}» i boksen under:</p>
+            <p>For å bekrefte, skriv «{definition.Name}» i boksen under:</p>
 
             <gn-input block="">
                <input
@@ -69,7 +53,7 @@ export default function DeleteDatasetModal({ dataset, onClose, callback }) {
             <gn-button color="danger">
                <button
                   onClick={deleteDataset}
-                  disabled={name !== dataset.Name || loading}
+                  disabled={name !== definition.Name || loading}
                >
                   Slett datasett
                </button>

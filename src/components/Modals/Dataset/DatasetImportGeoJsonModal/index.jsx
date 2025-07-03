@@ -17,8 +17,8 @@ import projections from "config/map/projections.json";
 import { Spinner } from "components";
 import styles from "./DatasetImportGeoJsonModal.module.scss";
 
-export default function DatasetImportGeoJsonModal({ dataset, onClose }) {
-   const metadatas = dataset.definition.ForvaltningsObjektPropertiesMetadata;
+export default function DatasetImportGeoJsonModal({ definition, onClose }) {
+   const metadatas = definition.ForvaltningsObjektPropertiesMetadata;
    const [file, setFile] = useState(null);
    const [properties, setProperties] = useState(null);
    const [mappings, setMappings] = useState(createMappings());
@@ -101,7 +101,7 @@ export default function DatasetImportGeoJsonModal({ dataset, onClose }) {
 
       if (emptyFirst) {
          try {
-            await deleteAllDatasetObjects({ tableId: dataset.Id }).unwrap();
+            await deleteAllDatasetObjects({ tableId: definition.Id }).unwrap();
          } catch (error) {
             console.error(error);
             setLoading(false);
@@ -120,7 +120,7 @@ export default function DatasetImportGeoJsonModal({ dataset, onClose }) {
       try {
          const response = await addDatasetObjects({
             payload: objects,
-            tableId: dataset.Id,
+            tableId: definition.Id,
          }).unwrap();
          setLoading(false);
 
@@ -166,7 +166,7 @@ export default function DatasetImportGeoJsonModal({ dataset, onClose }) {
    return (
       <div className={styles.modal}>
          <heading-text>
-            <h1>Importer GeoJSON i {dataset.Name}</h1>
+            <h1>Importer GeoJSON i {definition.Name}</h1>
          </heading-text>
 
          <div className={styles.body}>

@@ -20,22 +20,20 @@ import DatasetAccessProperty from "./DatasetAccessProperty";
 import AutocompleteLookup from "components/Form/AutocompleteLookup";
 import styles from "./DatasetAccessControlModal.module.scss";
 
-export default function DatasetAccessControlModal({ dataset, onClose }) {
-   const methods = useForm({ values: fromDbModel(dataset) });
+export default function DatasetAccessControlModal({ definition, onClose }) {
+   const methods = useForm({ values: fromDbModel(definition) });
    const { control, handleSubmit, register } = methods;
    const { fields, append, remove } = useFieldArray({
       control,
       name: "accessByProperties",
    });
-   const metadata = dataset.ForvaltningsObjektPropertiesMetadata;
+   const metadata = definition.ForvaltningsObjektPropertiesMetadata;
    const [loading, setLoading] = useState(false);
    const [setDatasetAccess] = useSetDatasetAccessMutation();
    const [getOrganizationName] = useLazyGetOrganizationNameQuery();
    const accessControlType = useWatch({ control, name: "accessControlType" });
 
    const bottomRef = useRef(null);
-
-   const datasetName = dataset.Name;
 
    function addProperty() {
       append({ propertyId: "", value: "", contributors: [] });
@@ -51,18 +49,22 @@ export default function DatasetAccessControlModal({ dataset, onClose }) {
    }
 
    function submit() {
-      handleSubmit(async (dataset) => {
+      const definitionName = definition.Name;
+
+      handleSubmit(async (definition) => {
          setLoading(true);
 
          try {
-            const payload = toDbModel(dataset);
+            const payload = toDbModel(definition);
             await setDatasetAccess(payload).unwrap();
             setLoading(false);
-            toast.success(`Tilganger for ${datasetName} ble oppdatert`);
+            toast.success(`Tilganger for ${definitionName} ble oppdatert`);
             onClose();
          } catch (error) {
             setLoading(false);
-            toast.error(`Tilganger for ${datasetName} kunne ikke oppdateres`);
+            toast.error(
+               `Tilganger for ${definitionName} kunne ikke oppdateres`
+            );
          }
       })();
    }
@@ -87,7 +89,7 @@ export default function DatasetAccessControlModal({ dataset, onClose }) {
    return (
       <div className={styles.modal}>
          <heading-text>
-            <h1>Tilganger for {dataset.Name}</h1>
+            <h1>Tilganger for {definition.Name}</h1>
          </heading-text>
 
          <FormProvider {...methods}>

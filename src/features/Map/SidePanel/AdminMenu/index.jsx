@@ -1,8 +1,10 @@
 import { Menu, MenuItem, MenuDivider } from "@szhsin/react-menu";
+import { toast } from "react-toastify";
 import { useModal } from "context/ModalProvider";
 import { modalType } from "components/Modals";
 import { toGeoJson } from "features/Dataset/export";
 import { getDataset } from "store/services/supabase/queries/dataset";
+import { getDatasetDefinition } from "store/services/supabase/queries/datasetDefinition";
 import styles from "./AdminMenu.module.scss";
 
 export default function AdminMenu({ datasetId }) {
@@ -12,16 +14,24 @@ export default function AdminMenu({ datasetId }) {
       const { data: dataset, error } = await getDataset(datasetId);
 
       if (error) {
-         await showModal({
-            type: modalType.INFO,
-            variant: "error",
-            title: "Feil",
-            body: "Kunne ikke hente datasettdefinisjon.",
-         });
+         toast.error("Kunne ikke hente datasettet.", { position: "top-left" });
          return null;
       }
 
       return dataset;
+   };
+
+   const fetchDefinition = async () => {
+      const { data: definition, error } = await getDatasetDefinition(datasetId);
+
+      if (error) {
+         toast.error("Kunne ikke hente datasettdefinisjonen.", {
+            position: "top-left",
+         });
+         return null;
+      }
+
+      return definition;
    };
 
    async function exportToGeoJson() {
@@ -30,13 +40,13 @@ export default function AdminMenu({ datasetId }) {
    }
 
    const openModal = async (type) => {
-      const dataset = await fetchDataset();
+      const definition = await fetchDefinition();
 
       if (type === modalType.DELETE_DATASET) {
          const { result: confirmed } = await showModal({
             type: modalType.CONFIRM,
             title: "Slett datasett",
-            body: `Er du sikker på at du vil slette datasettet «${dataset.Name}»? Handlingen kan ikke angres.`,
+            body: `Er du sikker på at du vil slette datasettet «${definition.Name}»? Handlingen kan ikke angres.`,
             okText: "Slett",
             className: styles.confirmDeleteModal,
          });
@@ -46,7 +56,7 @@ export default function AdminMenu({ datasetId }) {
 
       await showModal({
          type,
-         dataset,
+         definition,
       });
    };
 
