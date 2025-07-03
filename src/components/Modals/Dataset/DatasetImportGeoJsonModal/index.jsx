@@ -18,7 +18,7 @@ import { Spinner } from "components";
 import styles from "./DatasetImportGeoJsonModal.module.scss";
 
 export default function DatasetImportGeoJsonModal({ dataset, onClose }) {
-   const metadatas = dataset.ForvaltningsObjektPropertiesMetadata;
+   const metadatas = dataset.definition.ForvaltningsObjektPropertiesMetadata;
    const [file, setFile] = useState(null);
    const [properties, setProperties] = useState(null);
    const [mappings, setMappings] = useState(createMappings());
