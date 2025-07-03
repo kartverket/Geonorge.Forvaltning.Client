@@ -25,55 +25,49 @@ export default function DatasetProvider({ children }) {
    const [previousActiveDatasetId, setPreviousActiveDatasetId] = useState(null);
    const [datasets, setDatasets] = useState([]);
    const [loadingDatasetId, setLoadingDatasetId] = useState(null);
-   const [activeDataset, setActiveDataset] = useState(null);
    const [getDataset] = useLazyGetDatasetQuery();
 
    const selectedFeature = useSelector((state) => state.map.selectedFeature);
 
-   const toggleVisibleDataset = (datasetId) => {
+   const toggleVisibleDataset = async (datasetId) => {
+      const isCurrentlyVisible = visibleDatasetIds.includes(datasetId);
+
       setVisibleDatasetIds((prev) => {
-         const next = prev.includes(datasetId)
+         const next = isCurrentlyVisible
             ? prev.filter((x) => x !== datasetId)
             : [...prev, datasetId];
          return next;
       });
+
+      if (!isCurrentlyVisible) await fetchDataset(datasetId);
    };
 
-   const selectActiveDataset = ({ id, name }) => {
-      setActiveDatasetId(id);
+   const toggleActiveDataset = async (datasetId) => {
+      setActiveDatasetId(datasetId);
       setVisibleDatasetIds((prev) =>
-         prev.includes(id) ? prev : [...prev, id]
+         prev.includes(datasetId) ? prev : [...prev, datasetId]
       );
-      setActiveDataset({ id, name });
+      await fetchDataset(datasetId);
    };
 
-   useEffect(() => {
-      if (visibleDatasetIds.length === 0) return;
+   const fetchDataset = async (datasetId) => {
+      try {
+         setLoadingDatasetId(datasetId);
 
-      visibleDatasetIds.forEach(async (datasetId) => {
-         if (datasets[datasetId]) return;
+         const dataset = await getDataset(datasetId).unwrap();
 
-         try {
-            setLoadingDatasetId(datasetId);
-
-            const dataset = await getDataset(datasetId).unwrap();
-
-            setDatasets((prev) => ({
-               ...prev,
-               [datasetId]: dataset,
-            }));
-         } catch (error) {
-            const datasetName =
-               activeDataset.id === datasetId ? activeDataset.name : datasetId;
-
-            toast.error(`Kunne ikke laste inn datasett ${datasetName}`, {
-               position: "top-left",
-            });
-         } finally {
-            setLoadingDatasetId(null);
-         }
-      });
-   }, [visibleDatasetIds, datasets, activeDataset, getDataset]);
+         setDatasets((prev) => ({
+            ...prev,
+            [datasetId]: dataset,
+         }));
+      } catch (error) {
+         toast.error(`Kunne ikke laste inn datasett ${name}`, {
+            position: "top-left",
+         });
+      } finally {
+         setLoadingDatasetId(null);
+      }
+   };
 
    //    const { objects, definition, metadata, allowedValues } = useDataset();
 
@@ -144,8 +138,8 @@ export default function DatasetProvider({ children }) {
          value={{
             visibleDatasetIds,
             toggleVisibleDataset,
+            toggleActiveDataset,
             activeDatasetId,
-            selectActiveDataset,
             previousActiveDatasetId,
             datasets,
             loadingDatasetId,

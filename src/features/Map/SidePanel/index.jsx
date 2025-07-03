@@ -18,8 +18,8 @@ export default function SidePanel() {
    const {
       visibleDatasetIds,
       toggleVisibleDataset,
+      toggleActiveDataset,
       activeDatasetId,
-      selectActiveDataset,
       loadingDatasetId,
    } = useDataset();
 
@@ -93,10 +93,7 @@ export default function SidePanel() {
                               : ""
                         }
                         onClick={() => {
-                           selectActiveDataset({
-                              id: dataset.Id,
-                              name: dataset.Name,
-                           });
+                           toggleActiveDataset(dataset.Id);
                         }}
                      >
                         {dataset.Name}
