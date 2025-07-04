@@ -38,10 +38,7 @@ const router = createBrowserRouter([
 ]);
 
 async function authGuard() {
-   if (await signedIn()) {
-      const datasetDefinitions = await getDatasetDefinitions();
-      return datasetDefinitions;
-   }
+   if (await signedIn()) return null;
 
    const error = new URLSearchParams(location.search).get("error_description");
    const url = error !== null ? `/logg-inn?error=${error}` : "/logg-inn";

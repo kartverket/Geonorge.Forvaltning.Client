@@ -13,6 +13,7 @@ import {
    useGetAnalysableDatasetIdsQuery,
    useGetDatasetQuery,
    useLazyGetDatasetQuery,
+   useGetDatasetDefinitionsQuery,
 } from "store/services/api";
 import {
    createFeatureCollectionGeoJson,
@@ -28,6 +29,8 @@ export default function DatasetProvider({ children }) {
    const [getDataset] = useLazyGetDatasetQuery();
 
    const selectedFeature = useSelector((state) => state.map.selectedFeature);
+
+   const { data: datasetDefinitions = [] } = useGetDatasetDefinitionsQuery();
 
    const toggleVisibleDataset = async (datasetId) => {
       const isCurrentlyVisible = visibleDatasetIds.includes(datasetId);
@@ -136,6 +139,7 @@ export default function DatasetProvider({ children }) {
    return (
       <DatasetContext.Provider
          value={{
+            datasetDefinitions,
             visibleDatasetIds,
             toggleVisibleDataset,
             toggleActiveDataset,

@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { useLoaderData } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useModal } from "context/ModalProvider";
 import { modalType } from "components/Modals";
@@ -9,13 +8,13 @@ import AdminMenu from "./AdminMenu";
 import styles from "./SidePanel.module.scss";
 
 export default function SidePanel() {
-   const datasets = useLoaderData();
    const [expanded, setExpanded] = useState(true);
 
    const user = useSelector((state) => state.app.user);
 
    const { showModal } = useModal();
    const {
+      datasetDefinitions,
       visibleDatasetIds,
       toggleVisibleDataset,
       toggleActiveDataset,
@@ -23,33 +22,36 @@ export default function SidePanel() {
       loadingDatasetId,
    } = useDataset();
 
-   const { ownedDatasets, contributorDatasets, viewerDatasets } =
-      useMemo(() => {
-         if (!datasets || !user) {
-            return {
-               ownedDatasets: [],
-               contributorDatasets: [],
-               viewerDatasets: [],
-            };
-         }
-
+   const {
+      ownedDatasetDefinitions,
+      contributorDatasetDefinitions,
+      viewerDatasetDefinitions,
+   } = useMemo(() => {
+      if (!datasetDefinitions || !user) {
          return {
-            ownedDatasets: datasets.filter(
-               (dataset) => dataset.Organization === user.organization
-            ),
-            contributorDatasets: datasets.filter(
-               (dataset) =>
-                  dataset.Organization !== user.organization &&
-                  dataset.Contributors?.includes(user.organization)
-            ),
-            viewerDatasets: datasets.filter(
-               (dataset) =>
-                  dataset.Organization !== user.organization &&
-                  !dataset.Contributors?.includes(user.organization) &&
-                  dataset.Viewers?.includes(user.organization)
-            ),
+            ownedDatasetDefinitions: [],
+            contributorDatasetDefinitions: [],
+            viewerDatasetDefinitions: [],
          };
-      }, [datasets, user]);
+      }
+
+      return {
+         ownedDatasetDefinitions: datasetDefinitions.filter(
+            (dataset) => dataset.Organization === user.organization
+         ),
+         contributorDatasetDefinitions: datasetDefinitions.filter(
+            (dataset) =>
+               dataset.Organization !== user.organization &&
+               dataset.Contributors?.includes(user.organization)
+         ),
+         viewerDatasetDefinitions: datasetDefinitions.filter(
+            (dataset) =>
+               dataset.Organization !== user.organization &&
+               !dataset.Contributors?.includes(user.organization) &&
+               dataset.Viewers?.includes(user.organization)
+         ),
+      };
+   }, [datasetDefinitions, user]);
 
    const openAddDatasetModal = async () => {
       await showModal({
@@ -57,11 +59,11 @@ export default function SidePanel() {
       });
    };
 
-   const createTable = (datasets) => {
+   const createTable = (datasetDefinitions) => {
       return (
          <table className={styles.table}>
             <tbody>
-               {datasets.map((dataset) => (
+               {datasetDefinitions.map((dataset) => (
                   <tr key={dataset.Id} className={styles.row}>
                      <td className={styles.eyeButtonCell}>
                         <button
@@ -123,36 +125,36 @@ export default function SidePanel() {
                }`}
             >
                <div className={styles.detailsContainer}>
-                  {ownedDatasets.length > 0 && (
+                  {ownedDatasetDefinitions.length > 0 && (
                      <details className={styles.details}>
                         <summary>
                            <heading-text>
                               <h5>Eier</h5>
                            </heading-text>
                         </summary>
-                        {createTable(ownedDatasets)}
+                        {createTable(ownedDatasetDefinitions)}
                      </details>
                   )}
 
-                  {contributorDatasets.length > 0 && (
+                  {contributorDatasetDefinitions.length > 0 && (
                      <details className={styles.details}>
                         <summary>
                            <heading-text>
                               <h5>Bidragsyter</h5>
                            </heading-text>
                         </summary>
-                        {createTable(contributorDatasets)}
+                        {createTable(contributorDatasetDefinitions)}
                      </details>
                   )}
 
-                  {viewerDatasets.length > 0 && (
+                  {viewerDatasetDefinitions.length > 0 && (
                      <details className={styles.details}>
                         <summary>
                            <heading-text>
                               <h5>Innsyn</h5>
                            </heading-text>
                         </summary>
-                        {createTable(viewerDatasets)}
+                        {createTable(viewerDatasetDefinitions)}
                      </details>
                   )}
                </div>
