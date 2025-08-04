@@ -1,9 +1,9 @@
-import TileLayer from 'ol/layer/Tile';
-import WMTS, { optionsFromCapabilities } from 'ol/source/WMTS';
-import { WMTSCapabilities } from 'ol/format';
-import axios from 'axios';
-import baseMap from 'config/map/baseMap';
-import environment from 'config/environment';
+import TileLayer from "ol/layer/Tile";
+import WMTS, { optionsFromCapabilities } from "ol/source/WMTS";
+import { WMTSCapabilities } from "ol/format";
+import axios from "axios";
+import baseMap from "config/map/baseMap";
+import environment from "config/environment";
 
 let wmtsOptions = null;
 
@@ -16,10 +16,10 @@ export async function createTileLayer() {
 
    const tileLayer = new TileLayer({
       source: new WMTS(options),
-      maxZoom: baseMap.maxZoom
+      maxZoom: baseMap.maxZoom,
    });
 
-   tileLayer.set('id', 'baseMap');
+   tileLayer.set("id", "baseMap");
 
    return tileLayer;
 }
@@ -44,9 +44,9 @@ async function getWmtsOptions() {
       matrixSet: environment.MAP_EPSG,
    });
 
-   wmtsOptions = { 
-      ...options, 
-      crossOrigin: 'anonymous' 
+   wmtsOptions = {
+      ...options,
+      crossOrigin: "anonymous",
    };
 
    return wmtsOptions;

@@ -1,84 +1,98 @@
-import { createContext, useState, useEffect, useCallback, useContext } from 'react';
-import { useDispatch } from 'react-redux';
+import {
+   createContext,
+   useState,
+   useEffect,
+   useCallback,
+   useContext,
+} from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { setUser } from 'store/slices/appSlice';
-import { useLazyGetOrganizationNameQuery } from 'store/services/api';
-import supabase from 'store/services/supabase/client';
-import environment from 'config/environment';
+import { setUser } from "store/slices/appSlice";
+import { useLazyGetOrganizationNameQuery } from "store/services/api";
+import supabase from "store/services/supabase/client";
+import environment from "config/environment";
 
 export default function AuthProvider({ children }) {
-    const [session, setSession] = useState();
-    const [getOrganizationName] = useLazyGetOrganizationNameQuery();
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
+   const [session, setSession] = useState();
+   const [getOrganizationName] = useLazyGetOrganizationNameQuery();
+   const navigate = useNavigate();
+   const dispatch = useDispatch();
 
-    const signIn = useCallback(
-        async () => {
-            await supabase.auth.signInWithOAuth({
-                provider: 'keycloak',
-                options: {
-                    scopes: 'openid',
-                    redirectTo: environment.AUTH_REDIRECT_TO
-                }
-            });
-        },
-        []
-    );
+   const signIn = useCallback(async () => {
+      await supabase.auth.signInWithOAuth({
+         provider: "keycloak",
+         options: {
+            scopes: "openid",
+            redirectTo: environment.AUTH_REDIRECT_TO,
+         },
+      });
+   }, []);
 
-    const fetchUser = useCallback(
-        async session => {
-            const { data } = await supabase
-                .from('users')
-                .select('organization, role')
-                .single();
+   const fetchUser = useCallback(
+      async (session) => {
+         const { data } = await supabase
+            .from("users")
+            .select("organization, role")
+            .single();
 
-            let organizationName = null;
+         let organizationName = null;
 
-            if (data.organization) {
-                organizationName = await getOrganizationName(data.organization).unwrap();
-            }
+         if (data.organization) {
+            organizationName = await getOrganizationName(
+               data.organization
+            ).unwrap();
+         }
 
-            const { name, email } = session.user.user_metadata;
+         const { name, email } = session.user.user_metadata;
 
-            dispatch(setUser({ name, email, organization: data.organization, organizationName }));
-        },
-        [dispatch, getOrganizationName]
-    );
+         dispatch(
+            setUser({
+               name,
+               email,
+               organization: data.organization,
+               organizationName,
+            })
+         );
+      },
+      [dispatch, getOrganizationName]
+   );
 
-    async function signOut() {
-        await supabase.auth.signOut();
-        navigate('/logg-inn', { replace: true });
-    }
+   async function signOut() {
+      await supabase.auth.signOut();
+      navigate("/logg-inn", { replace: true });
+   }
 
-    useEffect(
-        () => {
-            history.replaceState('', document.title, window.location.pathname + window.location.search);
+   useEffect(() => {
+      history.replaceState(
+         "",
+         document.title,
+         window.location.pathname + window.location.search
+      );
 
-            supabase.auth.getSession()
-                .then(({ data: { session } }) => {
-                    setSession(session);
-                });
+      supabase.auth.getSession().then(({ data: { session } }) => {
+         setSession(session);
+      });
 
-            const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
-                setSession(session);
+      const {
+         data: { subscription },
+      } = supabase.auth.onAuthStateChange((_, session) => {
+         setSession(session);
 
-                if (session !== null) {
-                    fetchUser(session);
-                } else {
-                    dispatch(setUser(null));
-                }
-            });
+         if (session !== null) {
+            fetchUser(session);
+         } else {
+            dispatch(setUser(null));
+         }
+      });
 
-            return () => subscription.unsubscribe();
-        },
-        [dispatch, fetchUser]
-    );
+      return () => subscription.unsubscribe();
+   }, [dispatch, fetchUser]);
 
-    return (
-        <AuthContext.Provider value={{ session, signIn, signOut }}>
-            {children}
-        </AuthContext.Provider>
-    );
+   return (
+      <AuthContext.Provider value={{ session, signIn, signOut }}>
+         {children}
+      </AuthContext.Provider>
+   );
 }
 
 export const AuthContext = createContext({});

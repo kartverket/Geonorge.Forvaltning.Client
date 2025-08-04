@@ -21,9 +21,10 @@ export default function Feature({ feature }) {
    const geomType = feature.getGeometry().getType();
    const dispatch = useDispatch();
    const { showModal } = useModal();
-
+   console.log(feature);
    useEffect(() => {
       setTag(feature.get("_tag"));
+      console.log(feature);
    }, [feature]);
 
    async function handleChange(event) {
@@ -68,6 +69,12 @@ export default function Feature({ feature }) {
             environment.COUNTY_GOVERNORS.includes(user?.organization))
       );
    }
+
+   console.log(
+      Object.entries(properties).filter(
+         ([, entry]) => entry && typeof entry === "object" && "name" in entry
+      )
+   );
 
    return (
       <div className={styles.properties}>

@@ -1,13 +1,15 @@
-import { Controller, useForm } from 'react-hook-form';
-import { Tags } from 'components/Form';
-import styles from './AllowedValuesModal.module.scss';
+import { Controller, useForm } from "react-hook-form";
+import { Tags } from "components/Form";
+import styles from "./AllowedValuesModal.module.scss";
 
-export default function AllowedValuesModal({ values, onClose, callback }) {   
-   const { control, getValues } = useForm({ values: { allowedValues: values } });
+export default function AllowedValuesModal({ values, onClose, callback }) {
+   const { control, getValues } = useForm({
+      values: { allowedValues: values },
+   });
 
    function handleOk() {
       onClose();
-      callback({ result: true, data: getValues('allowedValues') });
+      callback({ result: true, data: getValues("allowedValues") });
    }
 
    function handleClose() {

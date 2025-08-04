@@ -1,5 +1,5 @@
-import { isPlainObject } from 'lodash';
+import { isPlainObject } from "lodash";
 
 export function hasError(error) {
-   return isPlainObject(error) && Object.hasOwn(error, 'message');
+   return isPlainObject(error) && Object.hasOwn(error, "message");
 }

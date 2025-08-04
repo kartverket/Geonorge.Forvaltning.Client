@@ -1,47 +1,44 @@
-import { useCallback, useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
-import { hideScrollbar, showScrollbar } from './helpers';
-import { modals } from 'components/Modals';
-import ReactModal from 'react-modal';
-import styles from './ModalWrapper.module.scss';
+import { useCallback, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
+import { hideScrollbar, showScrollbar } from "./helpers";
+import { modals } from "components/Modals";
+import ReactModal from "react-modal";
+import styles from "./ModalWrapper.module.scss";
 
-ReactModal.setAppElement('#root');
+ReactModal.setAppElement("#root");
 
-export default function ModalWrapper({ open, type, onClose, callback, ...props }) {
+export default function ModalWrapper({
+   open,
+   type,
+   onClose,
+   callback,
+   ...props
+}) {
    const location = useLocation();
    const locationRef = useRef(null);
 
-   const handleClose = useCallback(
-      () => {
-         onClose();
-         callback({ result: false, data: null });
-      },
-      [callback, onClose]
-   );
+   const handleClose = useCallback(() => {
+      onClose();
+      callback({ result: false, data: null });
+   }, [callback, onClose]);
 
-   useEffect(
-      () => {
-         if (!open) {
-            locationRef.current = null;
-         }
-      },
-      [open]
-   );
+   useEffect(() => {
+      if (!open) {
+         locationRef.current = null;
+      }
+   }, [open]);
 
-   useEffect(
-      () => {
-         if (!open) {
-            return;
-         }
+   useEffect(() => {
+      if (!open) {
+         return;
+      }
 
-         if (location !== locationRef.current && locationRef.current !== null) {
-            handleClose();
-         } else {
-            locationRef.current = location;
-         }
-      },
-      [location, open, handleClose]
-   );
+      if (location !== locationRef.current && locationRef.current !== null) {
+         handleClose();
+      } else {
+         locationRef.current = location;
+      }
+   }, [location, open, handleClose]);
 
    function handleAfterOpen() {
       hideScrollbar();
@@ -54,9 +51,9 @@ export default function ModalWrapper({ open, type, onClose, callback, ...props }
    function renderModal() {
       const Component = modals[type];
 
-      return Component ?
-         <Component onClose={onClose} callback={callback} {...props} /> :
-         null;
+      return Component ? (
+         <Component onClose={onClose} callback={callback} {...props} />
+      ) : null;
    }
 
    return (
@@ -68,7 +65,10 @@ export default function ModalWrapper({ open, type, onClose, callback, ...props }
          className={styles.content}
       >
          <div className={styles.modal}>
-            <button onClick={handleClose} className={styles.closeButton}></button>
+            <button
+               onClick={handleClose}
+               className={styles.closeButton}
+            ></button>
             {renderModal()}
          </div>
       </ReactModal>

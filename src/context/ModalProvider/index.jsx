@@ -1,18 +1,14 @@
-
-import { useState, useCallback, useContext, createContext } from 'react';
-import ModalWrapper from './ModalWrapper';
+import { useState, useCallback, useContext, createContext } from "react";
+import ModalWrapper from "./ModalWrapper";
 
 export default function ModalProvider({ children }) {
    const [modalParams, setModalParams] = useState({});
 
-   const showModal = useCallback(
-      props => {
-         return new Promise(resolve => {
-            setModalParams({ ...props, open: true, callback: resolve });
-         });
-      },
-      []
-   );
+   const showModal = useCallback((props) => {
+      return new Promise((resolve) => {
+         setModalParams({ ...props, open: true, callback: resolve });
+      });
+   }, []);
 
    function handleClose() {
       setModalParams({});

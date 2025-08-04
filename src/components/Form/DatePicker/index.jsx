@@ -1,14 +1,23 @@
-import { forwardRef, useRef, useState } from 'react';
-import { getTimeZone } from 'config/date';
-import { isNil } from 'lodash';
-import { hasError } from '../helpers';
-import ReactDatePicker from 'react-datepicker';
-import dayjs from 'dayjs';
-import styles from './DatePicker.module.scss';
-import commonStyles from '../Form.module.scss';
+import { forwardRef, useRef, useState } from "react";
+import { getTimeZone } from "config/date";
+import { isNil } from "lodash";
+import { hasError } from "../helpers";
+import ReactDatePicker from "react-datepicker";
+import dayjs from "dayjs";
+import styles from "./DatePicker.module.scss";
+import commonStyles from "../Form.module.scss";
 
-export default function DatePicker({ id, name, label, value, onChange, error, errorMessage, className = '' }) {
-   const initDate = !isNil(value) && value !== '' ? new Date(value) : null;
+export default function DatePicker({
+   id,
+   name,
+   label,
+   value,
+   onChange,
+   error,
+   errorMessage,
+   className = "",
+}) {
+   const initDate = !isNil(value) && value !== "" ? new Date(value) : null;
    const [_value, setValue] = useState(initDate);
    const originalDateRef = useRef(initDate);
    const datePickerRef = useRef(null);
@@ -16,11 +25,17 @@ export default function DatePicker({ id, name, label, value, onChange, error, er
    function handleChange(date, event) {
       if (event) {
          event.preventDefault();
-         event.stopPropagation()
+         event.stopPropagation();
       }
 
       const _date = dayjs(date);
-      const newDay = dayjs([_date.year(), _date.month(), _date.date(), _date.hour(), _date.minute()]).tz(getTimeZone());
+      const newDay = dayjs([
+         _date.year(),
+         _date.month(),
+         _date.date(),
+         _date.hour(),
+         _date.minute(),
+      ]).tz(getTimeZone());
 
       setValue(newDay.toDate());
    }
@@ -93,43 +108,55 @@ export default function DatePicker({ id, name, label, value, onChange, error, er
             </gn-button>
 
             <gn-button>
-               <button onClick={save} disabled={_value === null}>OK</button>
+               <button onClick={save} disabled={_value === null}>
+                  OK
+               </button>
             </gn-button>
          </div>
       </ReactDatePicker>
    );
 }
 
-const DatePickerInput = forwardRef(({ inputId, value, label, onChange, onClick, onClear, error, errorMessage }, ref) => (
-   <div className={styles.inputContainer}>
+const DatePickerInput = forwardRef(
+   (
       {
-         label ?
+         inputId,
+         value,
+         label,
+         onChange,
+         onClick,
+         onClear,
+         error,
+         errorMessage,
+      },
+      ref
+   ) => (
+      <div className={styles.inputContainer}>
+         {label ? (
             <gn-label block="">
                <label htmlFor={inputId}>{label}</label>
-            </gn-label> :
-            null
-      }
-      <div className={styles.input}>
-         <gn-input block="" width="">
-            <input
-               id={inputId}
-               ref={ref}
-               type="text"
-               value={value}
-               onChange={onChange}
-               onClick={onClick}
-               readOnly
-            />
-         </gn-input>
+            </gn-label>
+         ) : null}
+         <div className={styles.input}>
+            <gn-input block="" width="">
+               <input
+                  id={inputId}
+                  ref={ref}
+                  type="text"
+                  value={value}
+                  onChange={onChange}
+                  onClick={onClick}
+                  readOnly
+               />
+            </gn-input>
 
-         <button onClick={onClear}></button>
+            <button onClick={onClear}></button>
+         </div>
+         {hasError(error) ? (
+            <div className={commonStyles.error}>{errorMessage}</div>
+         ) : null}
       </div>
-      {
-         hasError(error) ?
-            <div className={commonStyles.error}>{errorMessage}</div> :
-            null
-      }
-   </div>
-));
+   )
+);
 
-DatePickerInput.displayName = 'DatePickerInput';
+DatePickerInput.displayName = "DatePickerInput";

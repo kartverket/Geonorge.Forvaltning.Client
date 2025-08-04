@@ -6,7 +6,10 @@ export function isValidOrgNo(value) {
    }
 
    const orgNo = parseInt(value);
-   const orgNoDigits = orgNo.toString().split('').map(digit => parseInt(digit));
+   const orgNoDigits = orgNo
+      .toString()
+      .split("")
+      .map((digit) => parseInt(digit));
    const weightDigits = [3, 2, 7, 6, 5, 4, 3, 2];
    let sum = 0;
 

@@ -1,13 +1,15 @@
-import { useDispatch, useSelector } from 'react-redux';
-import { setFeaturesSelected } from 'store/slices/mapSlice';
-import { getInteraction, writeGeometryObject } from 'utils/helpers/map';
-import SelectGeometry from '../SelectGeometry';
-import UndoRedo from '../UndoRedo';
-import styles from '../Editor.module.scss';
+import { useDispatch, useSelector } from "react-redux";
+import { setFeaturesSelected } from "store/slices/mapSlice";
+import { getInteraction, writeGeometryObject } from "utils/helpers/map";
+import SelectGeometry from "../SelectGeometry";
+import UndoRedo from "../UndoRedo";
+import styles from "../Editor.module.scss";
 
 export default function DeleteGeometry({ map }) {
    const dispatch = useDispatch();
-   const featuresSelected = useSelector(state => state.map.editor.featuresSelected);
+   const featuresSelected = useSelector(
+      (state) => state.map.editor.featuresSelected
+   );
 
    function _delete() {
       const selectInteraction = getInteraction(map, SelectGeometry.name);
@@ -22,11 +24,19 @@ export default function DeleteGeometry({ map }) {
       selectInteraction.getFeatures().clear();
 
       feature.setGeometry(null);
-      undoRedoInteraction.push('replaceGeometry', { before: geometry, after: null });
+      undoRedoInteraction.push("replaceGeometry", {
+         before: geometry,
+         after: null,
+      });
       dispatch(setFeaturesSelected(false));
    }
 
    return (
-      <button className={styles.delete} onClick={_delete} disabled={!featuresSelected} title="Slett geometri"></button>
+      <button
+         className={styles.delete}
+         onClick={_delete}
+         disabled={!featuresSelected}
+         title="Slett geometri"
+      ></button>
    );
 }
