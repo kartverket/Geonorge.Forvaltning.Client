@@ -27,7 +27,6 @@ export default function InfoModal({ definition, onClose }) {
             toast.success(`${definition.name} ble oppdatert`);
             onClose();
          } catch (error) {
-            console.error(error);
             setLoading(false);
             toast.error(`${definition.name} kunne ikke oppdateres`);
          }

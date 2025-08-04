@@ -10,7 +10,7 @@ import environment from "config/environment";
 import styles from "./Legend.module.scss";
 
 export default function Legend() {
-   const { activeDatasetId, metadata, datasetInfo } = useDataset();
+   const { activeDataset, metadata, datasetInfo } = useDataset();
    const { map } = useMap();
    const [selectedProperty, setSelectedProperty] = useState("");
    const [legend, setLegend] = useState(null);
@@ -62,7 +62,7 @@ export default function Legend() {
    }
 
    function handleChange(event) {
-      const vectorLayer = getLayer(map, activeDatasetId);
+      const vectorLayer = getLayer(map, activeDataset.id);
       const value = event.target.value;
 
       setSelectedProperty(value);
@@ -72,7 +72,7 @@ export default function Legend() {
          setLegend(legend);
 
          dispatch(
-            setStyling({ property: value, legend, datasetId: activeDatasetId })
+            setStyling({ property: value, legend, datasetId: activeDataset.id })
          );
          vectorLayer.changed();
       } else {
@@ -83,13 +83,13 @@ export default function Legend() {
    }
 
    useEffect(() => {
-      const vectorLayer = getLayer(map, activeDatasetId);
+      const vectorLayer = getLayer(map, activeDataset.id);
       if (!vectorLayer) return;
 
       setLegend(null);
       dispatch(setStyling(null));
       vectorLayer.changed();
-   }, [activeDatasetId, dispatch, map]);
+   }, [activeDataset, dispatch, map]);
 
    if (selectOptions.length <= 1) {
       return null;

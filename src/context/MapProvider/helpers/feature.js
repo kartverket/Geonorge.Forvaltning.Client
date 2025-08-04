@@ -14,6 +14,48 @@ import { clusterStyle, featureStyle } from "./style";
 import getCentroid from "@turf/centroid";
 import environment from "config/environment";
 import { getLayerClusterSourceId, getLayerFeaturesId } from "./utils";
+import { isNil } from "lodash";
+
+export function createFeatureCollectionGeoJson(dataset) {
+   const metadata = dataset.definition.ForvaltningsObjektPropertiesMetadata;
+   const features = dataset.objects.map((object) =>
+      createFeatureGeoJson(dataset.definition.Id, metadata, object)
+   );
+
+   return {
+      type: "FeatureCollection",
+      features,
+   };
+}
+
+export function createFeatureGeoJson(datasetId, metadata, object = {}) {
+   const feature = {
+      type: "Feature",
+      geometry: object.geometry || null,
+      properties: {
+         datasetId,
+         id: {
+            name: "ID",
+            value: object.id || null,
+            dataType: null,
+         },
+         _tag: object.tag || null,
+      },
+   };
+
+   metadata.forEach((data) => {
+      feature.properties[data.ColumnName] = {
+         name: data.Name,
+         value: !isNil(object[data.ColumnName])
+            ? object[data.ColumnName]
+            : null,
+         dataType: data.DataType,
+         propertyOrder: data.PropertyOrder,
+      };
+   });
+
+   return feature;
+}
 
 export function createFeaturesLayer(datasetId, featureCollection) {
    const vectorSource = new VectorSource();

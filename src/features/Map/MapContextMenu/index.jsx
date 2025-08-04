@@ -3,16 +3,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { useMap } from "context/MapProvider";
 import { useDataset } from "context/DatasetProvider";
 import { initializeDataObject } from "store/slices/objectSlice";
-import { createFeatureGeoJson } from "context/DatasetProvider/helpers";
 import { ControlledMenu, MenuItem } from "@szhsin/react-menu";
 import { point as createPoint } from "@turf/helpers";
 import { GeometryType } from "context/MapProvider/helpers/constants";
+import { createFeatureGeoJson } from "context/MapProvider/helpers/feature";
 import styles from "./MapContextMenu.module.scss";
 
 export default function MapContextMenu() {
    const { map } = useMap();
-   const { activeDatasetId, datasets } = useDataset();
-   const activeDataset = datasets[activeDatasetId];
+   const { activeDataaset } = useDataset();
+   const activeDataset = activeDataaset;
    const definition = activeDataset?.definition;
    const metadata = definition?.ForvaltningsObjektPropertiesMetadata || [];
    const [open, setOpen] = useState(false);
@@ -23,7 +23,8 @@ export default function MapContextMenu() {
    useEffect(() => {
       let canAdd =
          user !== null &&
-         (definition.Viewers === null ||
+         (!definition ||
+            definition?.Viewers === null ||
             !definition.Viewers.includes(user.organization) ||
             hasAccessByProperties);
 
@@ -35,14 +36,14 @@ export default function MapContextMenu() {
    }, [
       // user,
       user?.organization,
-      definition.Viewers,
+      definition?.Viewers,
       // hasAccessByProperties,
       menuData,
       map,
    ]);
 
    function addPoint() {
-      const geoJson = createFeatureGeoJson(activeDatasetId, metadata);
+      const geoJson = createFeatureGeoJson(activeDataaset.id, metadata);
       const point = createPoint(menuData.coordinates);
 
       geoJson.geometry = point.geometry;
@@ -52,7 +53,7 @@ export default function MapContextMenu() {
    }
 
    function addLineString() {
-      const geoJson = createFeatureGeoJson(metadata);
+      const geoJson = createFeatureGeoJson(activeDataaset.id, metadata);
 
       dispatch(
          initializeDataObject({ geoJson, type: GeometryType.LineString })
@@ -60,7 +61,7 @@ export default function MapContextMenu() {
    }
 
    function addPolygon() {
-      const geoJson = createFeatureGeoJson(metadata);
+      const geoJson = createFeatureGeoJson(activeDataaset.id, metadata);
 
       dispatch(initializeDataObject({ geoJson, type: GeometryType.Polygon }));
    }

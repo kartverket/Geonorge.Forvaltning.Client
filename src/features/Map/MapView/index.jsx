@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useParams } from "react-router-dom";
 import { useDataset } from "context/DatasetProvider";
@@ -27,8 +27,9 @@ import Editor from "../Editor";
 import styles from "./MapView.module.scss";
 
 export default function MapView({ tableExpanded }) {
+   const [previousActiveDatasetId, setPreviousActiveDatasetId] = useState(null);
    const { map } = useMap();
-   const { activeDatasetId, previousActiveDatasetId, datasets } = useDataset();
+   const { activeDataset } = useDataset();
    const { send } = useSignalR();
    const { objId } = useParams();
    const location = useLocation();
@@ -41,36 +42,41 @@ export default function MapView({ tableExpanded }) {
       if (map === null) return;
 
       if (!selectedFeature) {
-         if (activeDatasetId) {
+         if (activeDataset) {
             history.replaceState(
                null,
                document.title,
-               `?datasett=${activeDatasetId}`
+               `?datasett=${activeDataset.id}`
             );
          }
 
          return;
       }
 
-      const feature = getFeatureById2(map, activeDatasetId, selectedFeature.id);
+      const feature = getFeatureById2(
+         map,
+         activeDataset.id,
+         selectedFeature.id
+      );
 
       if (!feature) {
-         if (activeDatasetId) {
+         if (activeDataset) {
             history.replaceState(
                null,
                document.title,
-               `?datasett=${activeDatasetId}`
+               `?datasett=${activeDataset.id}`
             );
          }
 
          return;
       }
 
-      setNextAndPreviousFeatureId(map, activeDatasetId, feature);
-      highlightFeature(map, activeDatasetId, previousActiveDatasetId, feature);
+      setNextAndPreviousFeatureId(map, activeDataset.id, feature);
+      highlightFeature(map, activeDataset.id, previousActiveDatasetId, feature);
+      setPreviousActiveDatasetId(activeDataset.id);
 
       if (selectedFeature.updateUrl) {
-         const query = `?datasett=${activeDatasetId}&objekt=${selectedFeature.id}`;
+         const query = `?datasett=${activeDataset.id}&objekt=${selectedFeature.id}`;
          // const route = `/datasett/${id}/objekt/${selectedFeature.id}`;
          history.replaceState(null, document.title, query);
       }
@@ -85,7 +91,7 @@ export default function MapView({ tableExpanded }) {
       }
    }, [
       selectedFeature,
-      activeDatasetId,
+      activeDataset,
       previousActiveDatasetId,
       map,
       location.pathname,
@@ -172,7 +178,7 @@ export default function MapView({ tableExpanded }) {
                   onClick={toggleFullscreen}
                />
 
-               {datasets[activeDatasetId] && <Legend />}
+               {activeDataset && <Legend />}
             </div>
 
             {/* {map !== null && (

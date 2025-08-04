@@ -4,162 +4,159 @@ import {
    useContext,
    useEffect,
    useMemo,
-   useRef,
    useState,
 } from "react";
-import { useSelector } from "react-redux";
-import { toast } from "react-toastify";
-import {
-   useGetAnalysableDatasetIdsQuery,
-   useGetDatasetQuery,
-   useLazyGetDatasetQuery,
-   useGetDatasetDefinitionsQuery,
-} from "store/services/api";
-import {
-   createFeatureCollectionGeoJson,
-   getAllowedValuesForUser,
-} from "./helpers";
+import { useSelector, shallowEqual, useDispatch } from "react-redux";
+import { api } from "store/services/api";
+import { getAllowedValuesForUser } from "./helpers/access";
 
 export default function DatasetProvider({ children }) {
    const [visibleDatasetIds, setVisibleDatasetIds] = useState([]);
    const [activeDatasetId, setActiveDatasetId] = useState(null);
-   const [previousActiveDatasetId, setPreviousActiveDatasetId] = useState(null);
-   const [datasets, setDatasets] = useState([]);
-   const [loadingDatasetId, setLoadingDatasetId] = useState(null);
-   const [getDataset] = useLazyGetDatasetQuery();
+   const [loadingId, setLoadingId] = useState(null);
 
-   const selectedFeature = useSelector((state) => state.map.selectedFeature);
+   const dispatch = useDispatch();
 
-   const { data: datasetDefinitions = [] } = useGetDatasetDefinitionsQuery();
+   const user = useSelector((s) => s.app.user, shallowEqual);
+   const selectedFeature = useSelector(
+      (s) => s.map.selectedFeature,
+      shallowEqual
+   );
+   const featuresInExtent = useSelector(
+      (s) => s.map.featuresInExtent,
+      shallowEqual
+   );
+   const showObjectsInExtent = useSelector((s) => s.object.showObjectsInExtent);
 
-   const toggleVisibleDataset = async (datasetId) => {
-      const isCurrentlyVisible = visibleDatasetIds.includes(datasetId);
+   const [triggerDatasetFetch] = api.useLazyGetDatasetQuery();
 
-      setVisibleDatasetIds((prev) => {
-         const next = isCurrentlyVisible
-            ? prev.filter((x) => x !== datasetId)
-            : [...prev, datasetId];
-         return next;
-      });
+   const { data: datasetDefinitions = [] } =
+      api.useGetDatasetDefinitionsQuery();
 
-      if (!isCurrentlyVisible) await fetchDataset(datasetId);
-   };
+   const { data: activeDataset } = api.useGetDatasetQuery(activeDatasetId, {
+      skip: !activeDatasetId,
+   });
 
-   const toggleActiveDataset = async (datasetId) => {
-      setActiveDatasetId(datasetId);
-      setVisibleDatasetIds((prev) =>
-         prev.includes(datasetId) ? prev : [...prev, datasetId]
-      );
-      await fetchDataset(datasetId);
-   };
-
-   const fetchDataset = async (datasetId) => {
-      try {
-         setLoadingDatasetId(datasetId);
-
-         const dataset = await getDataset(datasetId).unwrap();
-
-         setDatasets((prev) => ({
-            ...prev,
-            [datasetId]: dataset,
-         }));
-      } catch (error) {
-         toast.error(`Kunne ikke laste inn datasett ${name}`, {
-            position: "top-left",
-         });
-      } finally {
-         setLoadingDatasetId(null);
-      }
-   };
-
-   //    const { objects, definition, metadata, allowedValues } = useDataset();
-
-   // const datasetInfo = { id: dataset.definition.Id };
-   // const metadata = dataset.definition.ForvaltningsObjektPropertiesMetadata;
-   const ownerOrganization = datasets[activeDatasetId]?.definition.Organization;
-   const user = useSelector((state) => state.app.user);
-   // const datasetRef = useRef(dataset);
-
-   // const featuresInExtent = useSelector(state => state.map.featuresInExtent);
-   // const showObjectsInExtent = useSelector(state => state.object.showObjectsInExtent);
-   const { data: analysableDatasetIds = [] } = useGetAnalysableDatasetIdsQuery(
-      activeDatasetId,
-      {
+   const { data: analysableDatasetIds = [] } =
+      api.useGetAnalysableDatasetIdsQuery(activeDatasetId, {
          skip: !activeDatasetId,
-      }
-   );
-
-   const objects = useMemo(
-      () => {
-         //   if (!showObjectsInExtent) {
-         //       return dataset.objects;
-         //   }
-
-         //   return featuresInExtent
-         //       .map(featureId => dataset.objects.find(object => featureId === object.id))
-         //       .filter(object => object !== undefined);
-         return datasets[activeDatasetId]
-            ? datasets[activeDatasetId].objects
-            : [];
-      },
-      //  [featuresInExtent, dataset.objects, showObjectsInExtent]
-      [datasets, activeDatasetId]
-   );
-
-   const metadata = useMemo(
-      () =>
-         datasets[activeDatasetId]?.definition
-            .ForvaltningsObjektPropertiesMetadata || [],
-      [datasets, activeDatasetId]
-   );
-   const allowedValues = useMemo(() => {
-      const allowed = {};
-
-      metadata.forEach((data) => {
-         allowed[data.ColumnName] = getAllowedValuesForUser(
-            data.ColumnName,
-            metadata,
-            user,
-            ownerOrganization
-         );
       });
 
-      return allowed;
-   }, [metadata, user, ownerOrganization]);
+   const fetchDataset = useCallback(
+      async (id) => {
+         try {
+            setLoadingId(id);
+            const data = await triggerDatasetFetch(id).unwrap();
+            return data;
+         } finally {
+            setLoadingId(null);
+         }
+      },
+      [triggerDatasetFetch]
+   );
 
    useEffect(() => {
       if (!selectedFeature) return;
-      setActiveDatasetId(selectedFeature.datasetId);
-   }, [selectedFeature]);
+      dispatch({ type: "setActive", id: selectedFeature.datasetId });
+   }, [selectedFeature, dispatch]);
 
-   useEffect(() => {
-      if (activeDatasetId) setPreviousActiveDatasetId(activeDatasetId);
-   }, [activeDatasetId]);
+   const metadata = useMemo(() => {
+      return (
+         activeDataset?.definition?.ForvaltningsObjektPropertiesMetadata || []
+      );
+   }, [activeDataset]);
+
+   const ownerOrg = activeDataset?.definition?.Organization ?? null;
+
+   const allowedValues = useMemo(() => {
+      if (!metadata.length) return {};
+      const allowed = {};
+      metadata.forEach((m) => {
+         allowed[m.ColumnName] = getAllowedValuesForUser(
+            m.ColumnName,
+            metadata,
+            user,
+            ownerOrg
+         );
+      });
+      return allowed;
+   }, [metadata, user, ownerOrg]);
+
+   const objects = useMemo(() => {
+      if (!activeDataset) return [];
+
+      if (!showObjectsInExtent) return activeDataset.objects || [];
+
+      if (!featuresInExtent?.length) return [];
+
+      return featuresInExtent
+         .map((fid) => activeDataset.objects.find((o) => o.id === fid))
+         .filter(Boolean);
+   }, [activeDataset, showObjectsInExtent, featuresInExtent]);
+
+   const toggleVisibleDataset = useCallback(
+      (id) => {
+         setVisibleDatasetIds((prev) => {
+            const next = visibleDatasetIds.includes(id)
+               ? prev.filter((x) => x !== id)
+               : [...prev, id];
+            return next;
+         });
+      },
+      [setVisibleDatasetIds, visibleDatasetIds]
+   );
+
+   const toggleActiveDataset = useCallback(
+      (id) => {
+         setActiveDatasetId(id);
+         setVisibleDatasetIds((prev) =>
+            prev.includes(id) ? prev : [...prev, id]
+         );
+      },
+      [setActiveDatasetId, setVisibleDatasetIds]
+   );
+
+   const ctx = useMemo(
+      () => ({
+         datasetDefinitions,
+         fetchDataset,
+         visibleDatasetIds,
+         toggleVisibleDataset,
+         toggleActiveDataset,
+         activeDatasetId,
+         // previousActiveDatasetId,
+         loadingId,
+         activeDataset,
+         objects,
+         definition: activeDataset?.definition,
+         metadata,
+         allowedValues,
+         analysableDatasetIds,
+         datasetInfo: activeDataset
+            ? { id: activeDataset.definition?.Id }
+            : null,
+      }),
+      [
+         datasetDefinitions,
+         fetchDataset,
+         visibleDatasetIds,
+         toggleVisibleDataset,
+         toggleActiveDataset,
+         activeDatasetId,
+         loadingId,
+         activeDataset,
+         objects,
+         metadata,
+         allowedValues,
+         analysableDatasetIds,
+      ]
+   );
 
    return (
-      <DatasetContext.Provider
-         value={{
-            datasetDefinitions,
-            visibleDatasetIds,
-            toggleVisibleDataset,
-            toggleActiveDataset,
-            activeDatasetId,
-            previousActiveDatasetId,
-            datasets,
-            loadingDatasetId,
-            dataset: datasets[activeDatasetId],
-            objects,
-            definition: datasets[activeDatasetId]?.definition,
-            metadata,
-            allowedValues,
-            analysableDatasetIds,
-            datasetInfo: datasets[activeDatasetId]?.definition?.Id,
-         }}
-      >
-         {children}
-      </DatasetContext.Provider>
+      <DatasetContext.Provider value={ctx}>{children}</DatasetContext.Provider>
    );
 }
 
 export const DatasetContext = createContext({});
+
 export const useDataset = () => useContext(DatasetContext);

@@ -1,75 +1,103 @@
-import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { addInteractions } from "features/Map/Editor/helpers";
-import createMap from "./helpers/map";
-import { createFeatureCollectionGeoJson } from "context/DatasetProvider/helpers";
-import { createFeaturesLayer } from "./helpers/feature";
+import {
+   createContext,
+   useContext,
+   useEffect,
+   useRef,
+   useState,
+   useMemo,
+} from "react";
 import { useDataset } from "context/DatasetProvider";
+import createMap from "./helpers/map";
+import { addInteractions } from "features/Map/Editor/helpers";
+import {
+   createFeatureCollectionGeoJson,
+   createFeaturesLayer,
+} from "./helpers/feature";
 
 export default function MapProvider({ children }) {
+   const { fetchDataset, visibleDatasetIds, activeDatasetId } = useDataset();
+
+   const layerCacheRef = useRef(new Map());
    const [map, setMap] = useState(null);
+   const [datasets, setDatasets] = useState({});
+
    const [analysisResult, setAnalysisResult] = useState(null);
-   const initRef = useRef(true);
-   const layerCache = useRef(new Map());
-   const { visibleDatasetIds, activeDatasetId, datasets } = useDataset();
 
    useEffect(() => {
-      if (!initRef.current) return;
-
-      initRef.current = false;
-
       (async () => {
-         const olMap = await createMap();
-
-         addInteractions(olMap);
-         setMap(olMap);
+         const map = await createMap();
+         addInteractions(map);
+         setMap(map);
       })();
    }, []);
 
    useEffect(() => {
-      if (!map) return;
-
       visibleDatasetIds.forEach((id) => {
-         if (!datasets[id]) return;
+         if (datasets[id]) return;
 
-         if (layerCache.current.has(id)) return;
+         (async () => {
+            const dataset = await fetchDataset(id);
 
-         const featureCollection = createFeatureCollectionGeoJson(datasets[id]);
-
-         const layer = createFeaturesLayer(id, featureCollection);
-
-         map.addLayer(layer);
-         layerCache.current.set(id, layer);
+            setDatasets((prevDatasets) => ({
+               ...prevDatasets,
+               [id]: dataset,
+            }));
+         })();
       });
+   }, [visibleDatasetIds, datasets, fetchDataset]);
 
-      layerCache.current.forEach((layer, id) => {
-         const existingLayer = map
-            .getLayers()
-            .getArray()
-            .find((l) => l.ol_uid === layer.ol_uid);
-
-         if (!existingLayer) return;
-
-         existingLayer.setVisible(visibleDatasetIds.includes(id));
-      });
-   }, [map, visibleDatasetIds, datasets]);
+   const visibleDatasets = useMemo(
+      () =>
+         visibleDatasetIds
+            .map((id) => ({ id, data: datasets[id] }))
+            .filter((x) => x.data),
+      [visibleDatasetIds, datasets]
+   );
 
    useEffect(() => {
-      if (!activeDatasetId) return;
+      if (!map) return;
 
-      visibleDatasetIds.forEach((id) => {
-         const layer = layerCache.current.get(id);
-         if (!layer) return;
+      const cache = layerCacheRef.current;
 
-         layer.setOpacity(activeDatasetId !== id ? 0.4 : 1);
-         layer.setZIndex(activeDatasetId !== id ? 2 : 1);
+      visibleDatasets.forEach(({ id, data }) => {
+         console.log("Adding dataset to map", id, data);
+         const fc = createFeatureCollectionGeoJson(data);
+
+         if (cache.get(id)) return;
+
+         const layer = createFeaturesLayer(id, fc);
+         map.addLayer(layer);
+         cache.set(id, layer);
       });
-   }, [visibleDatasetIds, activeDatasetId, datasets]);
 
-   return (
-      <MapContext.Provider value={{ map, analysisResult, setAnalysisResult }}>
-         {children}
-      </MapContext.Provider>
+      [...cache.keys()].forEach((id) => {
+         if (!visibleDatasetIds.includes(id)) {
+            const layer = cache.get(id);
+            map.removeLayer(layer);
+            cache.delete(id);
+         }
+      });
+
+      cache.forEach((layer, id) => {
+         const isVisible = visibleDatasetIds.includes(id);
+         layer.setVisible(isVisible);
+
+         const isActive = activeDatasetId === id;
+         layer.setOpacity(isActive ? 1 : 0.4);
+         layer.setZIndex(isActive ? 3 : 1);
+      });
+   }, [map, visibleDatasets, visibleDatasetIds, activeDatasetId]);
+
+   const ctx = useMemo(
+      () => ({
+         map,
+         analysisResult,
+         setAnalysisResult,
+      }),
+      [map, analysisResult]
    );
+
+   return <MapContext.Provider value={ctx}>{children}</MapContext.Provider>;
 }
 
 export const MapContext = createContext({});

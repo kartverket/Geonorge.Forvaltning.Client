@@ -19,6 +19,7 @@ import {
 import {
    addFeatureToMap,
    createFeature,
+   createFeatureGeoJson,
    highlightFeature,
    removeFeatureFromMap,
    setNextAndPreviousFeatureId,
@@ -33,24 +34,23 @@ import { deleteFeatures } from "utils/helpers/general";
 import { updateFeature } from "./helpers";
 import { modalType } from "components/Modals";
 import { useDataset } from "context/DatasetProvider";
-import { createFeatureGeoJson } from "context/DatasetProvider/helpers";
 import { messageType } from "config/messageHandlers";
 import { isNil } from "lodash";
 import environment from "config/environment";
 import FeatureForm from "./FeatureForm";
 import Feature from "./Feature";
-import styles from "./FeatureInfo.module.scss";
 import { RemoteEditor } from "components";
+import styles from "./FeatureInfo.module.scss";
 
 function FeatureInfo() {
    const {
       activeDatasetId,
       previousActiveDatasetId,
-      datasets,
+      activeDataaset,
       analysableDatasetIds,
    } = useDataset();
-   const definition = datasets[activeDatasetId]?.definition;
-   const metadata = datasets[activeDatasetId]?.metadata;
+   const definition = activeDataaset?.definition;
+   const metadata = activeDataaset?.metadata;
    const { map, setAnalysisResult } = useMap();
    const { showModal } = useModal();
    const { connectionId, send } = useSignalR();
@@ -96,7 +96,7 @@ function FeatureInfo() {
             objectId: feature.get("id").value,
          });
       },
-      [map, dispatch, send, definition.Id]
+      [map, dispatch, send, definition?.Id]
    );
 
    function exitEditMode() {
@@ -171,7 +171,7 @@ function FeatureInfo() {
       );
 
       addFeatureToMap(map, feature);
-   }, [createdDataObject, definition.Id, metadata, map]);
+   }, [createdDataObject, definition?.Id, metadata, map]);
 
    useEffect(() => {
       if (map === null || updatedDataObject === null) {
@@ -185,7 +185,6 @@ function FeatureInfo() {
          feature !== null &&
          updatedDataObject.id === getPropertyValue(feature, "id")
       ) {
-         console.log("FeatureInfo: Updated feature", updated);
          setFeature(updated);
       }
    }, [updatedDataObject, map, activeDatasetId, feature]);
@@ -194,7 +193,8 @@ function FeatureInfo() {
       if (
          map === null ||
          deletedDataObjects === null ||
-         deletedDataObjects.datasetId !== definition.Id ||
+         deleteDataObjects.length === 0 ||
+         deletedDataObjects.datasetId !== definition?.Id ||
          !deletedDataObjects.ids.length
       ) {
          return;
@@ -209,7 +209,7 @@ function FeatureInfo() {
          dispatch(deleteDataObjects(null));
          dispatch(selectFeature(null));
       }
-   }, [deletedDataObjects, definition.Id, selectedFeature, map, dispatch]);
+   }, [deletedDataObjects, definition?.Id, selectedFeature, map, dispatch]);
 
    const remoteEditor = useMemo(() => {
       if (feature === null || editedDataObjects.length === 0) {

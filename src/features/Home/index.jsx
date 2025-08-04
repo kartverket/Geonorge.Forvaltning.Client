@@ -20,9 +20,7 @@ export default function Home() {
    const user = useSelector((state) => state.app.user);
    const fullscreen = useSelector((state) => state.app.fullscreen);
 
-   const { activeDatasetId, datasets } = useDataset();
-
-   const activeDataset = datasets[activeDatasetId];
+   const { activeDataset } = useDataset();
 
    return user?.organization !== null ? (
       <div className={`${fullscreen ? styles.fullscreen : ""}`}>
