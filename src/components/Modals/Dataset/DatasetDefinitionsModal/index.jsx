@@ -7,7 +7,7 @@ import DatasetForm from "../DatasetNewModal/DatasetForm";
 import { fromDbModel, toDbModel } from "../DatasetNewModal/mapper";
 import styles from "./DatasetDefinitionsModal.module.scss";
 
-export default function InfoModal({ definition, onClose }) {
+export default function DatasetDefinitionsModal({ definition, onClose }) {
    const [loading, setLoading] = useState(false);
    const methods = useForm({ defaultValues: fromDbModel(definition) });
    const { handleSubmit } = methods;

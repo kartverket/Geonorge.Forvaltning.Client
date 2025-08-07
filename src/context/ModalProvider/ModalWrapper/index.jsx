@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import { hideScrollbar, showScrollbar } from "./helpers";
 import { modals } from "components/Modals";
 import ReactModal from "react-modal";
 import styles from "./ModalWrapper.module.scss";
@@ -40,14 +39,6 @@ export default function ModalWrapper({
       }
    }, [location, open, handleClose]);
 
-   function handleAfterOpen() {
-      hideScrollbar();
-   }
-
-   function handleAfterClose() {
-      showScrollbar();
-   }
-
    function renderModal() {
       const Component = modals[type];
 
@@ -59,10 +50,9 @@ export default function ModalWrapper({
    return (
       <ReactModal
          isOpen={open}
-         onAfterOpen={handleAfterOpen}
-         onAfterClose={handleAfterClose}
          overlayClassName={styles.overlay}
          className={styles.content}
+         ariaHideApp={true}
       >
          <div className={styles.modal}>
             <button

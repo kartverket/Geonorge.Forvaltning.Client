@@ -13,7 +13,7 @@ import { getAllowedValuesForUser } from "./helpers/access";
 export default function DatasetProvider({ children }) {
    const [visibleDatasetIds, setVisibleDatasetIds] = useState([]);
    const [activeDatasetId, setActiveDatasetId] = useState(null);
-   const [loadingId, setLoadingId] = useState(null);
+   const [loadingDatasetId, setLoadingId] = useState(null);
 
    const dispatch = useDispatch();
 
@@ -96,6 +96,14 @@ export default function DatasetProvider({ children }) {
 
    const toggleVisibleDataset = useCallback(
       (id) => {
+         if (
+            visibleDatasetIds.length === 0 &&
+            !activeDatasetId &&
+            activeDatasetId !== id
+         ) {
+            setActiveDatasetId(id);
+         }
+
          setVisibleDatasetIds((prev) => {
             const next = visibleDatasetIds.includes(id)
                ? prev.filter((x) => x !== id)
@@ -103,7 +111,7 @@ export default function DatasetProvider({ children }) {
             return next;
          });
       },
-      [setVisibleDatasetIds, visibleDatasetIds]
+      [activeDatasetId, setVisibleDatasetIds, visibleDatasetIds]
    );
 
    const toggleActiveDataset = useCallback(
@@ -125,7 +133,7 @@ export default function DatasetProvider({ children }) {
          toggleActiveDataset,
          activeDatasetId,
          // previousActiveDatasetId,
-         loadingId,
+         loadingDatasetId,
          activeDataset,
          objects,
          definition: activeDataset?.definition,
@@ -143,7 +151,7 @@ export default function DatasetProvider({ children }) {
          toggleVisibleDataset,
          toggleActiveDataset,
          activeDatasetId,
-         loadingId,
+         loadingDatasetId,
          activeDataset,
          objects,
          metadata,
