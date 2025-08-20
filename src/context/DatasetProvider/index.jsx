@@ -8,12 +8,15 @@ import {
 } from "react";
 import { useSelector, shallowEqual, useDispatch } from "react-redux";
 import { api } from "store/services/api";
-import { getAllowedValuesForUser } from "./helpers/access";
+import {
+   getAllowedValuesForUser,
+   updateURLSearchParams,
+} from "./helpers/access";
+import DatasetSubscriptions from "./DatasetSubscriptions";
 
 export default function DatasetProvider({ children }) {
    const [visibleDatasetIds, setVisibleDatasetIds] = useState([]);
    const [activeDatasetId, setActiveDatasetId] = useState(null);
-   const [loadingDatasetId, setLoadingId] = useState(null);
 
    const dispatch = useDispatch();
 
@@ -28,32 +31,51 @@ export default function DatasetProvider({ children }) {
    );
    const showObjectsInExtent = useSelector((s) => s.object.showObjectsInExtent);
 
-   const [triggerDatasetFetch] = api.useLazyGetDatasetQuery();
+   const datasets = useSelector((state) => {
+      const select = api.endpoints.getDataset.select;
+      const datasets = {};
+
+      for (const id of visibleDatasetIds) {
+         const q = select(id)(state);
+         datasets[id] = {
+            data: q?.data,
+            timestamp: q?.fulfilledTimeStamp ?? 0,
+         };
+      }
+      return datasets;
+   }, shallowEqual);
+
+   const loadingDatasetIds = useSelector((state) => {
+      const select = api.endpoints.getDataset.select;
+      const out = {};
+      for (const id of visibleDatasetIds) {
+         const q = select(id)(state) || {};
+         out[id] = Boolean(q.isLoading || q.isFetching);
+      }
+      return out;
+   }, shallowEqual);
+
+   const visibleDatasets = useMemo(
+      () =>
+         visibleDatasetIds
+            .map((id) => ({ id, data: datasets[id] }))
+            .filter((x) => x.data),
+      [visibleDatasetIds, datasets]
+   );
 
    const { data: datasetDefinitions = [] } =
       api.useGetDatasetDefinitionsQuery();
 
    const { data: activeDataset } = api.useGetDatasetQuery(activeDatasetId, {
       skip: !activeDatasetId,
+      refetchOnFocus: true,
+      refetchOnReconnect: true,
    });
 
    const { data: analysableDatasetIds = [] } =
       api.useGetAnalysableDatasetIdsQuery(activeDatasetId, {
          skip: !activeDatasetId,
       });
-
-   const fetchDataset = useCallback(
-      async (id) => {
-         try {
-            setLoadingId(id);
-            const data = await triggerDatasetFetch(id).unwrap();
-            return data;
-         } finally {
-            setLoadingId(null);
-         }
-      },
-      [triggerDatasetFetch]
-   );
 
    useEffect(() => {
       if (!selectedFeature) return;
@@ -127,13 +149,12 @@ export default function DatasetProvider({ children }) {
    const ctx = useMemo(
       () => ({
          datasetDefinitions,
-         fetchDataset,
+         visibleDatasets,
          visibleDatasetIds,
          toggleVisibleDataset,
          toggleActiveDataset,
          activeDatasetId,
-         // previousActiveDatasetId,
-         loadingDatasetId,
+         loadingDatasetIds,
          activeDataset,
          objects,
          definition: activeDataset?.definition,
@@ -146,12 +167,12 @@ export default function DatasetProvider({ children }) {
       }),
       [
          datasetDefinitions,
-         fetchDataset,
+         visibleDatasets,
          visibleDatasetIds,
          toggleVisibleDataset,
          toggleActiveDataset,
          activeDatasetId,
-         loadingDatasetId,
+         loadingDatasetIds,
          activeDataset,
          objects,
          metadata,
@@ -161,7 +182,10 @@ export default function DatasetProvider({ children }) {
    );
 
    return (
-      <DatasetContext.Provider value={ctx}>{children}</DatasetContext.Provider>
+      <DatasetContext.Provider value={ctx}>
+         <DatasetSubscriptions ids={visibleDatasetIds} />
+         {children}
+      </DatasetContext.Provider>
    );
 }
 

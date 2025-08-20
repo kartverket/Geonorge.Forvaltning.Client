@@ -19,7 +19,7 @@ export default function SidePanel() {
       toggleVisibleDataset,
       toggleActiveDataset,
       activeDatasetId,
-      loadingDatasetId,
+      loadingDatasetIds,
    } = useDataset();
 
    const {
@@ -99,7 +99,7 @@ export default function SidePanel() {
                         }}
                      >
                         {dataset.Name}
-                        {loadingDatasetId === dataset.Id && <Spinner />}
+                        {loadingDatasetIds[dataset.Id] && <Spinner />}
                      </td>
 
                      <td className={styles.menuCell}>

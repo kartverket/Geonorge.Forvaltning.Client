@@ -2,9 +2,9 @@ import {
    createContext,
    useContext,
    useEffect,
+   useMemo,
    useRef,
    useState,
-   useMemo,
 } from "react";
 import { useDataset } from "context/DatasetProvider";
 import createMap from "./helpers/map";
@@ -15,11 +15,17 @@ import {
 } from "./helpers/feature";
 
 export default function MapProvider({ children }) {
-   const { fetchDataset, visibleDatasetIds, activeDatasetId } = useDataset();
+   const {
+      visibleDatasets,
+      visibleDatasetIds,
+      activeDatasetId,
+      loadingDatasetIds,
+   } = useDataset();
 
    const layerCacheRef = useRef(new Map());
+   const previousTimestamp = useRef(new Map());
+
    const [map, setMap] = useState(null);
-   const [datasets, setDatasets] = useState({});
 
    const [analysisResult, setAnalysisResult] = useState(null);
 
@@ -32,61 +38,47 @@ export default function MapProvider({ children }) {
    }, []);
 
    useEffect(() => {
-      visibleDatasetIds.forEach((id) => {
-         if (datasets[id]) return;
-
-         (async () => {
-            const dataset = await fetchDataset(id);
-
-            setDatasets((prevDatasets) => ({
-               ...prevDatasets,
-               [id]: dataset,
-            }));
-         })();
-      });
-   }, [visibleDatasetIds, datasets, fetchDataset]);
-
-   const visibleDatasets = useMemo(
-      () =>
-         visibleDatasetIds
-            .map((id) => ({ id, data: datasets[id] }))
-            .filter((x) => x.data),
-      [visibleDatasetIds, datasets]
-   );
-
-   useEffect(() => {
       if (!map) return;
 
       const cache = layerCacheRef.current;
 
       visibleDatasets.forEach(({ id, data }) => {
-         console.log("Adding dataset to map", id, data);
-         const fc = createFeatureCollectionGeoJson(data);
+         if (!data?.dataset) return;
 
-         if (cache.get(id)) return;
+         const previousTimestampValue = previousTimestamp.current.get(id);
+         const changed =
+            previousTimestampValue === undefined ||
+            previousTimestampValue !== data.timestamp;
 
-         const layer = createFeaturesLayer(id, fc);
-         map.addLayer(layer);
-         cache.set(id, layer);
-      });
+         if (changed) {
+            const cachedLayer = cache.get(id);
+            if (cachedLayer) map.removeLayer(cachedLayer);
 
-      [...cache.keys()].forEach((id) => {
-         if (!visibleDatasetIds.includes(id)) {
-            const layer = cache.get(id);
-            map.removeLayer(layer);
-            cache.delete(id);
+            const featureCollection = createFeatureCollectionGeoJson(
+               data?.dataset
+            );
+            const layer = createFeaturesLayer(id, featureCollection);
+            map.addLayer(layer);
+            cache.set(id, layer);
+            previousTimestamp.current.set(id, data.timestamp);
          }
       });
 
-      cache.forEach((layer, id) => {
-         const isVisible = visibleDatasetIds.includes(id);
-         layer.setVisible(isVisible);
+      [...cache.keys()].forEach((id) => {
+         const layer = cache.get(id);
+         layer.setVisible?.(visibleDatasetIds.includes(id));
 
-         const isActive = activeDatasetId === id;
-         layer.setOpacity(isActive ? 1 : 0.4);
-         layer.setZIndex(isActive ? 3 : 1);
+         const activeDataset = activeDatasetId === id;
+         layer.setOpacity?.(activeDataset ? 1 : 0.4);
+         layer.setZIndex?.(activeDataset ? 3 : 1);
       });
-   }, [map, visibleDatasets, visibleDatasetIds, activeDatasetId]);
+   }, [
+      map,
+      visibleDatasets,
+      visibleDatasetIds,
+      loadingDatasetIds,
+      activeDatasetId,
+   ]);
 
    const ctx = useMemo(
       () => ({
