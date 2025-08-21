@@ -86,7 +86,7 @@ export async function handleMapClick(event, map) {
                datasetId: feature.get("datasetId"),
                id: feature.get("id").value,
                zoom: true,
-               disableZoomOut: false,
+               disableZoomOut: true,
                featureType: feature.get("_featureType"),
             })
          );
