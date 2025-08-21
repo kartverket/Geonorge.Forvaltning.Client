@@ -262,6 +262,7 @@ export default function FeatureForm({ feature, onSave, onCancel, onDelete }) {
             <TextField
                key={value}
                name={name}
+               type={dataType}
                value={value}
                onChange={handleChange}
             />

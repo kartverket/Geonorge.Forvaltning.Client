@@ -69,12 +69,6 @@ export default function Feature({ feature }) {
       );
    }
 
-   console.log(
-      Object.entries(properties).filter(
-         ([, entry]) => entry && typeof entry === "object" && "name" in entry
-      )
-   );
-
    return (
       <div className={styles.properties}>
          {Object.entries(properties)
