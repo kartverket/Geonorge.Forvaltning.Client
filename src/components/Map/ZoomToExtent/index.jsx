@@ -1,9 +1,14 @@
+import { useDataset } from "context/DatasetProvider";
 import { getLayer } from "utils/helpers/map";
 import styles from "./ZoomToExtent.module.scss";
 
-export default function ZoomToExtent({ map, layerName }) {
+export default function ZoomToExtent({ map }) {
+   const { activeDatasetId } = useDataset();
+
+   if (!activeDatasetId) return null;
+
    function zoomToExtent() {
-      const vectorLayer = getLayer(map, layerName);
+      const vectorLayer = getLayer(map, activeDatasetId);
       const vectorSource = vectorLayer.getSource();
       const features = vectorSource.getFeatures();
 
@@ -19,7 +24,7 @@ export default function ZoomToExtent({ map, layerName }) {
       <button
          className={styles.button}
          onClick={zoomToExtent}
-         title="Zoom til kartets utstrekning"
+         title="Zoom til kartets utstrekning for aktivt lag"
       ></button>
    );
 }

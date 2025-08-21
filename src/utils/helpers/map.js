@@ -27,12 +27,13 @@ export function getSrId(geoJson) {
 }
 
 export function getLayer(map, datasetId) {
+   const layerId = getLayerFeaturesId(datasetId);
+
    return (
       map
          .getLayers()
          .getArray()
-         .find((layer) => layer.get("id") === getLayerFeaturesId(datasetId)) ||
-      null
+         .find((layer) => layer.get("id") === layerId) || null
    );
 }
 

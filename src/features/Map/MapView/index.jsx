@@ -169,7 +169,7 @@ export default function MapView({ tableExpanded }) {
 
             <div className={styles.buttons}>
                <Zoom map={map} />
-               <ZoomToExtent map={map} layerName="features" />
+               <ZoomToExtent map={map} />
                <button
                   className={styles.fullscreenButton}
                   title={
