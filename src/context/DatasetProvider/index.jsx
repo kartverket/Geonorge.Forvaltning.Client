@@ -38,7 +38,7 @@ export default function DatasetProvider({ children }) {
       for (const id of visibleDatasetIds) {
          const q = select(id)(state);
          datasets[id] = {
-            data: q?.data,
+            dataset: q?.data,
             timestamp: q?.fulfilledTimeStamp ?? 0,
          };
       }
