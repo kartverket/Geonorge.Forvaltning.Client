@@ -5,6 +5,7 @@ import RequestAuthorization from "./RequestAuthorization";
 import { useDataset } from "context/DatasetProvider";
 import MapProvider from "context/MapProvider";
 import { AnalysisResult, FeatureInfo } from "features";
+import Cursors from "features/Dataset/Cursors";
 import DatasetTable from "features/Dataset/DatasetTable";
 import {
    FeatureContextMenu,
@@ -50,7 +51,7 @@ export default function Home() {
 
                   {!!user && <SidePanel />}
 
-                  {/* <Cursors /> */}
+                  {activeDataset && <Cursors />}
                </div>
 
                <AnalysisResult />

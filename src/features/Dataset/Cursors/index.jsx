@@ -8,7 +8,7 @@ import Cursor from "./Cursor";
 
 export default function Cursors() {
    const { map } = useMap();
-   const { definition } = useDataset();
+   const { activeDatasetId } = useDataset();
    const pointerPositions = useSelector((state) => state.map.pointerPositions);
    const mapExtent = useSelector((state) => state.map.mapExtent);
 
@@ -25,7 +25,7 @@ export default function Cursors() {
       return Object.values(pointerPositions)
          .filter(
             (value) =>
-               value.datasetId === definition.Id &&
+               value.datasetId === activeDatasetId &&
                containsXY(extent, ...value.coordinate)
          )
          .map((value) => {
@@ -40,7 +40,7 @@ export default function Cursors() {
                />
             );
          });
-   }, [map, pointerPositions, mapExtent, definition.Id]);
+   }, [map, pointerPositions, mapExtent, activeDatasetId]);
 
    return cursors;
 }
