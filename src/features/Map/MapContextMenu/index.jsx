@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useMap } from "context/MapProvider";
 import { useDataset } from "context/DatasetProvider";
@@ -11,14 +11,23 @@ import styles from "./MapContextMenu.module.scss";
 
 export default function MapContextMenu() {
    const { map } = useMap();
-   const { activeDataaset } = useDataset();
-   const activeDataset = activeDataaset;
+   const { activeDataset, activeDatasetId } = useDataset();
    const definition = activeDataset?.definition;
    const metadata = definition?.ForvaltningsObjektPropertiesMetadata || [];
    const [open, setOpen] = useState(false);
    const menuData = useSelector((state) => state.map.mapContextMenuData);
    const user = useSelector((state) => state.app.user);
    const dispatch = useDispatch();
+
+   const hasAccessByProperties = useCallback(() => {
+      if (!definition?.ForvaltningsObjektPropertiesMetadata) return false;
+
+      return definition.ForvaltningsObjektPropertiesMetadata.some((prop) =>
+         prop.AccessByProperties.some((access) =>
+            access.Contributors.includes(user.organization)
+         )
+      );
+   }, [definition, user.organization]);
 
    useEffect(() => {
       let canAdd =
@@ -34,16 +43,16 @@ export default function MapContextMenu() {
 
       if (menuData !== null) map.once("movestart", () => setOpen(false));
    }, [
-      // user,
+      user,
       user?.organization,
-      definition?.Viewers,
-      // hasAccessByProperties,
+      definition,
+      hasAccessByProperties,
       menuData,
       map,
    ]);
 
    function addPoint() {
-      const geoJson = createFeatureGeoJson(activeDataaset.id, metadata);
+      const geoJson = createFeatureGeoJson(activeDatasetId, metadata);
       const point = createPoint(menuData.coordinates);
 
       geoJson.geometry = point.geometry;
@@ -53,7 +62,7 @@ export default function MapContextMenu() {
    }
 
    function addLineString() {
-      const geoJson = createFeatureGeoJson(activeDataaset.id, metadata);
+      const geoJson = createFeatureGeoJson(activeDatasetId, metadata);
 
       dispatch(
          initializeDataObject({ geoJson, type: GeometryType.LineString })
@@ -61,21 +70,9 @@ export default function MapContextMenu() {
    }
 
    function addPolygon() {
-      const geoJson = createFeatureGeoJson(activeDataaset.id, metadata);
+      const geoJson = createFeatureGeoJson(activeDatasetId, metadata);
 
       dispatch(initializeDataObject({ geoJson, type: GeometryType.Polygon }));
-   }
-
-   function hasAccessByProperties() {
-      definition.ForvaltningsObjektPropertiesMetadata.forEach((prop) => {
-         prop.AccessByProperties.forEach((access) => {
-            if (access.Contributors.includes(user.organization)) {
-               return true;
-            }
-         });
-      });
-
-      return false;
    }
 
    return (

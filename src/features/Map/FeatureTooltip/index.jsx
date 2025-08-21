@@ -29,6 +29,7 @@ export default function FeatureTooltip() {
             const tooltip = tooltipRef.current;
 
             const features = featureAtPixel.get("features");
+            if (!features) return false;
 
             let feature;
 

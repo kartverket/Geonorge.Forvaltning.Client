@@ -17,13 +17,9 @@ const cacheUpdater = {
    },
    addDatasetObject: (dispatch, args, updatedData) => {
       dispatch(
-         api.util.updateQueryData(
-            "getDataset",
-            args.tableId.toString(),
-            (cachedData) => {
-               cachedData.objects.unshift(updatedData);
-            }
-         )
+         api.util.updateQueryData("getDataset", args.tableId, (cachedData) => {
+            cachedData.objects.unshift(updatedData);
+         })
       );
    },
    updateDatasetObject: (dispatch, args) => {

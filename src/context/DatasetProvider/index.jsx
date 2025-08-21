@@ -35,13 +35,9 @@ export default function DatasetProvider({ children }) {
       const select = api.endpoints.getDataset.select;
       const datasets = {};
 
-      for (const id of visibleDatasetIds) {
-         const q = select(id)(state);
-         datasets[id] = {
-            dataset: q?.data,
-            timestamp: q?.fulfilledTimeStamp ?? 0,
-         };
-      }
+      for (const id of visibleDatasetIds)
+         datasets[id] = select(id)(state)?.data;
+
       return datasets;
    }, shallowEqual);
 

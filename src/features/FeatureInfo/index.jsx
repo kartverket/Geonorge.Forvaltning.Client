@@ -46,11 +46,11 @@ function FeatureInfo() {
    const {
       activeDatasetId,
       previousActiveDatasetId,
-      activeDataaset,
+      activeDataset,
       analysableDatasetIds,
    } = useDataset();
-   const definition = activeDataaset?.definition;
-   const metadata = activeDataaset?.metadata;
+   const definition = activeDataset?.definition;
+   const metadata = activeDataset?.metadata;
    const { map, setAnalysisResult } = useMap();
    const { showModal } = useModal();
    const { connectionId, send } = useSignalR();

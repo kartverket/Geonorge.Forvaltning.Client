@@ -23,7 +23,7 @@ export default function MapProvider({ children }) {
    } = useDataset();
 
    const layerCacheRef = useRef(new Map());
-   const previousTimestamp = useRef(new Map());
+   const previousDatasetRef = useRef(new Map());
 
    const [map, setMap] = useState(null);
 
@@ -42,25 +42,21 @@ export default function MapProvider({ children }) {
 
       const cache = layerCacheRef.current;
 
-      visibleDatasets.forEach(({ id, data }) => {
-         if (!data?.dataset) return;
+      visibleDatasets.forEach(({ id, data: dataset }) => {
+         if (!dataset) return;
 
-         const previousTimestampValue = previousTimestamp.current.get(id);
-         const changed =
-            previousTimestampValue === undefined ||
-            previousTimestampValue !== data.timestamp;
+         const changed = previousDatasetRef.current.get(id) !== dataset;
 
          if (changed) {
             const cachedLayer = cache.get(id);
             if (cachedLayer) map.removeLayer(cachedLayer);
 
-            const featureCollection = createFeatureCollectionGeoJson(
-               data?.dataset
-            );
+            const featureCollection = createFeatureCollectionGeoJson(dataset);
             const layer = createFeaturesLayer(id, featureCollection);
             map.addLayer(layer);
             cache.set(id, layer);
-            previousTimestamp.current.set(id, data.timestamp);
+
+            previousDatasetRef.current.set(id, dataset);
          }
       });
 
