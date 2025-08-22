@@ -120,6 +120,7 @@ export default function DatasetProvider({ children }) {
             activeDatasetId !== id
          ) {
             setActiveDatasetId(id);
+            updateURLSearchParams(id);
          }
 
          setVisibleDatasetIds((prev) => {
@@ -135,12 +136,21 @@ export default function DatasetProvider({ children }) {
    const toggleActiveDataset = useCallback(
       (id) => {
          setActiveDatasetId(id);
+         updateURLSearchParams(id);
          setVisibleDatasetIds((prev) =>
             prev.includes(id) ? prev : [...prev, id]
          );
       },
       [setActiveDatasetId, setVisibleDatasetIds]
    );
+
+   useEffect(() => {
+      const params = new URLSearchParams(location.search);
+      const datasetId = parseInt(params.get("datasett"));
+      if (!datasetId || activeDatasetId === datasetId) return;
+
+      toggleActiveDataset(datasetId);
+   }, [activeDatasetId, toggleActiveDataset]);
 
    const ctx = useMemo(
       () => ({

@@ -29,3 +29,13 @@ export function getAllowedValuesForUser(
 
    return orderBy(values, (value) => value.toLowerCase());
 }
+
+export function updateURLSearchParams(datasetId) {
+   if (!datasetId) return;
+   history.replaceState(null, document.title, `?datasett=${datasetId}`);
+}
+
+export function getURLSearchParamsObjektId() {
+   const params = new URLSearchParams(location.search);
+   return params.get("objekt");
+}

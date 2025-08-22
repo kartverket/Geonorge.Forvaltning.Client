@@ -184,6 +184,7 @@ export function highlightFeature(map, datasetId, previousDatasetId, feature) {
 
    if (feature !== null) {
       const vectorLayer = getLayer(map, datasetId);
+      if (!vectorLayer) return;
       feature.set("_selected", true);
       vectorLayer.set("_selectedFeature", feature);
    }

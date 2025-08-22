@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { isEmpty as isEmptyExtent } from "ol/extent";
 import { useDataset } from "context/DatasetProvider";
 import { useMap } from "context/MapProvider";
 import { useSignalR } from "context/SignalRProvider";
@@ -28,56 +29,73 @@ import styles from "./MapView.module.scss";
 
 export default function MapView({ tableExpanded }) {
    const [previousActiveDatasetId, setPreviousActiveDatasetId] = useState(null);
+
    const { map } = useMap();
-   const { activeDataset } = useDataset();
+   const { activeDataset, activeDatasetId } = useDataset();
    const { send } = useSignalR();
    const { objId } = useParams();
-   const location = useLocation();
    const mapElementRef = useRef(null);
-   const selectedFeature = useSelector((state) => state.map.selectedFeature);
    const fullscreen = useSelector((state) => state.app.fullscreen);
+   const selectedFeature = useSelector((state) => state.map.selectedFeature);
    const dispatch = useDispatch();
 
+   useLayoutEffect(() => {
+      if (!map || !mapElementRef.current) return;
+
+      map.setTarget(mapElementRef.current);
+      map.updateSize();
+
+      return () => {
+         map.setTarget(null);
+      };
+   }, [map]);
+
    useEffect(() => {
-      if (map === null) return;
+      if (!map) return;
 
-      if (!selectedFeature) {
-         if (activeDataset) {
-            history.replaceState(
-               null,
-               document.title,
-               `?datasett=${activeDataset.id}`
-            );
+      // if (!Number.isNaN(objId)) {
+      //    dispatch(
+      //       selectFeature({
+      //          id: Number(objId),
+      //          zoom: true,
+      //          datasetId: activeDatasetId,
+      //       })
+      //    );
+      //    return;
+      // }
+
+      let extent = baseMap.extent;
+
+      if (activeDatasetId) {
+         const layer = getLayer(map, activeDatasetId);
+
+         if (layer) {
+            const source = getVectorSource(layer);
+
+            if (hasFeatures(map, source)) {
+               const srcExtent = source.getExtent();
+
+               if (srcExtent && !isEmptyExtent(srcExtent)) extent = srcExtent;
+            }
          }
-
-         return;
       }
 
-      const feature = getFeatureById2(
-         map,
-         activeDataset.id,
-         selectedFeature.id
-      );
+      map.getView().fit(extent, map.getSize());
+   }, [map, activeDatasetId, objId, dispatch]);
 
-      if (!feature) {
-         if (activeDataset) {
-            history.replaceState(
-               null,
-               document.title,
-               `?datasett=${activeDataset.id}`
-            );
-         }
+   useEffect(() => {
+      if (map === null || !selectedFeature) return;
 
-         return;
-      }
+      const feature = getFeatureById2(map, activeDatasetId, selectedFeature.id);
 
-      setNextAndPreviousFeatureId(map, activeDataset.id, feature);
-      highlightFeature(map, activeDataset.id, previousActiveDatasetId, feature);
-      setPreviousActiveDatasetId(activeDataset.id);
+      if (!feature) return;
+
+      setNextAndPreviousFeatureId(map, activeDatasetId, feature);
+      highlightFeature(map, activeDatasetId, previousActiveDatasetId, feature);
+      setPreviousActiveDatasetId(activeDatasetId);
 
       if (selectedFeature.updateUrl) {
-         const query = `?datasett=${activeDataset.id}&objekt=${selectedFeature.id}`;
-         // const route = `/datasett/${id}/objekt/${selectedFeature.id}`;
+         const query = `?datasett=${activeDatasetId}&objekt=${selectedFeature.id}`;
          history.replaceState(null, document.title, query);
       }
 
@@ -89,67 +107,65 @@ export default function MapView({ tableExpanded }) {
             selectedFeature.disableZoomOut
          );
       }
-   }, [
-      selectedFeature,
-      activeDataset,
-      previousActiveDatasetId,
-      map,
-      location.pathname,
-   ]);
+   }, [selectedFeature, activeDatasetId, previousActiveDatasetId, map]);
+
+   // useEffect(() => {
+   //    if (map === null) return;
+
+   //    map.setTarget(mapElementRef.current);
+
+   //    let extent;
+
+   //    if (activeDataset) {
+   //       console.log("Extent");
+   //       const layer = getLayer(map, activeDatasetId);
+   //       if (layer && hasFeatures(map, activeDatasetId)) {
+   //          const source = getVectorSource(layer);
+   //          extent = source.getExtent();
+   //       }
+   //    } else {
+   //       extent = baseMap.extent;
+   //    }
+
+   //    const view = map.getView();
+
+   //    if (!isNaN(objId)) {
+   //       dispatch(selectFeature({ id: parseInt(objId), zoom: true }));
+   //    } else {
+   //       view.fit(extent, map.getSize());
+
+   //       const currentZoom = view.getZoom();
+
+   //       if (currentZoom > baseMap.maxZoom) {
+   //          view.setZoom(baseMap.maxZoom);
+   //       }
+   //    }
+
+   //    return () => {
+   //       map.setTarget(null);
+   //       map.dispose();
+   //       dispatch(selectFeature(null));
+   //    };
+   // }, [map, dispatch, objId, activeDataset, activeDatasetId]);
 
    useEffect(() => {
       if (map === null) {
          return;
       }
 
-      map.setTarget(mapElementRef.current);
+      const pointerMoved = throttle((event) => {
+         if (!event) return;
 
-      // const layer = getLayer(map, "features");
-      // const source = getVectorSource(layer);
-      const view = map.getView();
-      let extent;
+         send(messageType.SendPointerMoved, {
+            datasetId: activeDatasetId,
+            coordinate: event.coordinate,
+         });
+      }, 250);
 
-      // if (hasFeatures(map)) {
-      //    extent = source.getExtent();
-      // } else {
-      extent = baseMap.extent;
-      // }
+      map.on("pointermove", pointerMoved);
 
-      if (!isNaN(objId)) {
-         dispatch(selectFeature({ id: parseInt(objId), zoom: true }));
-      } else {
-         view.fit(extent, map.getSize());
-
-         const currentZoom = view.getZoom();
-
-         if (currentZoom > baseMap.maxZoom) {
-            view.setZoom(baseMap.maxZoom);
-         }
-      }
-
-      return () => {
-         map.setTarget(null);
-         map.dispose();
-         dispatch(selectFeature(null));
-      };
-   }, [map, dispatch, objId]);
-
-   // useEffect(() => {
-   //    if (map === null) {
-   //       return;
-   //    }
-
-   //    const pointerMoved = throttle((event) => {
-   //       send(messageType.SendPointerMoved, {
-   //          datasetId: datasetInfo.id,
-   //          coordinate: event.coordinate,
-   //       });
-   //    }, 250);
-
-   //    map.on("pointermove", pointerMoved);
-
-   //    return () => map.un("pointermove", pointerMoved);
-   // }, [map, send, datasetInfo.id]);
+      return () => map.un("pointermove", pointerMoved);
+   }, [map, send, activeDatasetId]);
 
    function toggleFullscreen() {
       dispatch(_toggleFullscreen(!fullscreen));
@@ -181,11 +197,11 @@ export default function MapView({ tableExpanded }) {
                {activeDataset && <Legend />}
             </div>
 
-            {/* {map !== null && (
+            {map !== null && (
                <div className={styles.editor}>
                   <Editor />
                </div>
-            )} */}
+            )}
          </div>
       </>
    );

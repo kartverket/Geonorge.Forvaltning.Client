@@ -24,7 +24,7 @@ export default function FeatureTooltip() {
          }
 
          map.forEachFeatureAtPixel(pixel, (featureAtPixel, layer) => {
-            if (!layer.get("id")?.includes("features")) return false;
+            if (!layer?.get("id")?.includes("features")) return false;
 
             const tooltip = tooltipRef.current;
 

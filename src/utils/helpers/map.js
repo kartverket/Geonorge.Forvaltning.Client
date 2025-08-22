@@ -67,10 +67,7 @@ export function getVectorSource(layer) {
    return source.get("id") === "cluster-source" ? source.getSource() : source;
 }
 
-export function hasFeatures(map, layerName = "features", withGeom = true) {
-   const layer = getLayer(map, layerName);
-   const source = getVectorSource(layer);
-
+export function hasFeatures(map, source, withGeom = true) {
    if (withGeom) {
       return source
          .getFeatures()
