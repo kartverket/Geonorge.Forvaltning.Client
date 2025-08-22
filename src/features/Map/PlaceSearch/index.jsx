@@ -16,7 +16,7 @@ const MAP_CRS = 3857;
 
 export default function PlaceSearch() {
    const { map } = useMap();
-   const { activeDataaset } = useDataset();
+   const { activeDataset } = useDataset();
    const [inputValue, setInputValue] = useState("");
    const [value, setValue] = useState(null);
    const dispatch = useDispatch();
@@ -32,7 +32,7 @@ export default function PlaceSearch() {
             .then((response) => {
                const result = getSearchResult(
                   response,
-                  activeDataaset.objects,
+                  activeDataset.objects,
                   _query
                );
                callback(result);
