@@ -1,9 +1,8 @@
-@import "ol/ol";
-@import "@szhsin/react-menu/dist/core.css";
-@import "react-datepicker/dist/react-datepicker.min.css";
-@import "react-datepicker";
-@import "form";
-@import "overrides";
+@use "ol/ol";
+@use "@szhsin/react-menu/dist/core.css";
+@use "react-datepicker/dist/react-datepicker.min.css";
+@use "form";
+@use "overrides";
 
 body {
     overflow-y: scroll;
