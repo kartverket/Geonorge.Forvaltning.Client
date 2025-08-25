@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useMap } from "context/MapProvider";
 import { useDataset } from "context/DatasetProvider";
+import { setMapContextMenuData } from "store/slices/mapSlice";
 import { initializeDataObject } from "store/slices/objectSlice";
 import { ControlledMenu, MenuItem } from "@szhsin/react-menu";
 import { point as createPoint } from "@turf/helpers";
@@ -59,6 +60,7 @@ export default function MapContextMenu() {
       geoJson.properties._coordinates = menuData.lonLat;
 
       dispatch(initializeDataObject({ geoJson, type: GeometryType.Point }));
+      dispatch(setMapContextMenuData(null));
    }
 
    function addLineString() {
@@ -67,12 +69,14 @@ export default function MapContextMenu() {
       dispatch(
          initializeDataObject({ geoJson, type: GeometryType.LineString })
       );
+      dispatch(setMapContextMenuData(null));
    }
 
    function addPolygon() {
       const geoJson = createFeatureGeoJson(activeDatasetId, metadata);
 
       dispatch(initializeDataObject({ geoJson, type: GeometryType.Polygon }));
+      dispatch(setMapContextMenuData(null));
    }
 
    return (
