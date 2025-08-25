@@ -19,21 +19,24 @@ import getDistance from "@turf/distance";
 import getCentroid from "@turf/centroid";
 import store from "store";
 import environment from "config/environment";
+import { getAllFeatureLayers } from "./feature";
 
 const CLUSTER_MAX_ZOOM = 14;
 const MAP_PADDING = [50, 50, 50, 50];
 
 export function toggleClusteredFeatures(map) {
    const mapZoom = map.getView().getZoom();
-   const layer = getLayer(map, "features");
-   if (!layer) return;
-   const isCluster = layer.get("_isCluster");
+   const featureLayers = getAllFeatureLayers(map);
 
-   if (mapZoom >= CLUSTER_MAX_ZOOM && isCluster) {
-      toggleCluster(layer, false);
-   } else if (mapZoom < CLUSTER_MAX_ZOOM && !isCluster) {
-      toggleCluster(layer, true);
-   }
+   featureLayers.forEach((layer) => {
+      const isCluster = layer.get("_isCluster");
+
+      if (mapZoom >= CLUSTER_MAX_ZOOM && isCluster) {
+         toggleCluster(layer, false);
+      } else if (mapZoom < CLUSTER_MAX_ZOOM && !isCluster) {
+         toggleCluster(layer, true);
+      }
+   });
 }
 
 export function handleContextMenu(event, map) {
@@ -77,6 +80,13 @@ export async function handleMapClick(event, map) {
 
    map.forEachFeatureAtPixel(event.pixel, async (featureAtPixel) => {
       const features = featureAtPixel.get("features");
+
+      const layer = getLayer(map, features[0].get("datasetId"));
+
+      if (!layer?.get("_isCluster")) {
+         handleNonClusteredFeatures(map, event);
+         return;
+      }
 
       if (features.length === 1) {
          const feature = features[0];

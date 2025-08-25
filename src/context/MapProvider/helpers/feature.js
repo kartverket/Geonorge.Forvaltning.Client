@@ -137,6 +137,7 @@ export function createFeature(
       epsgCode !== null
          ? { dataProjection: epsgCode, featureProjection: environment.MAP_EPSG }
          : {};
+
    const feature = format.readFeature(geoJson, options);
 
    feature.setStyle(featureStyle);
@@ -217,4 +218,11 @@ export function setNextAndPreviousFeatureId(map, activeDatasetId, feature) {
 
    feature.set("_nextFeature", featureIds[nextIndex]);
    feature.set("_prevFeature", featureIds[prevIndex]);
+}
+
+export function getAllFeatureLayers(map) {
+   return map
+      .getLayers()
+      .getArray()
+      .filter((layer) => layer.get("id")?.endsWith("-features"));
 }
