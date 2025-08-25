@@ -77,13 +77,18 @@ export function hasFeatures(map, source, withGeom = true) {
    return source.getFeatures().length > 0;
 }
 
-export function getFeaturesById(map, ids, layerName = "features") {
-   const layer = getLayer(map, layerName);
+export function getFeaturesById(map, menuData) {
+   const layer = getLayer(map, menuData.datasetId);
+   if (!layer) return [];
+
    const source = getVectorSource(layer);
+   if (!source) return [];
 
    return source
       .getFeatures()
-      .filter((feature) => ids.includes(feature.get("id")?.value));
+      .filter((feature) =>
+         menuData.featureIds.includes(feature.get("id")?.value)
+      );
 }
 
 export function getProperties(featureProperties) {

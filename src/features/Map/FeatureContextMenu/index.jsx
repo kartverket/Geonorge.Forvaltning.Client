@@ -57,7 +57,9 @@ export default function FeatureContextMenu() {
          return null;
       }
 
-      const features = getFeaturesById(map, menuData.featureIds);
+      const features = getFeaturesById(map, menuData);
+      if (!features || features.length === 0) return null;
+
       const feature = features[0];
       const properties = getProperties(feature.getProperties());
       const entries = Object.entries(properties).slice(0, 5);
