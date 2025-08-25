@@ -6,17 +6,16 @@ import {
    useMemo,
    useState,
 } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useSelector, shallowEqual, useDispatch } from "react-redux";
 import { api } from "store/services/api";
-import {
-   getAllowedValuesForUser,
-   updateURLSearchParams,
-} from "./helpers/access";
+import { getAllowedValuesForUser } from "./helpers/access";
 import DatasetSubscriptions from "./DatasetSubscriptions";
 
 export default function DatasetProvider({ children }) {
    const [visibleDatasetIds, setVisibleDatasetIds] = useState([]);
    const [activeDatasetId, setActiveDatasetId] = useState(null);
+   const [searchParams, setSearchParams] = useSearchParams();
 
    const dispatch = useDispatch();
 
@@ -44,10 +43,12 @@ export default function DatasetProvider({ children }) {
    const loadingDatasetIds = useSelector((state) => {
       const select = api.endpoints.getDataset.select;
       const out = {};
+
       for (const id of visibleDatasetIds) {
          const q = select(id)(state) || {};
          out[id] = Boolean(q.isLoading || q.isFetching);
       }
+
       return out;
    }, shallowEqual);
 
@@ -88,7 +89,9 @@ export default function DatasetProvider({ children }) {
 
    const allowedValues = useMemo(() => {
       if (!metadata.length) return {};
+
       const allowed = {};
+
       metadata.forEach((m) => {
          allowed[m.ColumnName] = getAllowedValuesForUser(
             m.ColumnName,
@@ -97,6 +100,7 @@ export default function DatasetProvider({ children }) {
             ownerOrg
          );
       });
+
       return allowed;
    }, [metadata, user, ownerOrg]);
 
@@ -111,6 +115,19 @@ export default function DatasetProvider({ children }) {
          .map((fid) => activeDataset.objects.find((o) => o.id === fid))
          .filter(Boolean);
    }, [activeDataset, showObjectsInExtent, featuresInExtent]);
+
+   const updateURLSearchParams = useCallback(
+      (datasetId) => {
+         if (!datasetId) return;
+
+         setSearchParams((prev) => {
+            const params = new URLSearchParams(prev);
+            params.set("datasett", datasetId);
+            return params.toString();
+         });
+      },
+      [setSearchParams]
+   );
 
    const toggleVisibleDataset = useCallback(
       (id) => {
@@ -130,7 +147,12 @@ export default function DatasetProvider({ children }) {
             return next;
          });
       },
-      [activeDatasetId, setVisibleDatasetIds, visibleDatasetIds]
+      [
+         activeDatasetId,
+         setVisibleDatasetIds,
+         updateURLSearchParams,
+         visibleDatasetIds,
+      ]
    );
 
    const toggleActiveDataset = useCallback(
@@ -141,16 +163,15 @@ export default function DatasetProvider({ children }) {
             prev.includes(id) ? prev : [...prev, id]
          );
       },
-      [setActiveDatasetId, setVisibleDatasetIds]
+      [setActiveDatasetId, updateURLSearchParams, setVisibleDatasetIds]
    );
 
    useEffect(() => {
-      const params = new URLSearchParams(location.search);
-      const datasetId = parseInt(params.get("datasett"));
-      if (!datasetId || activeDatasetId === datasetId) return;
+      const datasetId = parseInt(searchParams.get("datasett"));
+      if (!datasetId) return;
 
       toggleActiveDataset(datasetId);
-   }, [activeDatasetId, toggleActiveDataset]);
+   }, [searchParams, toggleActiveDataset]);
 
    const ctx = useMemo(
       () => ({
