@@ -32,7 +32,7 @@ export default function MapProvider({ children }) {
 
    const dispatch = useDispatch();
 
-   const [searchParams, setSearchParams] = useSearchParams();
+   const [searchParams] = useSearchParams();
 
    useEffect(() => {
       (async () => {

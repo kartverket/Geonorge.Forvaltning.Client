@@ -29,7 +29,7 @@ export default function MapView({ tableExpanded }) {
    const selectedFeature = useSelector((state) => state.map.selectedFeature);
    const dispatch = useDispatch();
 
-   const [searchParams, setSearchParams] = useSearchParams();
+   const [, setSearchParams] = useSearchParams();
 
    useLayoutEffect(() => {
       if (!map || !mapElementRef.current) return;

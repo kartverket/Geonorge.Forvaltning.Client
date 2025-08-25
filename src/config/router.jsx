@@ -2,7 +2,6 @@ import { createBrowserRouter, redirect } from "react-router-dom";
 import { ErrorBoundary, Home, Login, NotFound } from "features";
 import DatasetProvider from "context/DatasetProvider";
 import { signedIn } from "store/services/supabase/client";
-import { getDatasetDefinitions } from "store/services/loaders";
 import App from "App";
 
 const router = createBrowserRouter([

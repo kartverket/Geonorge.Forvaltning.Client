@@ -3,7 +3,6 @@ import { useSelector } from "react-redux";
 import {
    getEditLayer,
    getInteraction,
-   getLayer,
    getVectorSource,
 } from "utils/helpers/map";
 import { GeometryType } from "context/MapProvider/helpers/constants";

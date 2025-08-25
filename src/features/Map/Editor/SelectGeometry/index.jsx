@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Select } from "ol/interaction";
-import { getEditLayer, getInteraction, getLayer } from "utils/helpers/map";
+import { getEditLayer, getInteraction } from "utils/helpers/map";
 import { setFeaturesSelected } from "store/slices/mapSlice";
 import { createSelectGeometryStyle } from "../helpers";
 import store from "store";

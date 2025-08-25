@@ -1,6 +1,6 @@
 import { Color } from "context/MapProvider/helpers/constants";
 import { Style, Circle as CircleStyle, Fill, Stroke } from "ol/style";
-import { getEditLayer, getLayer } from "utils/helpers/map";
+import { getEditLayer } from "utils/helpers/map";
 import DrawPolygon from "./DrawPolygon";
 import DrawPolygonHole from "./DrawPolygonHole";
 import DrawLineString from "./DrawLineString";

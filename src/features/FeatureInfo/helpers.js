@@ -13,9 +13,7 @@ const DATASET_EPSG = `EPSG:${environment.DATASET_SRID}`;
 export function updateFeature(datasetId, { id, properties }, map) {
    const feature = getFeatureById(map, datasetId, id);
 
-   if (feature === null) {
-      return null;
-   }
+   if (!feature) return null;
 
    const featureKeys = Object.keys(feature.getProperties());
 

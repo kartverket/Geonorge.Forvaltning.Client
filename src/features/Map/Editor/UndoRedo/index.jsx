@@ -1,10 +1,5 @@
 import { useRef } from "react";
-import {
-   getLayer,
-   getInteraction,
-   readGeometry,
-   getEditLayer,
-} from "utils/helpers/map";
+import { getInteraction, readGeometry, getEditLayer } from "utils/helpers/map";
 import _UndoRedo from "ol-ext/interaction/UndoRedo";
 import { getEditedFeature } from "../helpers";
 import styles from "../Editor.module.scss";
