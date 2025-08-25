@@ -4,6 +4,7 @@ import {
    useContext,
    useEffect,
    useMemo,
+   useRef,
    useState,
 } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -11,10 +12,14 @@ import { useSelector, shallowEqual, useDispatch } from "react-redux";
 import { api } from "store/services/api";
 import { getAllowedValuesForUser } from "./helpers/access";
 import DatasetSubscriptions from "./DatasetSubscriptions";
+import { selectFeature } from "store/slices/mapSlice";
 
 export default function DatasetProvider({ children }) {
+   const didInitialize = useRef(false);
+
    const [visibleDatasetIds, setVisibleDatasetIds] = useState([]);
    const [activeDatasetId, setActiveDatasetId] = useState(null);
+
    const [searchParams, setSearchParams] = useSearchParams();
 
    const dispatch = useDispatch();
@@ -120,57 +125,57 @@ export default function DatasetProvider({ children }) {
       (datasetId) => {
          if (!datasetId) return;
 
-         setSearchParams((prev) => {
-            const params = new URLSearchParams(prev);
-            params.set("datasett", datasetId);
-            return params.toString();
-         });
+         setSearchParams(
+            () => {
+               const params = new URLSearchParams();
+               params.set("datasett", datasetId);
+               return params.toString();
+            },
+            { replace: true }
+         );
       },
       [setSearchParams]
    );
 
    const toggleVisibleDataset = useCallback(
       (id) => {
-         if (
-            visibleDatasetIds.length === 0 &&
-            !activeDatasetId &&
-            activeDatasetId !== id
-         ) {
-            setActiveDatasetId(id);
-            updateURLSearchParams(id);
-         }
-
          setVisibleDatasetIds((prev) => {
-            const next = visibleDatasetIds.includes(id)
+            const next = prev.includes(id)
                ? prev.filter((x) => x !== id)
                : [...prev, id];
+
+            if (
+               (!activeDatasetId || Number.isNaN(activeDatasetId)) &&
+               next.length === 1
+            ) {
+               setActiveDatasetId(id);
+               updateURLSearchParams(id);
+            }
             return next;
          });
       },
-      [
-         activeDatasetId,
-         setVisibleDatasetIds,
-         updateURLSearchParams,
-         visibleDatasetIds,
-      ]
+      [activeDatasetId, updateURLSearchParams]
    );
 
    const toggleActiveDataset = useCallback(
       (id) => {
          setActiveDatasetId(id);
-         updateURLSearchParams(id);
          setVisibleDatasetIds((prev) =>
             prev.includes(id) ? prev : [...prev, id]
          );
+         updateURLSearchParams(id);
       },
-      [setActiveDatasetId, updateURLSearchParams, setVisibleDatasetIds]
+      [updateURLSearchParams]
    );
 
    useEffect(() => {
+      if (didInitialize.current) return;
+
       const datasetId = parseInt(searchParams.get("datasett"));
       if (!datasetId) return;
 
       toggleActiveDataset(datasetId);
+      didInitialize.current = true;
    }, [searchParams, toggleActiveDataset]);
 
    const ctx = useMemo(

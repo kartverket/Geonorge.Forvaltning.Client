@@ -1,5 +1,6 @@
 import {
    createContext,
+   useCallback,
    useContext,
    useEffect,
    useMemo,
@@ -13,14 +14,11 @@ import {
    createFeatureCollectionGeoJson,
    createFeaturesLayer,
 } from "./helpers/feature";
+import { fitLayerExtentWhenReady } from "./helpers/utils";
+import baseMap from "config/map/baseMap";
 
 export default function MapProvider({ children }) {
-   const {
-      visibleDatasets,
-      visibleDatasetIds,
-      activeDatasetId,
-      loadingDatasetIds,
-   } = useDataset();
+   const { visibleDatasets, visibleDatasetIds, activeDatasetId } = useDataset();
 
    const layerCacheRef = useRef(new Map());
    const previousDatasetRef = useRef(new Map());
@@ -36,6 +34,16 @@ export default function MapProvider({ children }) {
          setMap(map);
       })();
    }, []);
+
+   const fitLayer = useCallback(
+      (layer) => {
+         fitLayerExtentWhenReady(map, layer, {
+            padding: [50, 50, 50, 50],
+            maxZoom: baseMap.maxZoom,
+         });
+      },
+      [map]
+   );
 
    useEffect(() => {
       if (!map) return;
@@ -57,6 +65,8 @@ export default function MapProvider({ children }) {
             cache.set(id, layer);
 
             previousDatasetRef.current.set(id, dataset);
+
+            fitLayer(layer);
          }
       });
 
@@ -68,13 +78,14 @@ export default function MapProvider({ children }) {
          layer.setOpacity?.(activeDataset ? 1 : 0.4);
          layer.setZIndex?.(activeDataset ? 3 : 1);
       });
-   }, [
-      map,
-      visibleDatasets,
-      visibleDatasetIds,
-      loadingDatasetIds,
-      activeDatasetId,
-   ]);
+   }, [map, visibleDatasets, visibleDatasetIds, activeDatasetId, fitLayer]);
+
+   useEffect(() => {
+      if (!map || !activeDatasetId) return;
+      const layer = layerCacheRef.current.get(activeDatasetId);
+      if (!layer) return;
+      fitLayer(layer);
+   }, [map, activeDatasetId, fitLayer]);
 
    const ctx = useMemo(
       () => ({

@@ -1,20 +1,12 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
-import { isEmpty as isEmptyExtent } from "ol/extent";
+import { useSearchParams } from "react-router-dom";
 import { useDataset } from "context/DatasetProvider";
 import { useMap } from "context/MapProvider";
 import { useSignalR } from "context/SignalRProvider";
 import { selectFeature } from "store/slices/mapSlice";
 import { toggleFullscreen as _toggleFullscreen } from "store/slices/appSlice";
-import {
-   DEFAULT_ZOOM,
-   getFeatureById,
-   getLayer,
-   getVectorSource,
-   hasFeatures,
-   zoomToFeature,
-} from "utils/helpers/map";
+import { DEFAULT_ZOOM, getFeatureById, zoomToFeature } from "utils/helpers/map";
 import {
    highlightFeature,
    setNextAndPreviousFeatureId,
@@ -33,17 +25,23 @@ export default function MapView({ tableExpanded }) {
    const { map } = useMap();
    const { activeDataset, activeDatasetId } = useDataset();
    const { send } = useSignalR();
-   const { objId } = useParams();
    const mapElementRef = useRef(null);
    const fullscreen = useSelector((state) => state.app.fullscreen);
    const selectedFeature = useSelector((state) => state.map.selectedFeature);
    const dispatch = useDispatch();
+
+   const [searchParams, setSearchParams] = useSearchParams();
 
    useLayoutEffect(() => {
       if (!map || !mapElementRef.current) return;
 
       map.setTarget(mapElementRef.current);
       map.updateSize();
+      map.getView().fit(baseMap.extent, {
+         duration: 500,
+         padding: [50, 50, 50, 50],
+         maxZoom: 18,
+      });
 
       return () => {
          map.setTarget(null);
@@ -51,102 +49,47 @@ export default function MapView({ tableExpanded }) {
    }, [map]);
 
    useEffect(() => {
-      if (!map) return;
-
-      // if (!Number.isNaN(objId)) {
-      //    dispatch(
-      //       selectFeature({
-      //          id: Number(objId),
-      //          zoom: true,
-      //          datasetId: activeDatasetId,
-      //       })
-      //    );
-      //    return;
-      // }
-
-      let extent = baseMap.extent;
-
-      if (activeDataset?.definition.Id) {
-         const layer = getLayer(map, activeDataset.definition.Id);
-
-         if (layer) {
-            const source = getVectorSource(layer);
-
-            if (hasFeatures(map, source)) {
-               const srcExtent = source.getExtent();
-
-               if (srcExtent && !isEmptyExtent(srcExtent)) extent = srcExtent;
-            }
-         }
-      }
-
-      map.getView().fit(extent, map.getSize());
-   }, [map, activeDatasetId, objId, dispatch]);
-
-   useEffect(() => {
       if (map === null || !selectedFeature) return;
 
-      const feature = getFeatureById(map, activeDatasetId, selectedFeature.id);
+      let feature = getFeatureById(map, activeDatasetId, selectedFeature.id);
 
-      if (!feature) return;
-
-      setNextAndPreviousFeatureId(map, activeDatasetId, feature);
-      highlightFeature(map, activeDatasetId, previousActiveDatasetId, feature);
-      setPreviousActiveDatasetId(activeDatasetId);
-
-      if (selectedFeature.updateUrl) {
-         const query = `?datasett=${activeDatasetId}&objekt=${selectedFeature.id}`;
-         history.replaceState(null, document.title, query);
-      }
-
-      if (selectedFeature.zoom && feature.getGeometry() !== null) {
-         zoomToFeature(
+      if (feature) {
+         setNextAndPreviousFeatureId(map, activeDatasetId, feature);
+         highlightFeature(
             map,
-            feature,
-            DEFAULT_ZOOM,
-            selectedFeature.disableZoomOut
+            activeDatasetId,
+            previousActiveDatasetId,
+            feature
          );
+         setPreviousActiveDatasetId(activeDatasetId);
+
+         if (selectedFeature.updateUrl) {
+            setSearchParams((prev) => {
+               const params = new URLSearchParams(prev);
+               params.set("datasett", activeDatasetId);
+               params.set("objekt", selectedFeature.id);
+               return params.toString();
+            });
+         }
+
+         if (selectedFeature.zoom && feature.getGeometry() !== null) {
+            zoomToFeature(
+               map,
+               feature,
+               DEFAULT_ZOOM,
+               selectedFeature.disableZoomOut
+            );
+         }
+
+         return;
       }
-   }, [selectedFeature, activeDatasetId, previousActiveDatasetId, map]);
-
-   // useEffect(() => {
-   //    if (map === null) return;
-
-   //    map.setTarget(mapElementRef.current);
-
-   //    let extent;
-
-   //    if (activeDataset) {
-   //       console.log("Extent");
-   //       const layer = getLayer(map, activeDatasetId);
-   //       if (layer && hasFeatures(map, activeDatasetId)) {
-   //          const source = getVectorSource(layer);
-   //          extent = source.getExtent();
-   //       }
-   //    } else {
-   //       extent = baseMap.extent;
-   //    }
-
-   //    const view = map.getView();
-
-   //    if (!isNaN(objId)) {
-   //       dispatch(selectFeature({ id: parseInt(objId), zoom: true }));
-   //    } else {
-   //       view.fit(extent, map.getSize());
-
-   //       const currentZoom = view.getZoom();
-
-   //       if (currentZoom > baseMap.maxZoom) {
-   //          view.setZoom(baseMap.maxZoom);
-   //       }
-   //    }
-
-   //    return () => {
-   //       map.setTarget(null);
-   //       map.dispose();
-   //       dispatch(selectFeature(null));
-   //    };
-   // }, [map, dispatch, objId, activeDataset, activeDatasetId]);
+   }, [
+      selectedFeature,
+      activeDatasetId,
+      previousActiveDatasetId,
+      map,
+      setSearchParams,
+   ]);
 
    useEffect(() => {
       if (map === null) {
