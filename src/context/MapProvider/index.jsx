@@ -7,7 +7,10 @@ import {
    useRef,
    useState,
 } from "react";
+import { useDispatch } from "react-redux";
+import { useSearchParams } from "react-router-dom";
 import { useDataset } from "context/DatasetProvider";
+import { selectFeature } from "store/slices/mapSlice";
 import createMap from "./helpers/map";
 import { addInteractions } from "features/Map/Editor/helpers";
 import {
@@ -22,10 +25,14 @@ export default function MapProvider({ children }) {
 
    const layerCacheRef = useRef(new Map());
    const previousDatasetRef = useRef(new Map());
+   const didInitialize = useRef(false);
 
    const [map, setMap] = useState(null);
-
    const [analysisResult, setAnalysisResult] = useState(null);
+
+   const dispatch = useDispatch();
+
+   const [searchParams, setSearchParams] = useSearchParams();
 
    useEffect(() => {
       (async () => {
@@ -37,12 +44,28 @@ export default function MapProvider({ children }) {
 
    const fitLayer = useCallback(
       (layer) => {
-         fitLayerExtentWhenReady(map, layer, {
-            padding: [50, 50, 50, 50],
-            maxZoom: baseMap.maxZoom,
-         });
+         const objektId = searchParams.get("objekt");
+
+         if (!objektId) {
+            fitLayerExtentWhenReady(map, layer, {
+               padding: [50, 50, 50, 50],
+               maxZoom: baseMap.maxZoom,
+            });
+         } else if (!didInitialize.current) {
+            layer.once("postrender", () => {
+               dispatch(
+                  selectFeature({
+                     id: parseInt(objektId),
+                     datasetId: parseInt(activeDatasetId),
+                     featureType: "default",
+                     zoom: true,
+                  })
+               );
+               didInitialize.current = true;
+            });
+         }
       },
-      [map]
+      [map, activeDatasetId, searchParams, dispatch]
    );
 
    useEffect(() => {

@@ -12,7 +12,6 @@ import { useSelector, shallowEqual, useDispatch } from "react-redux";
 import { api } from "store/services/api";
 import { getAllowedValuesForUser } from "./helpers/access";
 import DatasetSubscriptions from "./DatasetSubscriptions";
-import { selectFeature } from "store/slices/mapSlice";
 
 export default function DatasetProvider({ children }) {
    const didInitialize = useRef(false);
@@ -126,13 +125,17 @@ export default function DatasetProvider({ children }) {
          if (!datasetId) return;
 
          setSearchParams(
-            () => {
-               const params = new URLSearchParams();
+            (prev) => {
+               const params = new URLSearchParams(
+                  !didInitialize.current ? prev : ""
+               );
                params.set("datasett", datasetId);
                return params.toString();
             },
             { replace: true }
          );
+
+         if (!didInitialize.current) didInitialize.current = true;
       },
       [setSearchParams]
    );
@@ -175,7 +178,6 @@ export default function DatasetProvider({ children }) {
       if (!datasetId) return;
 
       toggleActiveDataset(datasetId);
-      didInitialize.current = true;
    }, [searchParams, toggleActiveDataset]);
 
    const ctx = useMemo(

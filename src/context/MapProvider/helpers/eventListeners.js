@@ -175,6 +175,7 @@ function handleNonClusteredFeatures(map, event) {
                y: originalEvent.clientY,
             },
             featureIds,
+            datasetId: features[0].get("datasetId"),
          })
       );
    }

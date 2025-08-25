@@ -4,7 +4,6 @@ import { useSearchParams } from "react-router-dom";
 import { useDataset } from "context/DatasetProvider";
 import { useMap } from "context/MapProvider";
 import { useSignalR } from "context/SignalRProvider";
-import { selectFeature } from "store/slices/mapSlice";
 import { toggleFullscreen as _toggleFullscreen } from "store/slices/appSlice";
 import { DEFAULT_ZOOM, getFeatureById, zoomToFeature } from "utils/helpers/map";
 import {
@@ -53,35 +52,28 @@ export default function MapView({ tableExpanded }) {
 
       let feature = getFeatureById(map, activeDatasetId, selectedFeature.id);
 
-      if (feature) {
-         setNextAndPreviousFeatureId(map, activeDatasetId, feature);
-         highlightFeature(
+      if (!feature) return;
+
+      setNextAndPreviousFeatureId(map, activeDatasetId, feature);
+      highlightFeature(map, activeDatasetId, previousActiveDatasetId, feature);
+      setPreviousActiveDatasetId(activeDatasetId);
+
+      if (selectedFeature.updateUrl) {
+         setSearchParams((prev) => {
+            const params = new URLSearchParams(prev);
+            params.set("datasett", activeDatasetId);
+            params.set("objekt", selectedFeature.id);
+            return params.toString();
+         });
+      }
+
+      if (selectedFeature.zoom && feature.getGeometry() !== null) {
+         zoomToFeature(
             map,
-            activeDatasetId,
-            previousActiveDatasetId,
-            feature
+            feature,
+            DEFAULT_ZOOM,
+            selectedFeature.disableZoomOut
          );
-         setPreviousActiveDatasetId(activeDatasetId);
-
-         if (selectedFeature.updateUrl) {
-            setSearchParams((prev) => {
-               const params = new URLSearchParams(prev);
-               params.set("datasett", activeDatasetId);
-               params.set("objekt", selectedFeature.id);
-               return params.toString();
-            });
-         }
-
-         if (selectedFeature.zoom && feature.getGeometry() !== null) {
-            zoomToFeature(
-               map,
-               feature,
-               DEFAULT_ZOOM,
-               selectedFeature.disableZoomOut
-            );
-         }
-
-         return;
       }
    }, [
       selectedFeature,
@@ -92,12 +84,11 @@ export default function MapView({ tableExpanded }) {
    ]);
 
    useEffect(() => {
-      if (map === null) {
-         return;
-      }
+      if (map === null) return;
 
       const pointerMoved = throttle((event) => {
-         if (!event) return;
+         if (!event || !event?.coordinate || event?.coordinate?.length < 2)
+            return;
 
          send(messageType.SendPointerMoved, {
             datasetId: activeDatasetId,
