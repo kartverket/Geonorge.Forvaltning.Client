@@ -49,9 +49,11 @@ export default function Legend() {
       const properties = metadata.find(
          (property) => property.ColumnName === propName
       );
+
       const colors = colorsGenerator
          .generate("#86bff2", properties.AllowedValues.length)
          .get();
+
       const legend = {};
 
       properties.AllowedValues.forEach(
@@ -62,7 +64,7 @@ export default function Legend() {
    }
 
    function handleChange(event) {
-      const vectorLayer = getLayer(map, activeDataset.id);
+      const vectorLayer = getLayer(map, activeDataset.definition.Id);
       const value = event.target.value;
 
       setSelectedProperty(value);
@@ -72,7 +74,11 @@ export default function Legend() {
          setLegend(legend);
 
          dispatch(
-            setStyling({ property: value, legend, datasetId: activeDataset.id })
+            setStyling({
+               property: value,
+               legend,
+               datasetId: activeDataset.definition.Id,
+            })
          );
          vectorLayer.changed();
       } else {
@@ -83,7 +89,7 @@ export default function Legend() {
    }
 
    useEffect(() => {
-      const vectorLayer = getLayer(map, activeDataset.id);
+      const vectorLayer = getLayer(map, activeDataset.definition.Id);
       if (!vectorLayer) return;
 
       setLegend(null);
