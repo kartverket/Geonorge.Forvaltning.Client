@@ -9,7 +9,7 @@ import { selectFeature } from "store/slices/mapSlice";
 import { toggleFullscreen as _toggleFullscreen } from "store/slices/appSlice";
 import {
    DEFAULT_ZOOM,
-   getFeatureById2,
+   getFeatureById,
    getLayer,
    getVectorSource,
    hasFeatures,
@@ -66,8 +66,8 @@ export default function MapView({ tableExpanded }) {
 
       let extent = baseMap.extent;
 
-      if (activeDatasetId) {
-         const layer = getLayer(map, activeDatasetId);
+      if (activeDataset?.definition.Id) {
+         const layer = getLayer(map, activeDataset.definition.Id);
 
          if (layer) {
             const source = getVectorSource(layer);
@@ -86,7 +86,7 @@ export default function MapView({ tableExpanded }) {
    useEffect(() => {
       if (map === null || !selectedFeature) return;
 
-      const feature = getFeatureById2(map, activeDatasetId, selectedFeature.id);
+      const feature = getFeatureById(map, activeDatasetId, selectedFeature.id);
 
       if (!feature) return;
 

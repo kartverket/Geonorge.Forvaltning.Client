@@ -55,7 +55,7 @@ export function getFeatures(map, datasetId) {
    );
 }
 
-export function getFeatureById2(map, datasetId, id) {
+export function getFeatureById(map, datasetId, id) {
    return getFeatures(map, datasetId).find(
       (feature) => feature.get("id")?.value === id
    );
@@ -75,28 +75,6 @@ export function hasFeatures(map, source, withGeom = true) {
    }
 
    return source.getFeatures().length > 0;
-}
-
-export function getFeatureById(map, datasetId, id, featureType = "default") {
-   const layer = getLayer(map, datasetId);
-   if (!layer) return null;
-
-   const source = getVectorSource(layer);
-
-   let feature;
-
-   source.getFeatures().forEach((allFeatures) => {
-      const features = allFeatures.get("features") || [];
-
-      if (features?.length === 1) {
-         const foundId = features[0].get("id")?.value;
-         const foundFeatureType = features[0].get("_featureType");
-
-         if (foundId && foundFeatureType) feature = features[0];
-      }
-   });
-
-   return feature;
 }
 
 export function getFeaturesById(map, ids, layerName = "features") {

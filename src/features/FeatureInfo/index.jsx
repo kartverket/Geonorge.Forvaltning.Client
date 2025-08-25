@@ -11,7 +11,7 @@ import {
 } from "store/slices/objectSlice";
 import {
    getEditLayer,
-   getFeatureById2,
+   getFeatureById,
    getProperties,
    getPropertyValue,
    zoomToFeature,
@@ -43,23 +43,23 @@ import { RemoteEditor } from "components";
 import styles from "./FeatureInfo.module.scss";
 
 function FeatureInfo() {
-   const {
-      activeDatasetId,
-      previousActiveDatasetId,
-      activeDataset,
-      analysableDatasetIds,
-   } = useDataset();
+   const { previousActiveDatasetId, activeDataset, analysableDatasetIds } =
+      useDataset();
    const definition = activeDataset?.definition;
    const metadata = activeDataset?.metadata;
+
    const { map, setAnalysisResult } = useMap();
    const { showModal } = useModal();
    const { connectionId, send } = useSignalR();
+
    const [expanded, setExpanded] = useState(false);
    const [feature, setFeature] = useState(null);
    const [featureToEdit, setFeatureToEdit] = useState(null);
+
    const [add] = useAddDatasetObjectMutation();
    const [update] = useUpdateDatasetObjectMutation();
    const [_delete] = useDeleteDatasetObjectsMutation();
+
    const selectedFeature = useSelector((state) => state.map.selectedFeature);
    const initializedDataObject = useSelector(
       (state) => state.object.initializedDataObject
@@ -114,10 +114,10 @@ function FeatureInfo() {
    }
 
    useEffect(() => {
-      if (map !== null && selectedFeature !== null && activeDatasetId) {
-         const _feature = getFeatureById2(
+      if (map !== null && selectedFeature !== null && definition?.Id) {
+         const _feature = getFeatureById(
             map,
-            activeDatasetId,
+            definition?.Id,
             selectedFeature.id
          );
 
@@ -129,24 +129,22 @@ function FeatureInfo() {
          setFeature(null);
          setExpanded(false);
       }
-   }, [selectedFeature, map, activeDatasetId]);
+   }, [selectedFeature, map, definition?.Id]);
 
    useEffect(() => {
-      if (map === null || initializedDataObject === null) {
-         return;
-      }
+      if (map === null || initializedDataObject === null) return;
 
       const feature = createFeature(initializedDataObject.geoJson);
       feature.set("_geomType", initializedDataObject.type);
 
       addFeatureToMap(map, feature);
-      highlightFeature(map, activeDatasetId, previousActiveDatasetId, feature);
+      highlightFeature(map, definition?.Id, previousActiveDatasetId, feature);
       startEditMode(feature);
       setExpanded(true);
    }, [
       initializedDataObject,
       map,
-      activeDatasetId,
+      definition?.Id,
       previousActiveDatasetId,
       startEditMode,
    ]);
@@ -156,15 +154,15 @@ function FeatureInfo() {
          map === null ||
          createdDataObject === null ||
          createdDataObject.datasetId !== definition.Id
-      ) {
+      )
          return;
-      }
 
       const geoJson = createFeatureGeoJson(
-         activeDatasetId,
+         definition?.Id,
          metadata,
          createdDataObject.object
       );
+
       const feature = createFeature(
          geoJson,
          `EPSG:${environment.DATASET_SRID}`
@@ -178,7 +176,7 @@ function FeatureInfo() {
          return;
       }
 
-      const updated = updateFeature(activeDatasetId, updatedDataObject, map);
+      const updated = updateFeature(definition?.Id, updatedDataObject, map);
 
       if (
          updated !== null &&
@@ -187,7 +185,7 @@ function FeatureInfo() {
       ) {
          setFeature(updated);
       }
-   }, [updatedDataObject, map, activeDatasetId, feature]);
+   }, [updatedDataObject, map, definition?.Id, feature]);
 
    useEffect(() => {
       if (
@@ -200,7 +198,7 @@ function FeatureInfo() {
          return;
       }
 
-      deleteFeatures(activeDatasetId, deletedDataObjects.ids, map);
+      deleteFeatures(definition?.Id, deletedDataObjects.ids, map);
 
       if (
          selectedFeature !== null &&
@@ -245,7 +243,7 @@ function FeatureInfo() {
          setFeature(featureToEdit.original);
          setNextAndPreviousFeatureId(
             map,
-            activeDatasetId,
+            definition?.Id,
             featureToEdit.original
          );
          exitEditMode();

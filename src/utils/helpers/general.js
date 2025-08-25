@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { isNil } from "lodash";
-import { getFeatureById2, getLayer, getVectorSource } from "./map";
+import { getFeatureById, getLayer, getVectorSource } from "./map";
 import { getLayerFeaturesId } from "context/MapProvider/helpers/utils";
 
 export function renderProperty({ value, dataType }) {
@@ -24,7 +24,7 @@ export function deleteFeatures(datasetId, deletedDataObjects, map) {
    const source = getVectorSource(layer);
 
    deletedDataObjects.forEach((id) => {
-      const feature = getFeatureById2(map, datasetId, id);
+      const feature = getFeatureById(map, datasetId, id);
 
       if (feature !== null) {
          source.removeFeature(feature);

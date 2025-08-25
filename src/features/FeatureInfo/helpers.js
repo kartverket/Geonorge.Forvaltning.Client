@@ -1,5 +1,5 @@
 import {
-   getFeatureById2,
+   getFeatureById,
    getProperties,
    readGeometry,
    writeGeometry,
@@ -11,7 +11,7 @@ import environment from "config/environment";
 const DATASET_EPSG = `EPSG:${environment.DATASET_SRID}`;
 
 export function updateFeature(datasetId, { id, properties }, map) {
-   const feature = getFeatureById2(map, datasetId, id);
+   const feature = getFeatureById(map, datasetId, id);
 
    if (feature === null) {
       return null;
