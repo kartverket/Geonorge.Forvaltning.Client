@@ -79,10 +79,9 @@ export async function handleMapClick(event, map) {
    }
 
    map.forEachFeatureAtPixel(event.pixel, async (featureAtPixel) => {
-      const features = featureAtPixel.get("features");
+      const features = featureAtPixel.get("features") ?? [featureAtPixel];
 
       const layer = getLayer(map, features[0].get("datasetId"));
-
       if (!layer?.get("_isCluster")) {
          handleNonClusteredFeatures(map, event);
          return;
