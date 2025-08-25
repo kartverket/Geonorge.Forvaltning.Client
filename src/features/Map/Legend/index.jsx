@@ -89,9 +89,12 @@ export default function Legend() {
    }
 
    useEffect(() => {
+      if (!map) return;
+
       const vectorLayer = getLayer(map, activeDataset.definition.Id);
       if (!vectorLayer) return;
 
+      setSelectedProperty("");
       setLegend(null);
       dispatch(setStyling(null));
       vectorLayer.changed();
