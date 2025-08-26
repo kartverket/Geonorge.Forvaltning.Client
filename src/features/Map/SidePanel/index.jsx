@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useModal } from "context/ModalProvider";
 import { modalType } from "components/Modals";
@@ -8,7 +9,13 @@ import AdminMenu from "./AdminMenu";
 import styles from "./SidePanel.module.scss";
 
 export default function SidePanel() {
+   const [searchParams] = useSearchParams();
+   const paramDatasetId = parseInt(searchParams.get("datasett"));
+
+   const didInitialize = useRef(false);
+
    const [expanded, setExpanded] = useState(true);
+   const [openDetails, setOpenDetails] = useState(() => new Set());
 
    const user = useSelector((state) => state.app.user);
 
@@ -114,6 +121,42 @@ export default function SidePanel() {
       );
    };
 
+   const matchedDefinition = useMemo(() => {
+      if (paramDatasetId == null) return null;
+
+      if (ownedDatasetDefinitions?.some((d) => d.Id === paramDatasetId))
+         return 1;
+      if (contributorDatasetDefinitions?.some((d) => d.Id === paramDatasetId))
+         return 2;
+      if (viewerDatasetDefinitions?.some((d) => d.Id === paramDatasetId))
+         return 3;
+
+      return null;
+   }, [
+      paramDatasetId,
+      ownedDatasetDefinitions,
+      contributorDatasetDefinitions,
+      viewerDatasetDefinitions,
+   ]);
+
+   useEffect(() => {
+      if (didInitialize.current || matchedDefinition == null) return;
+
+      setOpenDetails(new Set([matchedDefinition]));
+      didInitialize.current = true;
+   }, [matchedDefinition]);
+
+   const handleToggle = (id) => (e) => {
+      setOpenDetails((prev) => {
+         const next = new Set(prev);
+
+         if (!e?.currentTarget?.open) next.add(id);
+         else next.delete(id);
+
+         return next;
+      });
+   };
+
    return (
       <div
          className={`${styles.container} ${!expanded ? styles.collapsed : ""}`}
@@ -126,7 +169,12 @@ export default function SidePanel() {
             >
                <div className={styles.detailsContainer}>
                   {ownedDatasetDefinitions.length > 0 && (
-                     <details className={styles.details}>
+                     <details
+                        key={1}
+                        className={styles.details}
+                        open={openDetails.has(1)}
+                        onToggle={handleToggle(1)}
+                     >
                         <summary>
                            <heading-text>
                               <h5>Eier</h5>
@@ -137,7 +185,12 @@ export default function SidePanel() {
                   )}
 
                   {contributorDatasetDefinitions.length > 0 && (
-                     <details className={styles.details}>
+                     <details
+                        key={2}
+                        className={styles.details}
+                        open={openDetails.has(2)}
+                        onToggle={handleToggle(2)}
+                     >
                         <summary>
                            <heading-text>
                               <h5>Bidragsyter</h5>
@@ -148,7 +201,12 @@ export default function SidePanel() {
                   )}
 
                   {viewerDatasetDefinitions.length > 0 && (
-                     <details className={styles.details}>
+                     <details
+                        key={3}
+                        className={styles.details}
+                        open={openDetails.has(3)}
+                        onToggle={handleToggle(3)}
+                     >
                         <summary>
                            <heading-text>
                               <h5>Innsyn</h5>
