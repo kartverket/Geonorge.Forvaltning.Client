@@ -21,6 +21,8 @@ export default function AllowedValuesModal({ values, onClose, callback }) {
       <div className={styles.modal}>
          <h1>Tillatte verdier</h1>
 
+         <p>Skriv inn verdi og trykk enter for å legge til</p>
+
          <div className={styles.body}>
             <Controller
                control={control}
