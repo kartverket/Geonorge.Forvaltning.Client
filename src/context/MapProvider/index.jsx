@@ -25,7 +25,6 @@ export default function MapProvider({ children }) {
 
    const layerCacheRef = useRef(new Map());
    const previousDatasetRef = useRef(new Map());
-   const didInitialize = useRef(false);
 
    const [map, setMap] = useState(null);
    const [analysisResult, setAnalysisResult] = useState(null);
@@ -51,7 +50,7 @@ export default function MapProvider({ children }) {
                padding: [50, 50, 50, 50],
                maxZoom: baseMap.maxZoom,
             });
-         } else if (!didInitialize.current) {
+         } else {
             layer.once("postrender", () => {
                dispatch(
                   selectFeature({
@@ -61,7 +60,6 @@ export default function MapProvider({ children }) {
                      zoom: true,
                   })
                );
-               didInitialize.current = true;
             });
          }
       },
