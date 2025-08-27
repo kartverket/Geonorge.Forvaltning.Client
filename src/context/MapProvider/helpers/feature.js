@@ -1,161 +1,228 @@
-import { Cluster, Vector as VectorSource } from 'ol/source';
-import { Vector as VectorLayer } from 'ol/layer';
-import { GeoJSON } from 'ol/format';
-import { Point } from 'ol/geom';
-import { GeometryType } from './constants';
-import { getEpsgCode, getLayer, getVectorSource, writeGeometryObject } from 'utils/helpers/map';
-import { clusterStyle, featureStyle } from './style';
-import getCentroid from '@turf/centroid';
-import environment from 'config/environment';
+import { Cluster, Vector as VectorSource } from "ol/source";
+import { Vector as VectorLayer } from "ol/layer";
+import { GeoJSON } from "ol/format";
+import { Point } from "ol/geom";
+import { GeometryType } from "./constants";
+import {
+   getEpsgCode,
+   getFeatures,
+   getLayer,
+   getVectorSource,
+   writeGeometryObject,
+} from "utils/helpers/map";
+import { clusterStyle, featureStyle } from "./style";
+import getCentroid from "@turf/centroid";
+import environment from "config/environment";
+import { getLayerClusterSourceId, getLayerFeaturesId } from "./utils";
+import { isNil } from "lodash";
 
-export function createFeaturesLayer(featureCollection) {
-    const vectorSource = new VectorSource();
-    const format = new GeoJSON();
-    const epsgCode = getEpsgCode(featureCollection);
+export function createFeatureCollectionGeoJson(dataset) {
+   const metadata = dataset.definition.ForvaltningsObjektPropertiesMetadata;
+   const features = dataset.objects.map((object) =>
+      createFeatureGeoJson(dataset.definition.Id, metadata, object)
+   );
 
-    const features = featureCollection.features
-        .map(feature => createFeature(feature, epsgCode, format));
+   return {
+      type: "FeatureCollection",
+      features,
+   };
+}
 
-    vectorSource.addFeatures(features);
+export function createFeatureGeoJson(datasetId, metadata, object = {}) {
+   const feature = {
+      type: "Feature",
+      geometry: object.geometry || null,
+      properties: {
+         datasetId,
+         id: {
+            name: "ID",
+            value: object.id || null,
+            dataType: null,
+         },
+         _tag: object.tag || null,
+      },
+   };
 
-    const clusterSource = new Cluster({
-        source: vectorSource,
-        distance: 35,
-        geometryFunction: feature => {
-            const geometry = feature.getGeometry();
+   metadata.forEach((data) => {
+      feature.properties[data.ColumnName] = {
+         name: data.Name,
+         value: !isNil(object[data.ColumnName])
+            ? object[data.ColumnName]
+            : null,
+         dataType: data.DataType,
+         propertyOrder: data.PropertyOrder,
+      };
+   });
 
-            if (geometry === null) {
-                return null;
-            }
+   return feature;
+}
 
-            const geometryType = geometry.getType();
+export function createFeaturesLayer(datasetId, featureCollection) {
+   const vectorSource = new VectorSource();
+   const format = new GeoJSON();
+   const epsgCode = getEpsgCode(featureCollection);
 
-            if (geometryType === GeometryType.Point) {
-                return geometry;
-            }
+   const features = featureCollection.features.map((feature) =>
+      createFeature(feature, epsgCode, format)
+   );
 
-            const geometryObject = writeGeometryObject(feature.getGeometry());
-            const centroid = getCentroid(geometryObject);
+   vectorSource.addFeatures(features);
 
-            return new Point(centroid.geometry.coordinates)
-        },
-    });
+   const clusterSource = new Cluster({
+      source: vectorSource,
+      distance: 35,
+      geometryFunction: (feature) => {
+         const geometry = feature.getGeometry();
 
-    clusterSource.set('id', 'cluster-source');
+         if (geometry === null) {
+            return null;
+         }
 
-    const vectorLayer = new VectorLayer({
-        source: clusterSource,
-        style: clusterStyle
-    });
+         const geometryType = geometry.getType();
 
-    vectorLayer.set('id', 'features');
-    vectorLayer.set('_isCluster', true);
-    vectorLayer.set('_disabledSource', vectorSource);
+         if (geometryType === GeometryType.Point) {
+            return geometry;
+         }
 
-    return vectorLayer;
+         const geometryObject = writeGeometryObject(feature.getGeometry());
+         const centroid = getCentroid(geometryObject);
+
+         return new Point(centroid.geometry.coordinates);
+      },
+   });
+
+   clusterSource.set("id", getLayerClusterSourceId(datasetId));
+
+   const vectorLayer = new VectorLayer({
+      source: clusterSource,
+      style: clusterStyle,
+   });
+
+   vectorLayer.set("id", getLayerFeaturesId(datasetId));
+   vectorLayer.set("_isCluster", true);
+   vectorLayer.set("_disabledSource", vectorSource);
+
+   return vectorLayer;
 }
 
 export function createFeaturesEditLayer() {
-    const vectorSource = new VectorSource();
+   const vectorSource = new VectorSource();
 
-    const vectorLayer = new VectorLayer({
-        source: vectorSource,
-        style: featureStyle
-    });
+   const vectorLayer = new VectorLayer({
+      source: vectorSource,
+      style: featureStyle,
+   });
 
-    vectorLayer.set('id', 'features-edit');
+   vectorLayer.set("id", "features-edit");
 
-    return vectorLayer;
+   return vectorLayer;
 }
 
 export function createRoutesFeaturesLayer() {
-    const vectorLayer = new VectorLayer({
-        source: new VectorSource(),
-    });
+   const vectorLayer = new VectorLayer({
+      source: new VectorSource(),
+   });
 
-    vectorLayer.set('id', 'routes');
+   vectorLayer.set("id", "routes");
 
-    return vectorLayer;
+   return vectorLayer;
 }
 
-export function createFeature(geoJson, epsgCode = null, format = new GeoJSON()) {
-    let options = epsgCode !== null ? { dataProjection: epsgCode, featureProjection: environment.MAP_EPSG } : {};
-    const feature = format.readFeature(geoJson, options);
+export function createFeature(
+   geoJson,
+   epsgCode = null,
+   format = new GeoJSON()
+) {
+   let options =
+      epsgCode !== null
+         ? { dataProjection: epsgCode, featureProjection: environment.MAP_EPSG }
+         : {};
 
-    feature.setStyle(featureStyle);
-    feature.set('_visible', true);
-    feature.set('_tag', geoJson.properties._tag);
-    feature.set('_featureType', 'default');
+   const feature = format.readFeature(geoJson, options);
 
-    if (!geoJson.properties._coordinates && geoJson.geometry?.type === GeometryType.Point) {
-        feature.set('_coordinates', geoJson.geometry?.coordinates);
-    }
+   feature.setStyle(featureStyle);
+   feature.set("_visible", true);
+   feature.set("_tag", geoJson.properties._tag);
+   feature.set("_featureType", "default");
 
-    return feature;
+   if (
+      !geoJson.properties._coordinates &&
+      geoJson.geometry?.type === GeometryType.Point
+   ) {
+      feature.set("_coordinates", geoJson.geometry?.coordinates);
+   }
+
+   return feature;
 }
 
-export function addFeatureToMap(map, feature, layerName = 'features') {
-    const vectorLayer = getLayer(map, layerName);
-    const vectorSource = getVectorSource(vectorLayer);
+export function addFeatureToMap(map, feature) {
+   const vectorLayer = getLayer(map, feature.get("datasetId"));
+   const vectorSource = getVectorSource(vectorLayer);
 
-    vectorSource.addFeature(feature);
+   vectorSource.addFeature(feature);
 }
 
-export function removeFeatureFromMap(map, feature, layerName = 'features') {
-    const vectorLayer = getLayer(map, layerName);
-    const vectorSource = getVectorSource(vectorLayer);
+export function removeFeatureFromMap(map, feature) {
+   const vectorLayer = getLayer(map, feature.get("datasetId"));
+   const vectorSource = getVectorSource(vectorLayer);
 
-    vectorSource.removeFeature(feature);
+   vectorSource.removeFeature(feature);
 }
 
 export function toggleFeature(feature) {
-    feature.set('_visible', !feature.get('_visible'));
+   feature.set("_visible", !feature.get("_visible"));
 }
 
-export function highlightFeature(map, feature) {
-    const vectorLayer = getLayer(map, 'features');
-    const selectedFeature = vectorLayer.get('_selectedFeature');
+export function highlightFeature(map, datasetId, previousDatasetId, feature) {
+   const previousVectorLayer = getLayer(map, previousDatasetId);
+   if (previousVectorLayer) {
+      const previousSelectedFeature =
+         previousVectorLayer.get("_selectedFeature");
+      if (previousSelectedFeature) {
+         previousSelectedFeature.set("_selected", false);
+      }
+   }
 
-    if (selectedFeature) {
-        selectedFeature.set('_selected', false);
-    }
-
-    if (feature !== null) {
-        feature.set('_selected', true);
-        vectorLayer.set('_selectedFeature', feature);
-    }
+   if (feature !== null) {
+      const vectorLayer = getLayer(map, datasetId);
+      if (!vectorLayer) return;
+      feature.set("_selected", true);
+      vectorLayer.set("_selectedFeature", feature);
+   }
 }
 
-export function setNextAndPreviousFeatureId(map, feature) {
-    const vectorLayer = getLayer(map, 'features');
-    const vectorSource = getVectorSource(vectorLayer);
-    const features = vectorSource.getFeatures();
+export function setNextAndPreviousFeatureId(map, activeDatasetId, feature) {
+   const features = getFeatures(map, activeDatasetId);
 
-    if (features.length <= 1) {
-        feature.set('_nextFeature', null);
-        feature.set('_prevFeature', null);
-    }
+   if (features.length <= 1) {
+      feature.set("_nextFeature", null);
+      feature.set("_prevFeature", null);
+   }
 
-    const featureIds = features
-        .map(feature => feature.get('id').value)
-        .sort();
+   const featureIds = features.map((feature) => feature.get("id").value).sort();
 
-    const thisId = feature.get('id').value;
-    const index = featureIds.indexOf(thisId);
-    let prevIndex, nextIndex;
+   const thisId = feature.get("id").value;
+   const index = featureIds.indexOf(thisId);
+   let prevIndex, nextIndex;
 
-    if (index === 0) {
-        prevIndex = featureIds.length - 1;
-        nextIndex = index + 1;
-    } else if (index === featureIds.length - 1) {
-        prevIndex = index - 1;
-        nextIndex = 0;
-    } else {
-        prevIndex = index - 1;
-        nextIndex = index + 1;
-    }
+   if (index === 0) {
+      prevIndex = featureIds.length - 1;
+      nextIndex = index + 1;
+   } else if (index === featureIds.length - 1) {
+      prevIndex = index - 1;
+      nextIndex = 0;
+   } else {
+      prevIndex = index - 1;
+      nextIndex = index + 1;
+   }
 
-    feature.set('_nextFeature', featureIds[nextIndex]);
-    feature.set('_prevFeature', featureIds[prevIndex]);
+   feature.set("_nextFeature", featureIds[nextIndex]);
+   feature.set("_prevFeature", featureIds[prevIndex]);
 }
 
+export function getAllFeatureLayers(map) {
+   return map
+      .getLayers()
+      .getArray()
+      .filter((layer) => layer.get("id")?.endsWith("-features"));
+}

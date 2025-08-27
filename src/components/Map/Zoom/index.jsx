@@ -1,6 +1,6 @@
-import styles from './Zoom.module.scss';
+import styles from "./Zoom.module.scss";
 
-export default function Zoom({ map, className = '' }) {
+export default function Zoom({ map, className = "" }) {
    function zoomIn() {
       const view = map.getView();
       const maxZoom = view.getMaxZoom();
@@ -12,7 +12,7 @@ export default function Zoom({ map, className = '' }) {
 
       view.animate({
          zoom,
-         duration: 250
+         duration: 250,
       });
    }
 
@@ -27,15 +27,23 @@ export default function Zoom({ map, className = '' }) {
 
       view.animate({
          zoom,
-         duration: 250
+         duration: 250,
       });
    }
 
    return (
       <div className={`${styles.zoomControl} ${className}`}>
-         <button className={styles.zoomIn} onClick={zoomIn} title="Zoom inn"></button>
+         <button
+            className={styles.zoomIn}
+            onClick={zoomIn}
+            title="Zoom inn"
+         ></button>
          <div className={styles.divider}></div>
-         <button className={styles.zoomOut} onClick={zoomOut} title="Zoom ut"></button>
+         <button
+            className={styles.zoomOut}
+            onClick={zoomOut}
+            title="Zoom ut"
+         ></button>
       </div>
    );
 }

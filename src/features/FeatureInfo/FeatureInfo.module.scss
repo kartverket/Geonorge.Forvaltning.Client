@@ -15,16 +15,12 @@
             background-image: url(../../assets/gfx/icon-chevron.svg);
             background-position: center;
             background-repeat: no-repeat;
-            transform: rotate(90deg);
+            transform: rotate(270deg);
          }
       }
    }
 
    &.featureInfoExpanded {
-      >gn-button>button>span {
-         transform: rotate(270deg);
-      }
-
       .boxContent {
          display: flex;
       }
@@ -250,9 +246,10 @@
          border-bottom: 1px solid transparent;
          border-radius: 4px;
 
-         &::after {
-            transform: translateY(30%) rotate(225deg);
+         span {
+            transform: translateY(30%) rotate(90deg);
          }
+
       }
    }
 }

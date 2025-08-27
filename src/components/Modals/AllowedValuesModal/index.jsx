@@ -1,13 +1,15 @@
-import { Controller, useForm } from 'react-hook-form';
-import { Tags } from 'components/Form';
-import styles from './AllowedValuesModal.module.scss';
+import { Controller, useForm } from "react-hook-form";
+import { Tags } from "components/Form";
+import styles from "./AllowedValuesModal.module.scss";
 
-export default function AllowedValuesModal({ values, onClose, callback }) {   
-   const { control, getValues } = useForm({ values: { allowedValues: values } });
+export default function AllowedValuesModal({ values, onClose, callback }) {
+   const { control, getValues } = useForm({
+      values: { allowedValues: values },
+   });
 
    function handleOk() {
       onClose();
-      callback({ result: true, data: getValues('allowedValues') });
+      callback({ result: true, data: getValues("allowedValues") });
    }
 
    function handleClose() {
@@ -18,6 +20,8 @@ export default function AllowedValuesModal({ values, onClose, callback }) {
    return (
       <div className={styles.modal}>
          <h1>Tillatte verdier</h1>
+
+         <p>Skriv inn verdi og trykk enter for å legge til</p>
 
          <div className={styles.body}>
             <Controller

@@ -1,6 +1,14 @@
-import styles from './ConfirmModal.module.scss';
+import styles from "./ConfirmModal.module.scss";
 
-export default function ConfirmModal({ title, body, okText = 'OK', cancelText = 'Avbryt', onClose, callback, className = '' }) {
+export default function ConfirmModal({
+   title,
+   body,
+   okText = "OK",
+   cancelText = "Avbryt",
+   onClose,
+   callback,
+   className = "",
+}) {
    function handleOk() {
       onClose();
       callback({ result: true });
@@ -15,9 +23,7 @@ export default function ConfirmModal({ title, body, okText = 'OK', cancelText = 
       <div className={`${styles.modal} ${className}`}>
          <h1>{title}</h1>
 
-         <div className={styles.body}>
-            {body}
-         </div>
+         <div className={styles.body}>{body}</div>
 
          <div className={styles.buttons}>
             <gn-button>

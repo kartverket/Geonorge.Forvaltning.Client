@@ -19,20 +19,24 @@ import getDistance from "@turf/distance";
 import getCentroid from "@turf/centroid";
 import store from "store";
 import environment from "config/environment";
+import { getAllFeatureLayers } from "./feature";
 
 const CLUSTER_MAX_ZOOM = 14;
 const MAP_PADDING = [50, 50, 50, 50];
 
 export function toggleClusteredFeatures(map) {
    const mapZoom = map.getView().getZoom();
-   const layer = getLayer(map, "features");
-   const isCluster = layer.get("_isCluster");
+   const featureLayers = getAllFeatureLayers(map);
 
-   if (mapZoom >= CLUSTER_MAX_ZOOM && isCluster) {
-      toggleCluster(layer, false);
-   } else if (mapZoom < CLUSTER_MAX_ZOOM && !isCluster) {
-      toggleCluster(layer, true);
-   }
+   featureLayers.forEach((layer) => {
+      const isCluster = layer.get("_isCluster");
+
+      if (mapZoom >= CLUSTER_MAX_ZOOM && isCluster) {
+         toggleCluster(layer, false);
+      } else if (mapZoom < CLUSTER_MAX_ZOOM && !isCluster) {
+         toggleCluster(layer, true);
+      }
+   });
 }
 
 export function handleContextMenu(event, map) {
@@ -74,39 +78,39 @@ export async function handleMapClick(event, map) {
       return;
    }
 
-   const layer = getLayer(map, "features");
+   map.forEachFeatureAtPixel(event.pixel, async (featureAtPixel) => {
+      const features = featureAtPixel.get("features") ?? [featureAtPixel];
 
-   if (!layer.get("_isCluster")) {
-      handleNonClusteredFeatures(map, event);
-      return;
-   }
+      const layer = getLayer(map, features[0].get("datasetId"));
+      if (!layer?.get("_isCluster")) {
+         handleNonClusteredFeatures(map, event);
+         return;
+      }
 
-   const [clusterFeature] = await layer.getFeatures(event.pixel);
+      if (features.length === 1) {
+         const feature = features[0];
 
-   if (!clusterFeature) {
-      return;
-   }
+         store.dispatch(
+            selectFeature({
+               datasetId: feature.get("datasetId"),
+               id: feature.get("id").value,
+               zoom: true,
+               disableZoomOut: true,
+               featureType: feature.get("_featureType"),
+            })
+         );
+      } else if (features.length > 1) {
+         const extent = createEmpty();
+         features.forEach((feature) =>
+            extend(extent, feature.getGeometry().getExtent())
+         );
 
-   const features = clusterFeature.get("features");
+         const view = map.getView();
+         view.fit(extent, { duration: 500, padding: MAP_PADDING, maxZoom: 18 });
+      }
 
-   if (features.length === 1) {
-      store.dispatch(
-         selectFeature({
-            id: features[0].get("id").value,
-            zoom: true,
-            disableZoomOut: false,
-            featureType: features[0].get("_featureType"),
-         })
-      );
-   } else if (features.length > 1) {
-      const extent = createEmpty();
-      features.forEach((feature) =>
-         extend(extent, feature.getGeometry().getExtent())
-      );
-
-      const view = map.getView();
-      view.fit(extent, { duration: 500, padding: MAP_PADDING, maxZoom: 18 });
-   }
+      return true;
+   });
 }
 
 export function setFeatureIdsInExtent(map) {
@@ -153,6 +157,7 @@ function handleNonClusteredFeatures(map, event) {
    if (features.length === 1) {
       store.dispatch(
          selectFeature({
+            datasetId: features[0].get("datasetId"),
             id: features[0].get("id").value,
             zoom: true,
             disableZoomOut: true,
@@ -170,6 +175,7 @@ function handleNonClusteredFeatures(map, event) {
                y: originalEvent.clientY,
             },
             featureIds,
+            datasetId: features[0].get("datasetId"),
          })
       );
    }
