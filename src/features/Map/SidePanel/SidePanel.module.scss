@@ -98,97 +98,114 @@
                   }
                }
 
-               &:open {
+               &[open] {
                   background-color: #FFF;
                }
 
-               &:open > summary::after {
+               &[open] > summary::after {
                   transform: rotate(0);
                }
+               
+               &:not([open]) .tableContainer {
+                  height: 0;
+               }
 
-               &:open > .table {
-                  transform: scaleY(1);
+               &:not([open]) .tableReveal {
+                  transform: scaleY(0.98);
+                  opacity: 0;
+               }
+
+               &[open] .tableContainer {
+                  height: auto;
+               }
+
+               &[open] .tableReveal {
+                  transform: none;
                   opacity: 1;
                }
 
-               .table {
-                  width: 100%;
+               .tableContainer {
                   overflow: hidden;
-                  border-spacing: 0;
-                  transform-origin: top;
-                  transform: scaleY(0);
-                  opacity: 0;
-                  transition: transform .25s ease, opacity .25s ease;
 
-                  button {
-                     &::before {
-                        content: "";
-                        display: flex;
-                        width: 20px;
-                        height: 20px;
-                        background-size: 20px;
-                     }
-                  }
+                  .tableReveal {
+                     transform-origin: top;
+                     transition: transform .25s ease, opacity .25s ease;
 
-                  .activeDataset {
-                     font-weight: bold;
-                  }
+                     .table {
+                        width: 100%;
+                        border-spacing: 0;
 
-                  .row {
-                     display: flex;
-                     justify-content: space-between;
-                     height: 40px;
-                     padding: 0 6px;
-
-                     &:hover {
-                        background-color: #eee;
-                     }
-                     
-                     .eyeButtonCell {
-                        display: flex;
-                        align-items: center;
-
-                        > button {
-                           background-color: transparent;
-                           border: none;
-                        }
-                        
-                        .eyeButton {
-                           &:hover {
-                              cursor: pointer;
-                           }
-
+                        button {
                            &::before {
-                              background: url(../../../assets/gfx/icon-eye.svg) center no-repeat;
+                              content: "";
+                              display: flex;
+                              width: 20px;
+                              height: 20px;
+                              background-size: 20px;
                            }
                         }
 
-                        .eyeClosedButton {
+                        .activeDataset {
+                           font-weight: bold;
+                        }
+
+                        .row {
+                           display: flex;
+                           justify-content: space-between;
+                           height: 40px;
+                           padding: 0 6px;
+
                            &:hover {
-                              cursor: pointer;
+                              background-color: #eee;
                            }
                            
-                           &::before {
-                              background: url(../../../assets/gfx/icon-eye-closed.svg) center no-repeat;
+                           .eyeButtonCell {
+                              display: flex;
+                              align-items: center;
+
+                              > button {
+                                 background-color: transparent;
+                                 border: none;
+                              }
+                              
+                              .eyeButton {
+                                 &:hover {
+                                    cursor: pointer;
+                                 }
+
+                                 &::before {
+                                    background: url(../../../assets/gfx/icon-eye.svg) center no-repeat;
+                                 }
+                              }
+
+                              .eyeClosedButton {
+                                 &:hover {
+                                    cursor: pointer;
+                                 }
+                                 
+                                 &::before {
+                                    background: url(../../../assets/gfx/icon-eye-closed.svg) center no-repeat;
+                                 }
+                              }
+                           }
+
+                           .nameCell {
+                              display: flex;
+                              align-items: center;
+                              justify-content:space-between;
+                              width: 100%;
+                              padding: 0 6px;
+
+                              &:hover {
+                                 cursor: pointer;
+                              }
+                           }
+
+                           .menuCell {
+                              display: flex;
+                              align-items: center;
                            }
                         }
-                     }
-
-                     .nameCell {
-                        display: flex;
-                        align-items: center;
-                        justify-content:space-between;
-                        width: 100%;
-                        padding: 0 6px;
-
-                        &:hover {
-                           cursor: pointer;
-                        }
-                     }
-
-                     .menuCell {
-                        display: flex;
-                        align-items: center;
                      }
                   }
                }

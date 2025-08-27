@@ -68,56 +68,60 @@ export default function SidePanel() {
 
    const createTable = (datasetDefinitions) => {
       return (
-         <table className={styles.table}>
-            <tbody>
-               {datasetDefinitions.map((dataset) => (
-                  <tr key={dataset.Id} className={styles.row}>
-                     <td className={styles.eyeButtonCell}>
-                        <button
-                           className={`${
-                              visibleDatasetIds.includes(dataset.Id)
-                                 ? styles.eyeButton
-                                 : styles.eyeClosedButton
-                           }`}
-                           title={
-                              visibleDatasetIds.includes(dataset.Id)
-                                 ? "Skjul kartlag"
-                                 : "Vis kartlag"
-                           }
-                           onClick={() => {
-                              toggleVisibleDataset(dataset.Id);
-                           }}
-                        />
-                     </td>
+         <div className={styles.tableContainer}>
+            <div className={styles.tableReveal}>
+               <table className={styles.table}>
+                  <tbody>
+                     {datasetDefinitions.map((dataset) => (
+                        <tr key={dataset.Id} className={styles.row}>
+                           <td className={styles.eyeButtonCell}>
+                              <button
+                                 className={`${
+                                    visibleDatasetIds.includes(dataset.Id)
+                                       ? styles.eyeButton
+                                       : styles.eyeClosedButton
+                                 }`}
+                                 title={
+                                    visibleDatasetIds.includes(dataset.Id)
+                                       ? "Skjul kartlag"
+                                       : "Vis kartlag"
+                                 }
+                                 onClick={() => {
+                                    toggleVisibleDataset(dataset.Id);
+                                 }}
+                              />
+                           </td>
 
-                     <td
-                        className={`${styles.nameCell} ${
-                           activeDatasetId === dataset.Id
-                              ? styles.activeDataset
-                              : ""
-                        }`}
-                        title={
-                           activeDatasetId !== dataset.Id
-                              ? "Sett som aktivt kartlag"
-                              : ""
-                        }
-                        onClick={() => {
-                           toggleActiveDataset(dataset.Id);
-                        }}
-                     >
-                        {dataset.Name}
-                        {loadingDatasetIds[dataset.Id] && <Spinner />}
-                     </td>
+                           <td
+                              className={`${styles.nameCell} ${
+                                 activeDatasetId === dataset.Id
+                                    ? styles.activeDataset
+                                    : ""
+                              }`}
+                              title={
+                                 activeDatasetId !== dataset.Id
+                                    ? "Sett som aktivt kartlag"
+                                    : ""
+                              }
+                              onClick={() => {
+                                 toggleActiveDataset(dataset.Id);
+                              }}
+                           >
+                              {dataset.Name}
+                              {loadingDatasetIds[dataset.Id] && <Spinner />}
+                           </td>
 
-                     <td className={styles.menuCell}>
-                        {dataset.Organization === user?.organization && (
-                           <AdminMenu datasetId={dataset.Id} />
-                        )}
-                     </td>
-                  </tr>
-               ))}
-            </tbody>
-         </table>
+                           <td className={styles.menuCell}>
+                              {dataset.Organization === user?.organization && (
+                                 <AdminMenu datasetId={dataset.Id} />
+                              )}
+                           </td>
+                        </tr>
+                     ))}
+                  </tbody>
+               </table>
+            </div>
+         </div>
       );
    };
 
