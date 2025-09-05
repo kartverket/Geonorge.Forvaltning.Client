@@ -1,0 +1,36 @@
+.modal {
+   display: flex;
+   flex-direction: column;
+   max-height: 90dvh;
+   min-width: 70dvw;
+
+   &:focus-visible {
+      outline: none;
+   }
+
+   h1 {
+      font-size: 20px;
+      margin: 0 0 18px 0;
+      text-align: center;
+   }
+   
+   .body {
+      margin-bottom: 24px;
+      overflow-y: auto;
+   }
+   
+   .buttons {
+      display: flex;
+      justify-content: space-between;
+
+      button {
+         min-width: 72px;
+      }
+   }
+}
+
+.submit {
+   display: flex;
+   position: relative;
+   width: fit-content;
+}

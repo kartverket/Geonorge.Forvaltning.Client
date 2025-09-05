@@ -1,36 +1,39 @@
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { selectFeature } from 'store/slices/mapSlice';
-import { useMap } from 'context/MapProvider';
-import { renderProperty } from 'utils/helpers/general';
-import { getFeaturesById, getProperties } from 'utils/helpers/map';
-import { ControlledMenu } from '@szhsin/react-menu';
-import styles from './FeatureContextMenu.module.scss';
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { selectFeature } from "store/slices/mapSlice";
+import { useMap } from "context/MapProvider";
+import { renderProperty } from "utils/helpers/general";
+import { getFeaturesById, getProperties } from "utils/helpers/map";
+import { ControlledMenu } from "@szhsin/react-menu";
+import styles from "./FeatureContextMenu.module.scss";
 
 export default function FeatureContextMenu() {
    const { map } = useMap();
    const [open, setOpen] = useState(false);
-   const menuData = useSelector(state => state.map.featureContextMenuData);
+   const menuData = useSelector((state) => state.map.featureContextMenuData);
 
    const dispatch = useDispatch();
 
-   useEffect(
-      () => {
-         if (map === null) {
-            return;
-         }
+   useEffect(() => {
+      if (map === null) {
+         return;
+      }
 
-         setOpen(menuData !== null);
+      setOpen(menuData !== null);
 
-         if (menuData !== null) {
-            map.once('movestart', () => setOpen(false));
-         }
-      },
-      [menuData, map]
-   );
+      if (menuData !== null) {
+         map.once("movestart", () => setOpen(false));
+      }
+   }, [menuData, map]);
 
    function handleFeatureSelect(feature) {
-      dispatch(selectFeature({ id: feature.get('id').value, zoom: true }));
+      dispatch(
+         selectFeature({
+            id: feature.get("id").value,
+            zoom: true,
+            datasetId: feature.get("datasetId"),
+         })
+      );
    }
 
    function renderMenuItem(feature) {
@@ -39,10 +42,12 @@ export default function FeatureContextMenu() {
 
       return (
          <li
-            key={feature.get('id').value}
+            key={feature.get("id").value}
             onClick={() => handleFeatureSelect(feature)}
          >
-            {entries.map(entry => <span key={entry[0]}>{renderProperty(entry[1])}</span>)}
+            {entries.map((entry) => (
+               <span key={entry[0]}>{renderProperty(entry[1])}</span>
+            ))}
          </li>
       );
    }
@@ -52,7 +57,9 @@ export default function FeatureContextMenu() {
          return null;
       }
 
-      const features = getFeaturesById(map, menuData.featureIds);
+      const features = getFeaturesById(map, menuData);
+      if (!features || features.length === 0) return null;
+
       const feature = features[0];
       const properties = getProperties(feature.getProperties());
       const entries = Object.entries(properties).slice(0, 5);
@@ -60,9 +67,11 @@ export default function FeatureContextMenu() {
       return (
          <>
             <li className={styles.header}>
-               {entries.map(entry => <span key={entry[0]}>{entry[1].name}</span>)}
+               {entries.map((entry) => (
+                  <span key={entry[0]}>{entry[1].name}</span>
+               ))}
             </li>
-            {features.map(feature => renderMenuItem(feature))}
+            {features.map((feature) => renderMenuItem(feature))}
          </>
       );
    }
@@ -71,7 +80,7 @@ export default function FeatureContextMenu() {
       <ControlledMenu
          anchorPoint={menuData?.pixels}
          onClose={() => setOpen(false)}
-         state={open ? 'open' : 'closed'}
+         state={open ? "open" : "closed"}
          direction="right"
          viewScroll="close"
          className={styles.contextMenu}

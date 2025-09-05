@@ -1,23 +1,16 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useDataset } from "context/DatasetProvider";
 import { useMap } from "context/MapProvider";
 import { useSignalR } from "context/SignalRProvider";
-import { selectFeature } from "store/slices/mapSlice";
-import {
-   DEFAULT_ZOOM,
-   getFeatureById,
-   getLayer,
-   getVectorSource,
-   hasFeatures,
-   zoomToFeature,
-} from "utils/helpers/map";
+import { toggleFullscreen as _toggleFullscreen } from "store/slices/appSlice";
+import { DEFAULT_ZOOM, getFeatureById, zoomToFeature } from "utils/helpers/map";
 import {
    highlightFeature,
    setNextAndPreviousFeatureId,
 } from "context/MapProvider/helpers/feature";
-import { FeatureTooltip } from "..";
+import { FeatureTooltip, Legend } from "..";
 import { Zoom, ZoomToExtent } from "components/Map";
 import { messageType } from "config/messageHandlers";
 import { throttle } from "lodash";
@@ -26,43 +19,52 @@ import Editor from "../Editor";
 import styles from "./MapView.module.scss";
 
 export default function MapView({ tableExpanded }) {
+   const [previousActiveDatasetId, setPreviousActiveDatasetId] = useState(null);
+
    const { map } = useMap();
-   const { datasetInfo } = useDataset();
+   const { activeDataset, activeDatasetId } = useDataset();
    const { send } = useSignalR();
-   const { id, objId } = useParams();
-   const location = useLocation();
    const mapElementRef = useRef(null);
-   const selectedFeature = useSelector((state) => state.map.selectedFeature);
    const fullscreen = useSelector((state) => state.app.fullscreen);
+   const selectedFeature = useSelector((state) => state.map.selectedFeature);
    const dispatch = useDispatch();
 
+   const [, setSearchParams] = useSearchParams();
+
+   useLayoutEffect(() => {
+      if (!map || !mapElementRef.current) return;
+
+      map.setTarget(mapElementRef.current);
+      map.updateSize();
+      map.getView().fit(baseMap.extent, {
+         duration: 500,
+         padding: [50, 50, 50, 50],
+         maxZoom: 18,
+      });
+
+      return () => {
+         map.setTarget(null);
+      };
+   }, [map]);
+
    useEffect(() => {
-      if (map === null) {
-         return;
-      }
+      if (map === null || !selectedFeature) return;
 
-      if (selectedFeature === null) {
-         history.replaceState(null, document.title, `/datasett/${id}`);
-         return;
-      }
+      let feature = getFeatureById(map, activeDatasetId, selectedFeature.id);
 
-      const feature = getFeatureById(
-         map,
-         selectedFeature.id,
-         selectedFeature.featureType
-      );
+      if (!feature) return;
 
-      if (feature === null) {
-         history.replaceState(null, document.title, `/datasett/${id}`);
-         return;
-      }
-
-      setNextAndPreviousFeatureId(map, feature);
-      highlightFeature(map, feature);
+      setNextAndPreviousFeatureId(map, activeDatasetId, feature);
+      highlightFeature(map, activeDatasetId, previousActiveDatasetId, feature);
+      setPreviousActiveDatasetId(activeDatasetId);
 
       if (selectedFeature.updateUrl) {
-         const route = `/datasett/${id}/objekt/${selectedFeature.id}`;
-         history.replaceState(null, document.title, route);
+         setSearchParams((prev) => {
+            const params = new URLSearchParams(prev);
+            params.set("datasett", activeDatasetId);
+            params.set("objekt", selectedFeature.id);
+            return params.toString();
+         });
       }
 
       if (selectedFeature.zoom && feature.getGeometry() !== null) {
@@ -73,53 +75,23 @@ export default function MapView({ tableExpanded }) {
             selectedFeature.disableZoomOut
          );
       }
-   }, [selectedFeature, map, location.pathname, id]);
+   }, [
+      selectedFeature,
+      activeDatasetId,
+      previousActiveDatasetId,
+      map,
+      setSearchParams,
+   ]);
 
    useEffect(() => {
-      if (map === null) {
-         return;
-      }
-
-      map.setTarget(mapElementRef.current);
-
-      const layer = getLayer(map, "features");
-      const source = getVectorSource(layer);
-      const view = map.getView();
-      let extent;
-
-      if (hasFeatures(map)) {
-         extent = source.getExtent();
-      } else {
-         extent = baseMap.extent;
-      }
-
-      if (!isNaN(objId)) {
-         dispatch(selectFeature({ id: parseInt(objId), zoom: true }));
-      } else {
-         view.fit(extent, map.getSize());
-
-         const currentZoom = view.getZoom();
-
-         if (currentZoom > baseMap.maxZoom) {
-            view.setZoom(baseMap.maxZoom);
-         }
-      }
-
-      return () => {
-         map.setTarget(null);
-         map.dispose();
-         dispatch(selectFeature(null));
-      };
-   }, [map, dispatch, objId]);
-
-   useEffect(() => {
-      if (map === null) {
-         return;
-      }
+      if (map === null) return;
 
       const pointerMoved = throttle((event) => {
+         if (!event || !event?.coordinate || event?.coordinate?.length < 2)
+            return;
+
          send(messageType.SendPointerMoved, {
-            datasetId: datasetInfo.id,
+            datasetId: activeDatasetId,
             coordinate: event.coordinate,
          });
       }, 250);
@@ -127,7 +99,11 @@ export default function MapView({ tableExpanded }) {
       map.on("pointermove", pointerMoved);
 
       return () => map.un("pointermove", pointerMoved);
-   }, [map, send, datasetInfo.id]);
+   }, [map, send, activeDatasetId]);
+
+   function toggleFullscreen() {
+      dispatch(_toggleFullscreen(!fullscreen));
+   }
 
    return (
       <>
@@ -143,7 +119,16 @@ export default function MapView({ tableExpanded }) {
 
             <div className={styles.buttons}>
                <Zoom map={map} />
-               <ZoomToExtent map={map} layerName="features" />
+               <ZoomToExtent map={map} />
+               <button
+                  className={styles.fullscreenButton}
+                  title={
+                     !fullscreen ? "Aktiver fullskjerm" : "Deaktiver fullskjerm"
+                  }
+                  onClick={toggleFullscreen}
+               />
+
+               {activeDataset && <Legend />}
             </div>
 
             {map !== null && (

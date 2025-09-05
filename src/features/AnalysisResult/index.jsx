@@ -1,20 +1,26 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { useMap } from 'context/MapProvider';
-import { useDispatch, useSelector } from 'react-redux';
-import { pdf } from '@react-pdf/renderer';
-import { saveAs } from 'file-saver';
-import { isNil } from 'lodash';
-import { ControlledMenu, MenuItem } from '@szhsin/react-menu';
-import { selectFeature } from 'store/slices/mapSlice';
-import { getFeatureById, getLayer, getVectorSource } from 'utils/helpers/map';
-import { mapAnalysisResult } from './mapper';
-import { addAnalysisFeaturesToMap, convertDistance, convertDuration, highlightRoute, removeAnalysisFeaturesFromMap } from './helpers';
-import { toGeoJson } from './exportGeoJson';
-import { createMapImages } from './PdfExport/helpers';
-import dayjs from 'dayjs';
-import PdfExport from './PdfExport';
-import { Spinner } from 'components';
-import styles from './AnalysisResult.module.scss';
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useMap } from "context/MapProvider";
+import { useDispatch, useSelector } from "react-redux";
+import { pdf } from "@react-pdf/renderer";
+import { saveAs } from "file-saver";
+import { isNil } from "lodash";
+import { ControlledMenu, MenuItem } from "@szhsin/react-menu";
+import { selectFeature } from "store/slices/mapSlice";
+import { getFeatureById, getLayer, getVectorSource } from "utils/helpers/map";
+import { mapAnalysisResult } from "./mapper";
+import {
+   addAnalysisFeaturesToMap,
+   convertDistance,
+   convertDuration,
+   highlightRoute,
+   removeAnalysisFeaturesFromMap,
+} from "./helpers";
+import { toGeoJson } from "./exportGeoJson";
+import { createMapImages } from "./PdfExport/helpers";
+import dayjs from "dayjs";
+import PdfExport from "./PdfExport";
+import { Spinner } from "components";
+import styles from "./AnalysisResult.module.scss";
 
 export default function AnalysisResult() {
    const { map, analysisResult, setAnalysisResult } = useMap();
@@ -23,33 +29,27 @@ export default function AnalysisResult() {
    const [exportMenuIsOpen, setExportMenuIsOpen] = useState(false);
    const [loading, setLoading] = useState(null);
    const exportMenuButtonRef = useRef(null);
-   const selectedFeature = useSelector(state => state.map.selectedFeature);
+   const selectedFeature = useSelector((state) => state.map.selectedFeature);
    const dispatch = useDispatch();
 
-   useEffect(
-      () => {
-         if (analysisResult === null || isNil(map)) {
-            return;
-         }
+   useEffect(() => {
+      if (analysisResult === null || isNil(map)) {
+         return;
+      }
 
-         addAnalysisFeaturesToMap(map, analysisResult);
-      },
-      [analysisResult, map]
-   );
+      addAnalysisFeaturesToMap(map, analysisResult);
+   }, [analysisResult, map]);
 
-   const { start, resultList } = useMemo(
-      () => {
-         if (isNil(analysisResult)) {
-            return {
-               start: null,
-               resultList: []
-            };
-         }
+   const { start, resultList } = useMemo(() => {
+      if (isNil(analysisResult)) {
+         return {
+            start: null,
+            resultList: [],
+         };
+      }
 
-         return mapAnalysisResult(analysisResult);
-      },
-      [analysisResult]
-   );
+      return mapAnalysisResult(analysisResult);
+   }, [analysisResult]);
 
    function exportToGeoJson() {
       toGeoJson(analysisResult);
@@ -60,11 +60,13 @@ export default function AnalysisResult() {
 
       try {
          const images = await createMapImages(analysisResult);
-         const pdfDocument = <PdfExport featureCollection={analysisResult} images={images} />
+         const pdfDocument = (
+            <PdfExport featureCollection={analysisResult} images={images} />
+         );
          const blob = await pdf(pdfDocument).toBlob();
-         const timestamp = dayjs().format('YYYYMMDDHHmmss');
+         const timestamp = dayjs().format("YYYYMMDDHHmmss");
          const fileName = `analyseresultat-${timestamp}.pdf`;
-   
+
          saveAs(blob, fileName);
          setLoading(false);
       } catch (error) {
@@ -72,11 +74,11 @@ export default function AnalysisResult() {
          setLoading(false);
       }
    }
-   
+
    async function handleMenuClose({ value }) {
-      if (value === 'geojson') {
+      if (value === "geojson") {
          exportToGeoJson();
-      } else if (value === 'pdf') {
+      } else if (value === "pdf") {
          await exportToPdf();
       }
 
@@ -88,9 +90,11 @@ export default function AnalysisResult() {
    }
 
    function selectRoute(result) {
-      const layer = getLayer(map, 'routes');
+      const layer = getLayer(map, "routes");
       const source = getVectorSource(layer);
-      const route = source.getFeatures().find(feature => feature.get('destinationId') === result.id);
+      const route = source
+         .getFeatures()
+         .find((feature) => feature.get("destinationId") === result.id);
 
       setSelectedResultId(result.id);
       highlightRoute(layer, route);
@@ -100,14 +104,25 @@ export default function AnalysisResult() {
    }
 
    function selectObject(feature, featureType, updateUrl) {
-      dispatch(selectFeature({ id: feature.id, zoom: true, featureType, updateUrl }));
+      dispatch(
+         selectFeature({
+            id: feature.id,
+            zoom: true,
+            featureType,
+            updateUrl,
+         })
+      );
    }
 
    function handleClose() {
       if (selectedFeature !== null) {
-         const feature = getFeatureById(map, selectedFeature.id);
+         const feature = getFeatureById(
+            map,
+            selectedFeature.datasetId,
+            selectedFeature.id
+         );
 
-         if (feature?.get('_featureType') === 'analysis') {
+         if (feature?.get("_featureType") === "analysis") {
             dispatch(selectFeature(null));
          }
       }
@@ -118,51 +133,51 @@ export default function AnalysisResult() {
    }
 
    function renderDestinations() {
-      return resultList.map(result => (
+      return resultList.map((result) => (
          <div
             key={result.id}
-            className={`${styles.destination} ${selectedResultId === result.id ? styles.selected : ''}`}
+            className={`${styles.destination} ${
+               selectedResultId === result.id ? styles.selected : ""
+            }`}
             role="button"
          >
             <div className={styles.object}>
-               {
-                  result.properties.map(prop => (
-                     <div key={prop[0]} className={styles.property}>
-                        <span>{prop[0]}:</span>
-                        <span title={prop[1]}>{prop[1]}</span>
-                     </div>
-                  ))
-               }
+               {result.properties.map((prop) => (
+                  <div key={prop[0]} className={styles.property}>
+                     <span>{prop[0]}:</span>
+                     <span title={prop[1]}>{prop[1]}</span>
+                  </div>
+               ))}
             </div>
             <div className={styles.route}>
-               {
-                  result.hasRoute ?
-                     <>
-                        <div className={styles.property}>
-                           <span>Avstand:</span>
-                           <span>{convertDistance(result.route.distance)}</span>
-                        </div>
-                        <div className={styles.property}>
-                           <span>Est. kjøretid:</span>
-                           <span>{convertDuration(result.route.duration)}</span>
-                        </div>
-                     </> :
-                     <div>
-                        <em>Kunne ikke beregne rute</em>
+               {result.hasRoute ? (
+                  <>
+                     <div className={styles.property}>
+                        <span>Avstand:</span>
+                        <span>{convertDistance(result.route.distance)}</span>
                      </div>
-               }
+                     <div className={styles.property}>
+                        <span>Est. kjøretid:</span>
+                        <span>{convertDuration(result.route.duration)}</span>
+                     </div>
+                  </>
+               ) : (
+                  <div>
+                     <em>Kunne ikke beregne rute</em>
+                  </div>
+               )}
             </div>
             <div className={styles.buttons}>
                <button
                   onClick={() => selectRoute(result)}
                   className={`buttonLink ${styles.goToRoute}`}
-                  style={{ visibility: result.hasRoute ? 'visible' : 'hidden' }}
+                  style={{ visibility: result.hasRoute ? "visible" : "hidden" }}
                >
                   Vis rute
                </button>
 
                <button
-                  onClick={() => selectObject(result, 'analysis', false)}
+                  onClick={() => selectObject(result, "analysis", false)}
                   className={`buttonLink ${styles.goToObject}`}
                >
                   Gå til objekt
@@ -177,7 +192,7 @@ export default function AnalysisResult() {
    }
 
    return (
-      <div className={`${styles.container} ${expanded ? styles.expanded : ''}`}>
+      <div className={`${styles.container} ${expanded ? styles.expanded : ""}`}>
          <gn-button>
             <button onClick={toggleExpanded} className={styles.expandButton}>
                <span></span>
@@ -198,7 +213,7 @@ export default function AnalysisResult() {
                   </button>
 
                   <ControlledMenu
-                     state={exportMenuIsOpen ? 'open' : 'closed'}
+                     state={exportMenuIsOpen ? "open" : "closed"}
                      anchorRef={exportMenuButtonRef}
                      align="end"
                      arrow={true}
@@ -214,23 +229,24 @@ export default function AnalysisResult() {
                      </MenuItem>
                   </ControlledMenu>
 
-                  <button onClick={handleClose} className={styles.closeButton}></button>
+                  <button
+                     onClick={handleClose}
+                     className={styles.closeButton}
+                  ></button>
                </div>
             </div>
 
             <div className={styles.start}>
                <div className={styles.properties}>
-                  {
-                     start.properties.map(prop => (
-                        <div key={prop[0]} className={styles.property}>
-                           <span>{prop[0]}:</span>
-                           <span title={prop[1]}>{prop[1]}</span>
-                        </div>
-                     ))
-                  }
+                  {start.properties.map((prop) => (
+                     <div key={prop[0]} className={styles.property}>
+                        <span>{prop[0]}:</span>
+                        <span title={prop[1]}>{prop[1]}</span>
+                     </div>
+                  ))}
                   <div className={styles.buttons}>
                      <button
-                        onClick={() => selectObject(start, 'default', true)}
+                        onClick={() => selectObject(start, "default", true)}
                         className={`buttonLink ${styles.goToObject}`}
                      >
                         Gå til objekt
@@ -241,9 +257,7 @@ export default function AnalysisResult() {
 
             <div className={styles.subHeader}>Treff ({resultList.length}):</div>
 
-            <div className={styles.destinations}>
-               {renderDestinations()}
-            </div>
+            <div className={styles.destinations}>{renderDestinations()}</div>
          </div>
       </div>
    );

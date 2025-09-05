@@ -1,8 +1,8 @@
 .container {
     position: absolute;
-    bottom: 1px;
-    left: 1px;
-    z-index: 1;
+    bottom: 12px;
+    right: 0;
+    z-index: 2;
 
     &.expanded {
         .button::after {
@@ -11,9 +11,6 @@
             display: block;
             transform: rotate(-45deg);
             width: 26px;
-            position: absolute;
-            left: 2px;
-            top: 14px;
         }
 
         .legend {
@@ -23,14 +20,12 @@
 }
 
 .button {
-    position: relative;
     border: 1px solid #c4c4c4;
     background: url(/src/assets/gfx/icon-legend.svg) no-repeat center #ffffff;
     width: 30px;
     height: 30px;
     background-size: 22px;
     border-radius: 4px;
-    margin: 0 0 12px 12px;
     transition: 0.2s;
     cursor: pointer;
 
@@ -53,8 +48,8 @@
     width: 180px;
     border-radius: 0 4px 0 4px;
     border: 1px solid #d8d8d8;
-    border-left: 0;
-    border-bottom: 0;
+    // border-left: 0;
+    // border-bottom: 0;
     padding: 6px;
     box-sizing: border-box;
     display: none;
@@ -62,7 +57,7 @@
 
 .legendList {
     font-size: 13px;
-    max-height: 264px;
+    max-height: 194px;
     margin: 6px 0 0 3px;
     overflow-y: auto;
 

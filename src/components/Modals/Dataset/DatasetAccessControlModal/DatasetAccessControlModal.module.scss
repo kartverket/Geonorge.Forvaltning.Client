@@ -1,0 +1,187 @@
+.modal {
+   display: flex;
+   flex-direction: column;
+   max-height: 90dvh;
+   min-width: 70dvw;
+
+   &:focus-visible {
+      outline: none;
+   }
+
+   h1 {
+      font-size: 20px;
+      margin: 0 0 18px 0;
+      text-align: center;
+   }
+   
+   .body {
+      margin-bottom: 24px;
+      overflow-y: auto;
+   }
+   
+   .modalButtons {
+      display: flex;
+      justify-content: space-between;
+
+      button {
+         min-width: 72px;
+      }
+   }
+}
+
+.heading {
+   display: flex;
+   align-items: center;
+   margin-bottom: 12px;
+
+   gn-input {
+      margin: 4px 6px 0 0;
+   }
+
+   >span,
+   label {
+      font-size: 24px;
+      font-weight: 300;
+   }
+}
+
+.form {
+   display: flex;
+   flex-direction: column;
+
+   .row {
+      display: flex;
+      margin-bottom: 12px;
+
+      &:last-child {
+         margin-bottom: 0;
+      }
+
+      .cell {
+         margin-right: 12px;
+
+         &:last-child {
+            margin-right: 0;
+         }
+      }
+   }
+}
+
+.textField {
+   width: 240px;
+
+   input {
+      width: 100%;
+   }
+}
+
+.textArea {
+   width: 402px;
+
+   textarea {
+      resize: none;
+      width: 100%;
+   }
+}
+
+.select {
+   width: 240px;
+}
+
+.organizations {
+   >div {
+      flex-direction: row;
+
+      >div {
+         margin-bottom: 0 !important;
+
+         >span {
+            margin-bottom: 0 !important;
+         }
+      }
+   }
+
+   input {
+      width: 240px !important;
+      margin-bottom: 0;
+   }
+}
+
+.properties {
+   margin-bottom: 30px;
+}
+
+.noProperties {
+   margin-top: 0 !important;
+}
+
+.buttons {
+   display: flex;
+   margin-top: 24px;
+
+   button {
+      display: flex;
+      align-items: center;
+      margin-right: 12px;
+
+      &::before {
+         content: "";
+         display: flex;
+         width: 20px;
+         height: 33px;
+         background-size: 20px;
+         margin-right: 5px;
+      }
+   }
+
+   .addButton::before {
+      background: url(../../../../assets/gfx/icon-add.svg) center no-repeat;
+   }
+
+   .removeButton::before {
+      background: url(../../../../assets/gfx/icon-remove.svg) center no-repeat;
+      background-size: 18px;
+   }
+}
+
+.valueRow {
+   border-bottom: 1px solid #d8d8d8;
+   padding: 12px 0 24px 0;
+
+   &:first-child {
+      border-top: 1px solid #d8d8d8;
+      margin-top: 6px;
+   }
+
+   .buttons {
+      margin-top: 18px;
+   }
+}
+
+.valueButtons {
+   display: flex;
+   margin-bottom: 12px;
+   margin-top: 6px;
+
+   button {
+      margin-right: 12px;
+   }
+}
+
+.submit {
+   display: flex;
+   position: relative;
+   width: fit-content;
+}
+
+.disabled {
+   opacity: .5;
+   pointer-events: none;
+   user-select: none;
+}
+
+.orgNo {
+   border-right: 1px solid #8d8d8d;
+   margin-right: 6px;
+   padding-right: 6px;
+}

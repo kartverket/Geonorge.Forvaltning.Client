@@ -1,34 +1,33 @@
-import { useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { useAuth } from 'context/AuthProvider';
-import styles from './Login.module.scss';
-import Cookies from 'js-cookie';
+import { useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
+import { useAuth } from "context/AuthProvider";
+import styles from "./Login.module.scss";
+import Cookies from "js-cookie";
 
 export default function Login() {
-   const { signIn } = useAuth()
+   const { signIn } = useAuth();
    const [searchParams] = useSearchParams();
 
-   let loggedInOtherApp = Cookies.get('_loggedIn') ? Cookies.get('_loggedIn') : 'false';
+   let loggedInOtherApp = Cookies.get("_loggedIn")
+      ? Cookies.get("_loggedIn")
+      : "false";
 
-   if(loggedInOtherApp === 'true') {
+   if (loggedInOtherApp === "true") {
       signIn();
    }
 
-   const error = useMemo(
-      () => {
-         const errorMessage = searchParams.get('error');
-         history.replaceState('', document.title, window.location.pathname);
+   const error = useMemo(() => {
+      const errorMessage = searchParams.get("error");
+      history.replaceState("", document.title, window.location.pathname);
 
-         return errorMessage;
-      },
-      [searchParams]
-   );
+      return errorMessage;
+   }, [searchParams]);
 
    return (
       <div className={styles.container}>
          <div className={styles.login}>
             <heading-text>
-               <h1 underline="true">Geonorge Forvaltning</h1>
+               <h1>Geonorge Forvaltning</h1>
             </heading-text>
 
             <div className={styles.button}>
@@ -38,13 +37,7 @@ export default function Login() {
             </div>
          </div>
 
-         {
-            error && (
-               <div className={`panel ${styles.error}`}>
-                  Feil: {error}
-               </div>
-            )
-         }
+         {error && <div className={`panel ${styles.error}`}>Feil: {error}</div>}
       </div>
    );
 }

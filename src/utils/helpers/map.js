@@ -1,3 +1,4 @@
+import { getLayerFeaturesId } from "context/MapProvider/helpers/utils";
 import { isNil } from "lodash";
 import GeoJSON from "ol/format/GeoJSON";
 import proj4 from "proj4";
@@ -25,12 +26,38 @@ export function getSrId(geoJson) {
    return match !== null ? parseInt(match.groups.epsg) : 4326;
 }
 
-export function getLayer(map, id) {
+export function getLayer(map, datasetId) {
+   const layerId = getLayerFeaturesId(datasetId);
+
    return (
       map
          .getLayers()
          .getArray()
-         .find((layer) => layer.get("id") === id) || null
+         .find((layer) => layer.get("id") === layerId) || null
+   );
+}
+
+export function getEditLayer(map) {
+   return (
+      map
+         .getLayers()
+         .getArray()
+         .find((layer) => layer.get("id") === "features-edit") || null
+   );
+}
+
+export function getFeatures(map, datasetId) {
+   return (
+      getLayer(map, datasetId)
+         ?.getSource()
+         ?.getFeatures()
+         .flatMap((f) => f.get("features") || [f]) || []
+   );
+}
+
+export function getFeatureById(map, datasetId, id) {
+   return getFeatures(map, datasetId).find(
+      (feature) => feature.get("id")?.value === id
    );
 }
 
@@ -40,10 +67,7 @@ export function getVectorSource(layer) {
    return source.get("id") === "cluster-source" ? source.getSource() : source;
 }
 
-export function hasFeatures(map, layerName = "features", withGeom = true) {
-   const layer = getLayer(map, layerName);
-   const source = getVectorSource(layer);
-
+export function hasFeatures(map, source, withGeom = true) {
    if (withGeom) {
       return source
          .getFeatures()
@@ -53,33 +77,18 @@ export function hasFeatures(map, layerName = "features", withGeom = true) {
    return source.getFeatures().length > 0;
 }
 
-export function getFeatureById(
-   map,
-   id,
-   featureType = "default",
-   layerName = "features"
-) {
-   const layer = getLayer(map, layerName);
-   const source = getVectorSource(layer);
+export function getFeaturesById(map, menuData) {
+   const layer = getLayer(map, menuData.datasetId);
+   if (!layer) return [];
 
-   return (
-      source
-         .getFeatures()
-         .find(
-            (feature) =>
-               feature.get("id")?.value === id &&
-               feature.get("_featureType") === featureType
-         ) || null
-   );
-}
-
-export function getFeaturesById(map, ids, layerName = "features") {
-   const layer = getLayer(map, layerName);
    const source = getVectorSource(layer);
+   if (!source) return [];
 
    return source
       .getFeatures()
-      .filter((feature) => ids.includes(feature.get("id")?.value));
+      .filter((feature) =>
+         menuData.featureIds.includes(feature.get("id")?.value)
+      );
 }
 
 export function getProperties(featureProperties) {

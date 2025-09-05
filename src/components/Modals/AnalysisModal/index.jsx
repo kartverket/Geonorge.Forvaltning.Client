@@ -1,67 +1,87 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Controller, FormProvider, useFieldArray, useForm, useWatch } from 'react-hook-form';
-import { useAnalayzeMutation, useGetDatasetDefinitionsQuery } from 'store/services/api';
-import { Select, TextField } from 'components/Form';
-import { Spinner } from 'components';
-import { useModal } from 'context/ModalProvider';
-import { modalType } from '..';
-import Filter from './Filter';
-import styles from './AnalysisModal.module.scss';
+import { useEffect, useMemo, useState } from "react";
+import {
+   Controller,
+   FormProvider,
+   useFieldArray,
+   useForm,
+   useWatch,
+} from "react-hook-form";
+import {
+   useAnalayzeMutation,
+   useGetDatasetDefinitionsQuery,
+} from "store/services/api";
+import { Select, TextField } from "components/Form";
+import { Spinner } from "components";
+import { useModal } from "context/ModalProvider";
+import { modalType } from "..";
+import Filter from "./Filter";
+import styles from "./AnalysisModal.module.scss";
 
-export default function AnalysisModal({ datasetId, objectId, datasetIds, onClose, callback }) {
+export default function AnalysisModal({
+   datasetId,
+   objectId,
+   datasetIds,
+   onClose,
+   callback,
+}) {
    const [propertyOptions, setPropertyOptions] = useState([]);
    const [metadata, setMetadata] = useState([]);
    const [loading, setLoading] = useState(false);
    const methods = useForm({ defaultValues: getDefaultValues() });
    const { control, setValue, handleSubmit } = methods;
-   const { fields, insert, remove } = useFieldArray({ control, name: 'filters' });
+   const { fields, insert, remove } = useFieldArray({
+      control,
+      name: "filters",
+   });
    const { data: definitions = null } = useGetDatasetDefinitionsQuery();
    const [analyze] = useAnalayzeMutation();
-   const selectedTargetDatasetId = useWatch({ control, name: 'targetDatasetId' });
+   const selectedTargetDatasetId = useWatch({
+      control,
+      name: "targetDatasetId",
+   });
    const { showModal } = useModal();
 
-   const datasetOptions = useMemo(
-      () => {
-         if (definitions === null) {
-            return [];
-         }
+   const datasetOptions = useMemo(() => {
+      if (definitions === null) {
+         return [];
+      }
 
-         const options = definitions
-            .filter(definition => datasetIds.includes(definition.Id))
-            .map(definition => ({ value: definition.Id, label: definition.Name }));
+      const options = definitions
+         .filter((definition) => datasetIds.includes(definition.Id))
+         .map((definition) => ({
+            value: definition.Id,
+            label: definition.Name,
+         }));
 
-         return options;
-      },
-      [definitions, datasetIds]
-   );
+      return options;
+   }, [definitions, datasetIds]);
 
-   useEffect(
-      () => {
-         if (datasetOptions.length) {
-            setValue('targetDatasetId', datasetOptions[0].value);
-         }
-      },
-      [datasetOptions, setValue]
-   );
+   useEffect(() => {
+      if (datasetOptions.length)
+         setValue("targetDatasetId", datasetOptions[0].value);
+   }, [datasetOptions, setValue]);
 
-   useEffect(
-      () => {
-         if (selectedTargetDatasetId !== '') {
-            const targetDatasetId = parseInt(selectedTargetDatasetId);
-            const definition = definitions.find(definition => definition.Id === targetDatasetId);
-            const metadata = definition.ForvaltningsObjektPropertiesMetadata;
-            const options = metadata.map(data => ({ value: data.ColumnName, label: data.Name }));
+   useEffect(() => {
+      if (!selectedTargetDatasetId) return;
 
-            setMetadata(metadata);
-            setPropertyOptions(options);
-            setValue('filters', []);
-         }
-      },
-      [selectedTargetDatasetId, definitions, setValue]
-   );
+      const targetDatasetId = parseInt(selectedTargetDatasetId);
+      const definition = definitions.find(
+         (definition) => definition.Id === targetDatasetId
+      );
+      const metadata = definition.ForvaltningsObjektPropertiesMetadata;
+
+      const options = metadata.map((data) => ({
+         value: data.ColumnName,
+         label: data.Name,
+      }));
+
+      setMetadata(metadata);
+      setPropertyOptions(options);
+      setValue("filters", []);
+   }, [selectedTargetDatasetId, definitions, setValue]);
 
    function handleOk() {
-      handleSubmit(async model => {
+      handleSubmit(async (model) => {
          const payload = toPayload(model);
          setLoading(true);
 
@@ -72,9 +92,9 @@ export default function AnalysisModal({ datasetId, objectId, datasetIds, onClose
             if (response.data.features.length <= 1) {
                await showModal({
                   type: modalType.INFO,
-                  variant: 'success',
-                  title: 'Analyseresultat',
-                  body: 'Fant ingen objekter i henhold til kriteriene.'
+                  variant: "success",
+                  title: "Analyseresultat",
+                  body: "Fant ingen objekter i henhold til kriteriene.",
                });
             } else {
                onClose();
@@ -86,9 +106,9 @@ export default function AnalysisModal({ datasetId, objectId, datasetIds, onClose
 
             await showModal({
                type: modalType.INFO,
-               variant: 'error',
-               title: 'Feil',
-               body: 'Analysen kunne ikke gjennomføres.'
+               variant: "error",
+               title: "Feil",
+               body: "Analysen kunne ikke gjennomføres.",
             });
          }
       })();
@@ -100,7 +120,7 @@ export default function AnalysisModal({ datasetId, objectId, datasetIds, onClose
    }
 
    function addFilter(index) {
-      insert(index + 1, { property: '', value: '' });
+      insert(index + 1, { property: "", value: "" });
    }
 
    function removeFilter(index) {
@@ -111,19 +131,19 @@ export default function AnalysisModal({ datasetId, objectId, datasetIds, onClose
       return {
          datasetId,
          objectId,
-         targetDatasetId: '',
+         targetDatasetId: "",
          count: 1,
          filters: [],
-         distance: 5
+         distance: 5,
       };
    }
 
    function toPayload(model) {
       const { filters, ...payload } = model;
 
-      payload.filters = filters.map(filter => ({
+      payload.filters = filters.map((filter) => ({
          property: filter.property,
-         value: filter.value !== '' ? filter.value : null
+         value: filter.value !== "" ? filter.value : null,
       }));
 
       return payload;
@@ -135,7 +155,8 @@ export default function AnalysisModal({ datasetId, objectId, datasetIds, onClose
 
          <div className={styles.body}>
             <div className={styles.description}>
-               Finn ruter til nærmeste objekter for et gitt datasett, innenfor en gitt avstand.
+               Finn ruter til nærmeste objekter for et gitt datasett, innenfor
+               en gitt avstand.
             </div>
 
             <FormProvider {...methods}>
@@ -145,7 +166,7 @@ export default function AnalysisModal({ datasetId, objectId, datasetIds, onClose
                         control={control}
                         name="targetDatasetId"
                         rules={{
-                           required: true
+                           required: true,
                         }}
                         render={({ field }) => (
                            <Select
@@ -161,38 +182,53 @@ export default function AnalysisModal({ datasetId, objectId, datasetIds, onClose
                   </div>
 
                   <div className={styles.label}>Filter</div>
-                  {
-                     fields.length > 0 ?
-                        fields.map((field, index) => (
-                           <div key={field.id} className={styles.filter}>
-                              <Filter
-                                 index={index}
-                                 metadata={metadata}
-                                 propertyOptions={propertyOptions}
-                              />
+                  {fields.length > 0 ? (
+                     fields.map((field, index) => (
+                        <div key={field.id} className={styles.filter}>
+                           <Filter
+                              index={index}
+                              metadata={metadata}
+                              propertyOptions={propertyOptions}
+                           />
 
-                              <div className={styles.filterButtons}>
-                                 <button onClick={() => addFilter(index)} className={styles.addButton}></button>
-                                 <button onClick={() => removeFilter(index)} className={styles.removeButton}></button>
-                              </div>
+                           <div className={styles.filterButtons}>
+                              <button
+                                 onClick={() => addFilter(index)}
+                                 className={styles.addButton}
+                              ></button>
+                              <button
+                                 onClick={() => removeFilter(index)}
+                                 className={styles.removeButton}
+                              ></button>
                            </div>
-                        )) :
-                        <div className={styles.noFilters}>
-                           <gn-button>
-                              <button onClick={addFilter} className={styles.addButton}>Legg til filter</button>
-                           </gn-button>
                         </div>
-                  }
+                     ))
+                  ) : (
+                     <div className={styles.noFilters}>
+                        <gn-button>
+                           <button
+                              onClick={addFilter}
+                              className={styles.addButton}
+                           >
+                              Legg til filter
+                           </button>
+                        </gn-button>
+                     </div>
+                  )}
 
                   <div className={styles.row}>
                      <Controller
                         control={control}
                         name="count"
                         rules={{
-                           validate: value => {
+                           validate: (value) => {
                               const count = parseFloat(value);
-                              return Number.isInteger(count) && count >= 1 && count <= 10;
-                           }
+                              return (
+                                 Number.isInteger(count) &&
+                                 count >= 1 &&
+                                 count <= 10
+                              );
+                           },
                         }}
                         render={({ field, fieldState: { error } }) => (
                            <TextField
@@ -213,10 +249,14 @@ export default function AnalysisModal({ datasetId, objectId, datasetIds, onClose
                         control={control}
                         name="distance"
                         rules={{
-                           validate: value => {
+                           validate: (value) => {
                               const distance = parseFloat(value);
-                              return Number.isInteger(distance) && distance >= 1 && distance <= 100;
-                           }
+                              return (
+                                 Number.isInteger(distance) &&
+                                 distance >= 1 &&
+                                 distance <= 100
+                              );
+                           },
                         }}
                         render={({ field, fieldState: { error } }) => (
                            <TextField
@@ -243,9 +283,7 @@ export default function AnalysisModal({ datasetId, objectId, datasetIds, onClose
             <gn-button>
                <button onClick={handleOk}>OK</button>
             </gn-button>
-            {
-               loading && <Spinner style={{ margin: '2px 0 0 12px' }} />
-            }
+            {loading && <Spinner style={{ margin: "2px 0 0 12px" }} />}
          </div>
       </div>
    );
